@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+  <head>
+    <script type="text/javascript" language="gaia">
+    </script>
+  </head>
+  <body>
+    <div type="usercontrol" cid="windowex" name="staffWindow" text="员工管理" size="820,500">
+      <div type="div" backcolor="empty" bordercolor="empty" dock="fill" margin="10,30,10,10">
+        <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,330,0,330" name="SplitLayoutDiv" text="SplitLayoutDiv"  dock="Fill">
+          <div>
+            <input type="usercontrol" cid="ribbonbutton" name="btnAdd" text="+" location="10,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnDelete" text="-" location="62,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportExcel" text="导出到Excel" location="120,15" size="100,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" text="导出到Txt" location="240,15" size="100,40" />
+          </div>
+          <table name="gridStaffs" dock="fill" autoellipsis="true">
+            <tr>
+              <th name="colS1" text="工号" width="80" />
+              <th name="colS2" text="姓名" width="80" />
+              <th name="colS3" text="性别" width="80" />
+              <th name="colS4" text="状态" width="80" />
+              <th name="colS5" text="学历" width="80" />
+              <th name="colS6" text="学位" width="80" />
+              <th name="colS7" text="出生日期" width="80" />
+              <th name="colS8" text="入职日期" width="80" />
+              <th name="colS9" text="可选择" width="80" />
+              <th name="colS10" text="管理者" width="80" />
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

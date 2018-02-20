@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+  <head>
+    <script type="text/javascript" language="gaia">
+    </script>
+  </head>
+  <body>
+    <div type="usercontrol" cid="windowex" name="examWindow" text="考一考" size="820,500">
+      <div type="div" backcolor="empty" bordercolor="empty" dock="fill" margin="10,30,10,10">
+        <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,330,0,330" name="SplitLayoutDiv" text="SplitLayoutDiv"  dock="Fill">
+          <div>
+            <input type="usercontrol" cid="ribbonbutton" name="btnAdd" text="+" location="10,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnDelete" text="-" location="62,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" text="导出到Txt" location="120,15" size="100,40" />
+             <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt2" text="导出到Txt2" location="240,15" size="100,40" />
+          </div>
+          <table name="gridExams" dock="fill" autoellipsis="true">
+            <tr>
+             <th name="colP1" text="ID" width="60" />
+              <th name="colP2" text="标题" width="500" />
+              <th name="colP3" text="类型" width="60" />
+              <th name="colP4" text="限时(秒)" width="60" />
+              <th name="colP5" text="答案" width="100" />
+              <th name="colP6" text="日期" width="120" />
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

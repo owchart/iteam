@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+  <head>
+    <script type="text/javascript" language="gaia">
+    </script>
+  </head>
+  <body>
+    <div type="usercontrol" cid="windowex" name="selectStaffWindow" text="选择员工" size="524,390" location="0,0">
+      <div type="div" backcolor="empty" bordercolor="empty" dock="fill" margin="10,30,10,10" location="11,30">
+        <table name="gridStaffs" autoellipsis="true" backcolor="empty" gridlinecolor="empty" location="8,26" multiselect="true" showvscrollbar="true" size="210,271">
+          <tr>
+            <th text="工号" />
+            <th text="姓名" />
+          </tr>
+        </table>
+        <input type="usercontrol" cid="ribbonbutton" name="btnSubmit" location="270,317" size="100,20" text="确定" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnCancel" location="384,317" size="97,20" text="取消" />
+        <table name="gridResult" allowdragrow="true" autoellipsis="true" backcolor="empty" gridlinecolor="empty" location="270,26" multiselect="true" size="212,271">
+          <tr>
+            <th text="工号" />
+            <th text="姓名" />
+          </tr>
+        </table>
+        <label name="lblSelect" location="4,3" size="101,17" text="待选员工列表：" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnSelect" location="230,63" size="25,25" text="&gt;" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnSelectAll" location="230,104" size="25,25" text="&gt;&gt;" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnUnSelectAll" location="230,146" size="25,25" text="&lt;&lt;" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnUnSelect" location="230,185" size="25,25" text="&lt;" />
+      </div>
+    </div>
+  </body>
+</html>

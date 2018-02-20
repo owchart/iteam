@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+  <head>
+    <script type="text/javascript" language="gaia">
+    </script>
+  </head>
+  <body>
+    <div type="usercontrol" cid="windowex" name="calendarWindow" text="日历事件" size="820,700">
+      <div type="div" backcolor="empty" bordercolor="empty" dock="fill" margin="10,30,10,10">
+      <div type="splitlayout" name="divMain" layoutstyle="bottomtotop" dock="fill" size="400,400" splitterposition="0,200,0,200">
+         <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,330,0,330" name="SplitLayoutDiv" text="SplitLayoutDiv"  dock="Fill">
+          <div>
+            <input type="usercontrol" cid="ribbonbutton" name="btnAdd" text="+" location="10,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnDelete" text="-" location="62,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportExcel" text="导出到Excel" location="120,15" size="100,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" text="导出到Txt" location="240,15" size="100,40" />
+          </div>
+        <table name="gridEvents" dock="fill" autoellipsis="true">
+            <tr>
+             <th name="colP1" text="事件ID" width="60" visible="false"/>
+              <th name="colP2" text="时间" width="80" />
+              <th name="colP3" text="级别" width="80" />
+              <th name="colP4" text="标题" width="80" />
+              <th name="colP5" text="内容" width="200" />
+              <th name="colP6" text="创建日期" width="120" />
+            </tr>
+          </table>
+          </div>
+        <calendar dock="fill" name="calendar" useanimation="true"/>
+    </div>
+      </div>
+    </div>
+  </body>
+</html>

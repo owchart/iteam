@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+  <head>
+    <script type="text/javascript" language="gaia">
+    </script>
+  </head>
+  <body>
+    <div type="usercontrol" cid="windowex" name="gitWindow" text="GIT信息" size="820,500">
+      <div type="div" backcolor="empty" bordercolor="empty" dock="fill" margin="10,30,10,10">
+        <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,330,0,330" name="SplitLayoutDiv" text="SplitLayoutDiv"  dock="Fill">
+          <div>
+            <input type="usercontrol" cid="ribbonbutton" name="btnAdd" text="+" location="10,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnDelete" text="-" location="62,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportExcel" text="导出到Excel" location="120,15" size="100,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" text="导出到Txt" location="240,15" size="100,40" />
+          </div>
+          <table name="gridGits" dock="fill" autoellipsis="true">
+            <tr>
+             <th name="colP1" text="ID" width="60" />
+              <th name="colP2" text="名称" width="120" />
+              <th name="colP3" text="地址" width="250" />
+              <th name="colP4" text="日期" width="120" />
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

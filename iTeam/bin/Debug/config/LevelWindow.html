@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+  <head>
+    <script type="text/javascript" language="gaia">
+    </script>
+  </head>
+  <body>
+    <div type="usercontrol" cid="windowex" name="levelWindow" text="级别水平" size="820,500">
+      <div type="div" backcolor="empty" bordercolor="empty" dock="fill" margin="10,30,10,10">
+       <div type="splitlayout" layoutstyle="lefttoright" size="400,400" splitterposition="260,0,260,0" name="SplitLayoutDiv" dock="Fill">
+          <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,330,0,330" name="SplitLayoutDiv2">
+          <div>
+            <input type="usercontrol" cid="ribbonbutton" name="btnAdd" text="+" location="10,15" size="40,40" />
+            <input type="usercontrol" cid="ribbonbutton" name="btnDelete" text="-" location="62,15" size="40,40" />
+          </div>
+          <table name="gridLevels" dock="fill" autoellipsis="true">
+            <tr>
+             <th name="colP1" text="ID" visible="false"/>
+              <th name="colP2" text="日期" width="80" />
+              <th name="colP3" text="开发" width="60" />
+              <th name="colP4" text="研发" width="60" />
+              <th name="colP5" text="规范" width="60" />
+            </tr>
+          </table>
+        </div>
+        <chart name="chartLevels" />
+       </div>
+      </div>
+    </div>
+  </body>
+</html>
