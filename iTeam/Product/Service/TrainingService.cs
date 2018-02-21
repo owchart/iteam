@@ -70,6 +70,16 @@ namespace OwLib
         /// ÑµÁ·10
         /// </summary>
         public String m_training10 = "0";
+
+        /// <summary>
+        /// ÑµÁ·11
+        /// </summary>
+        public String m_training11 = "0";
+
+        /// <summary>
+        /// ÑµÁ·12
+        /// </summary>
+        public String m_training12 = "0";
     }
 
     /// <summary>

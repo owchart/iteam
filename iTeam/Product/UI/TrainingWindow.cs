@@ -78,7 +78,10 @@ namespace OwLib
                     findRow.GetCell("colP8").SetString(training.m_training7);
                     findRow.GetCell("colP9").SetString(training.m_training8);
                     findRow.GetCell("colP10").SetString(training.m_training9);
-                    findRow.GetCell("colP11").SetString(training.m_createDate);
+                    findRow.GetCell("colP11").SetString(training.m_training10);
+                    findRow.GetCell("colP12").SetString(training.m_training11);
+                    findRow.GetCell("colP13").SetString(training.m_training12);
+                    findRow.GetCell("colP14").SetString(training.m_createDate);
                     return;
                 }
             }
@@ -94,7 +97,10 @@ namespace OwLib
             row.AddCell("colP8", new GridStringCell(training.m_training7));
             row.AddCell("colP9", new GridStringCell(training.m_training8));
             row.AddCell("colP10", new GridStringCell(training.m_training9));
-            row.AddCell("colP11", new GridStringCell(training.m_createDate));
+            row.AddCell("colP11", new GridStringCell(training.m_training10));
+            row.AddCell("colP12", new GridStringCell(training.m_training11));
+            row.AddCell("colP13", new GridStringCell(training.m_training12));
+            row.AddCell("colP14", new GridStringCell(training.m_createDate));
             List<GridCell> cells = row.GetCells();
             int cellsSize = cells.Count;
             for (int j = 1; j < cellsSize; j++)
@@ -225,6 +231,18 @@ namespace OwLib
                     training.m_training9 = cellValue;
                 }
                 else if (colName == "colP11")
+                {
+                    training.m_training10 = cellValue;
+                }
+                else if (colName == "colP12")
+                {
+                    training.m_training11 = cellValue;
+                }
+                else if (colName == "colP13")
+                {
+                    training.m_training12 = cellValue;
+                }
+                else if (colName == "colP14")
                 {
                     training.m_createDate = cellValue;
                 }
