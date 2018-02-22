@@ -205,11 +205,6 @@ namespace OwLib
                     OverWorkWindow overWorkWindow = new OverWorkWindow(Native);
                     overWorkWindow.ShowDialog();
                 }
-                else if (name == "MM")
-                {
-                    MeetingWindow meetingWindow = new MeetingWindow(Native);
-                    meetingWindow.ShowDialog();
-                }
                 else if (name == "BC")
                 {
                     BusinessCardWindow businessCardWindow = new BusinessCardWindow(Native);
@@ -486,7 +481,6 @@ namespace OwLib
             type1List.Add(new UserAppsTable("CC", "公开检查"));
             type1List.Add(new UserAppsTable("RP", "考一考"));
             type1List.Add(new UserAppsTable("OW", "加班记录"));
-            type1List.Add(new UserAppsTable("MM", "会议记录"));
             type3List.Add(new UserAppsTable("BC", "名片"));
             type2List.Add(new UserAppsTable("TR", "个人训练"));
             GetApps(type1List, type2List, type3List, type4List);

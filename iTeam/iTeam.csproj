@@ -128,7 +128,6 @@
     <Compile Include="Product\Service\CheckService.cs" />
     <Compile Include="Product\Service\ExamService.cs" />
     <Compile Include="Product\Service\OverWorkService.cs" />
-    <Compile Include="Product\Service\MeetingService.cs" />
     <Compile Include="Product\Service\BusinessCardService.cs" />
     <Compile Include="Product\Service\TrainingService.cs" />
     <Compile Include="Product\UI\BarrageDiv.cs" />
@@ -173,7 +172,6 @@
     <Compile Include="Product\UI\CheckWindow.cs" />
     <Compile Include="Product\UI\ExamWindow.cs" />
     <Compile Include="Product\UI\OverWorkWindow.cs" />
-    <Compile Include="Product\UI\MeetingWindow.cs" />
     <Compile Include="Product\UI\BusinessCardWindow.cs" />
     <Compile Include="Product\UI\TrainingWindow.cs" />
     <Compile Include="Program.cs" />
@@ -312,9 +310,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\OverWorkWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\MeetingWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\BusinessCardWindow.html">

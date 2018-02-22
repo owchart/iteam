@@ -221,16 +221,6 @@ namespace OwLib
             get { return m_masterService; }
         }
 
-        private static MettingService m_meetingService;
-
-        /// <summary>
-        /// 获取会议服务
-        /// </summary>
-        public static MettingService MeetingService
-        {
-            get { return DataCenter.m_meetingService; }
-        }
-
         private static OpinionService m_opinionService;
 
         /// <summary>
@@ -469,7 +459,6 @@ namespace OwLib
             m_jidianService = new JidianService();
             m_levelService = new LevelService();
             m_masterService = new MasterService();
-            m_meetingService = new MettingService();
             m_opinionService = new OpinionService();
             m_overWorkService = new OverWorkService();
             m_personalService = new PersonalService();
