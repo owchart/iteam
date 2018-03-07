@@ -293,16 +293,6 @@ namespace OwLib
             get { return m_remoteService; }
         }
 
-        private static ResearchService m_researchService;
-
-        /// <summary>
-        /// 获取研发项目
-        /// </summary>
-        public static ResearchService ResearchService
-        {
-            get { return m_researchService; }
-        }
-
         private static SecurityService m_securityService;
 
         /// <summary>
@@ -465,7 +455,6 @@ namespace OwLib
             m_projectService = new ProjectService();
             m_remoteService = new RemoteService();
             m_examService = new ExamService();
-            m_researchService = new ResearchService();
             m_securityService = new SecurityService();
             m_serverService = new ServerService();
             m_snitchService = new SnitchService();

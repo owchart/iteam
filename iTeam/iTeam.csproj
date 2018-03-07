@@ -101,7 +101,6 @@
     <Compile Include="Product\Service\JidianService.cs" />
     <Compile Include="Product\Service\PlanService.cs" />
     <Compile Include="Product\Service\ProjectService.cs" />
-    <Compile Include="Product\Service\ResearchService.cs" />
     <Compile Include="Product\Service\SecurityService.cs" />
     <Compile Include="Product\Service\StaffService.cs" />
     <Compile Include="Product\Service\DimensionService.cs" />
@@ -153,7 +152,6 @@
     <Compile Include="Product\UI\ProjectWindow.cs" />
     <Compile Include="Product\UI\CalendarWindow.cs" />
     <Compile Include="Product\UI\ServerWindow.cs" />
-    <Compile Include="Product\UI\ResearchWindow.cs" />
     <Compile Include="Product\UI\ClueWindow.cs" />
     <Compile Include="Product\UI\SpeechWindow.cs" />
     <Compile Include="Product\UI\PersonalWindow.cs" />
@@ -247,9 +245,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\MasterWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\ResearchWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\ClueWindow.html">

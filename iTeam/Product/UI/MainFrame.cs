@@ -90,11 +90,6 @@ namespace OwLib
                     ServerWindow serverWindow = new ServerWindow(Native);
                     serverWindow.ShowDialog();
                 }
-                else if (name == "FS")
-                {
-                    ResearchWindow researchWindow = new ResearchWindow(Native);
-                    researchWindow.ShowDialog();
-                }
                 else if (name == "GTM")
                 {
                     ClueWindow clueWindow = new ClueWindow(Native);
@@ -460,7 +455,6 @@ namespace OwLib
             type4List.Add(new UserAppsTable("CA", "上级指示"));
             type2List.Add(new UserAppsTable("CCM", "Git管理"));
             type2List.Add(new UserAppsTable("COI", "服务器管理"));
-            type2List.Add(new UserAppsTable("FS", "研发项目"));
             type4List.Add(new UserAppsTable("GTM", "重要线索"));
             type1List.Add(new UserAppsTable("IAC", "个人信息"));
             type3List.Add(new UserAppsTable("LM", "演讲记录"));
