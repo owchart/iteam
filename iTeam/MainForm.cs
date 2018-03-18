@@ -67,6 +67,7 @@ namespace OwLib
             }
             else if (name == "PlanWindow")
             {
+                DataCenter.ExportService = new ExportService();
                 DataCenter.PlanService = new PlanService();
                 m_xml = new PlanWindow();
                 DataCenter.PlanWindow = m_xml as PlanWindow;

@@ -159,6 +159,7 @@ namespace OwLib
         public static ExportService ExportService
         {
             get { return m_exportService; }
+            set { m_exportService = value; }
         }
 
         private static FollowService m_followService;

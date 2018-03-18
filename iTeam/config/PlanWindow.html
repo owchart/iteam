@@ -50,6 +50,10 @@
         <input type="usercontrol" cid="ribbonbutton" name="btnStartAll" forecolor="255,255,80" font="微软雅黑,14,bold" text="全部启动" location="13,202" size="175,38" onclick="onclick();" />
         <!--全部禁止按钮-->
         <input type="usercontrol" cid="ribbonbutton" name="btnStopAll" forecolor="80,255,255" font="微软雅黑,14,bold" text="全部禁止" location="13,249" size="175,38" onclick="onclick();" />
+         <!--全部禁止按钮-->
+        <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" forecolor="80,255,255" font="微软雅黑,14,bold" text="导出到Txt" location="13,296" size="175,38" />
+         <!--全部禁止按钮-->
+        <input type="usercontrol" cid="ribbonbutton" name="btnExportExcel" forecolor="80,255,255" font="微软雅黑,14,bold" text="导出到Excel" location="13,343" size="175,38"  />
       </div>
       <!--左边图层-->
       <div type="splitlayout" name="divLeft" candragsplitter="true" layoutstyle="bottomtotop" size="200,250" splitterposition="0,50,200,52">
@@ -59,14 +63,14 @@
         <table name="gridPlan" autoellipsis="true" onselectedrowchanged="selectedrowchanged();" headerheight="30">
           <tr>
             <th name="colP1" text="ID" visible="false" />
-            <th name="colP2" text="名称" width="300" />
-            <th name="colP3" text="运行脚本" width="200"  visible="false"/>
+            <th name="colP2" text="任务名称" width="300" />
             <th name="colP4" cellalign="center" text="状态" width="60" visible="false" />
-            <th name="colP5" text="下次运行时间" width="200" />
+            <th name="colP5" text="到期时间" width="200" />
             <th name="colP6" text="上次运行时间" width="150" visible="false"/>
             <th name="colP7" text="上次运行结果" width="80" visible="false"/>
             <th name="colP8" cellalign="center" text="频率(秒)" width="80" visible="false"/>
-            <th name="colP9" text="创建时间" width="200" />
+            <th name="colP9" text="开始时间" width="200" />
+            <th name="colP3" text="备注" width="200"/>
           </tr>
         </table>
       </div>

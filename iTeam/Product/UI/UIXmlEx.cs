@@ -135,12 +135,18 @@ namespace OwLib
         public static void ExportToExcel(String fileName, GridA grid)
         {
             DataTable dataTable = new DataTable();
+            List<GridColumn> visibleColumns = new List<GridColumn>();
             List<GridColumn> columns = grid.m_columns;
             int columnsSize = columns.Count;
             for (int i = 0; i < columnsSize; i++)
             {
-                dataTable.Columns.Add(new DataColumn(columns[i].Text));
+                if (columns[i].Visible)
+                {
+                    dataTable.Columns.Add(new DataColumn(columns[i].Text));
+                    visibleColumns.Add(columns[i]);
+                }
             }
+            columnsSize = visibleColumns.Count;
             List<GridRow> rows = grid.m_rows;
             int rowsSize = rows.Count;
             for (int i = 0; i < rowsSize; i++)
@@ -150,7 +156,7 @@ namespace OwLib
                     DataRow dr = dataTable.NewRow();
                     for (int j = 0; j < columnsSize; j++)
                     {
-                        GridCell cell = grid.m_rows[i].GetCell(j);
+                        GridCell cell = grid.m_rows[i].GetCell(visibleColumns[j].Index);
                         if (cell is GridStringCell)
                         {
                             dr[j] = cell.GetString();
@@ -168,16 +174,6 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 导出到Word
-        /// </summary>
-        /// <param name="fileName">文件名</param>
-        /// <param name="html">内容</param>
-        public static void ExportToWord(String fileName, String html)
-        {
-            DataCenter.ExportService.ExportHtmlToWord(fileName, html);
-        }
-
-        /// <summary>
         /// 导出到Txt
         /// </summary>
         /// <param name="fileName">文件名</param>
@@ -187,9 +183,18 @@ namespace OwLib
             StringBuilder sb = new StringBuilder();
             List<GridColumn> columns = grid.m_columns;
             int columnsSize = columns.Count;
+            List<GridColumn> visibleColumns = new List<GridColumn>();
             for (int i = 0; i < columnsSize; i++)
             {
-                sb.Append(columns[i].Text);
+                if (columns[i].Visible)
+                {
+                    visibleColumns.Add(columns[i]);
+                }
+            }
+            columnsSize = visibleColumns.Count;
+            for (int i = 0; i < columnsSize; i++)
+            {
+                sb.Append(visibleColumns[i].Text);
                 if (i != columnsSize - 1)
                 {
                     sb.Append(",");
@@ -213,7 +218,7 @@ namespace OwLib
                 {
                     for (int j = 0; j < columnsSize; j++)
                     {
-                        GridCell cell = visibleRows[i].GetCell(j);
+                        GridCell cell = visibleRows[i].GetCell(visibleColumns[j].Index);
                         String cellValue = cell.GetString();
                         sb.Append(cellValue);
                         if (j != columnsSize - 1)

@@ -263,6 +263,7 @@ namespace OwLib
                         plan.m_lastResult = "无";
                         plan.m_nextTime = nowTicks + (long)plan.m_timeSpan * 1000 * 10000;
                         StartRunPlan(plan);
+                        SavePlans();
                     }
                 }
                 else
@@ -277,11 +278,12 @@ namespace OwLib
                             {
                                 if (plan.m_status == "启动")
                                 {
+                                    plan.m_status = "禁止";
                                     StartRunPlan(plan);
                                     plan.m_lastTime = plan.m_nextTime;
                                     plan.m_lastResult = "无";
                                 }
-                                plan.m_nextTime += timeSpan;
+                                //plan.m_nextTime += timeSpan;
                             }
                             else
                             {

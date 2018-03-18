@@ -220,6 +220,31 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 点击事件
+        /// </summary>
+        /// <param name="sender">调用者</param>
+        /// <param name="mp">坐标</param>
+        /// <param name="button">按钮</param>
+        /// <param name="clicks">点击次数</param>
+        /// <param name="delta">滚轮值/param>
+        private void ClickEvent(object sender, POINT mp, MouseButtonsA button, int clicks, int delta)
+        {
+            if (button == MouseButtonsA.Left && clicks == 1)
+            {
+                ControlA control = sender as ControlA;
+                String name = control.Name;
+                if (name == "btnExportExcel")
+                {
+                    ExportToExcel("计划任务.xls", m_gridPlan);
+                }
+                else if (name == "btnExportTxt")
+                {
+                    ExportToTxt("计划任务.txt", m_gridPlan);
+                }
+            }
+        }
+
+        /// <summary>
         /// 删除任务
         /// </summary>
         public void Delete()
@@ -267,6 +292,7 @@ namespace OwLib
         /// <param name="control">控件</param>
         private void RegisterEvents(ControlA control)
         {
+            ControlMouseEvent clickButtonEvent = new ControlMouseEvent(ClickEvent);
             List<ControlA> controls = control.GetControls();
             int controlsSize = controls.Count;
             for (int i = 0; i < controlsSize; i++)
@@ -275,6 +301,7 @@ namespace OwLib
                 GridColumn column = subControl as GridColumn;
                 GridA grid = subControl as GridA;
                 CheckBoxA checkBox = subControl as CheckBoxA;
+                ButtonA button = subControl as ButtonA;
                 if (column != null)
                 {
                     column.AllowDrag = true;
@@ -282,6 +309,10 @@ namespace OwLib
                     column.BackColor = CDraw.PCOLORS_BACKCOLOR;
                     column.Font = new FONT("微软雅黑", 20, false, false, false);
                     column.ForeColor = CDraw.PCOLORS_FORECOLOR;
+                }
+                else if (button != null)
+                {
+                    button.RegisterEvent(clickButtonEvent, EVENTID.CLICK);
                 }
                 else if (grid != null)
                 {
