@@ -52,6 +52,11 @@ namespace OwLib
         public long m_lastTime;
 
         /// <summary>
+        /// 成员
+        /// </summary>
+        public String m_member = "无";
+
+        /// <summary>
         /// 名称
         /// </summary>
         public String m_name = "无";
@@ -96,12 +101,13 @@ namespace OwLib
                 m_command = strs[2];
                 m_status = strs[3];
                 m_lastResult = strs[4];
-                m_createTime = Convert.ToInt64(strs[5]);
-                m_startTime = Convert.ToInt64(strs[6]);
-                m_lastTime = Convert.ToInt64(strs[7]);
-                m_nextTime = Convert.ToInt64(strs[8]);
-                m_timeSpan = Convert.ToInt32(strs[9]);
-                m_runImmediately = strs[10] == "1";
+                m_member = strs[5];
+                m_createTime = Convert.ToInt64(strs[6]);
+                m_startTime = Convert.ToInt64(strs[7]);
+                m_lastTime = Convert.ToInt64(strs[8]);
+                m_nextTime = Convert.ToInt64(strs[9]);
+                m_timeSpan = Convert.ToInt32(strs[10]);
+                m_runImmediately = strs[11] == "1";
             }
         }
 
@@ -111,12 +117,13 @@ namespace OwLib
         /// <returns>字符串</returns>
         public override String ToString()
         {
-            return String.Format("{0}☼{1}☼{2}☼{3}☼{4}☼{5}☼{6}☼{7}☼{8}☼{9}☼{10}",
+            return String.Format("{0}☼{1}☼{2}☼{3}☼{4}☼{5}☼{6}☼{7}☼{8}☼{9}☼{10}☼{11}",
                 m_id,
                 m_name,
                 m_command,
                 m_status,
                 m_lastResult,
+                m_member, 
                 m_createTime,
                 m_startTime,
                 m_lastTime,
@@ -262,7 +269,7 @@ namespace OwLib
                         plan.m_lastTime = nowTicks;
                         plan.m_lastResult = "无";
                         plan.m_nextTime = nowTicks + (long)plan.m_timeSpan * 1000 * 10000;
-                        StartRunPlan(plan);
+                        //StartRunPlan(plan);
                         SavePlans();
                     }
                 }
@@ -279,9 +286,13 @@ namespace OwLib
                                 if (plan.m_status == "启动")
                                 {
                                     plan.m_status = "禁止";
-                                    StartRunPlan(plan);
+                                    //StartRunPlan(plan);
                                     plan.m_lastTime = plan.m_nextTime;
                                     plan.m_lastResult = "无";
+                                    SavePlans();
+                                    Console.Beep(1000, 500);
+                                    Console.Beep(1000, 500);
+                                    Console.Beep(1000, 500);
                                 }
                                 //plan.m_nextTime += timeSpan;
                             }

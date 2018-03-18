@@ -11,8 +11,6 @@
           else if(str.equals(sender, 'btnModify')) {showwindow('ModifyPlanWindow', 'windowModifyPlan');}
           else if(str.equals(sender, 'btnDelete')) {plan.delete();}
           else if(str.equals(sender, 'btnStart')) {plan.start();}
-          else if(str.equals(sender, 'btnStartAll')) {plan.startall();}
-          else if(str.equals(sender, 'btnStopAll')) {plan.stopall();}
       }
 
       {窗体加载事件}
@@ -35,45 +33,31 @@
     </script>
   </head>
   <body>
-    <div type="splitlayout" name="divMain" candragsplitter="true" layoutstyle="righttoleft" dock="fill" size="400,400" splitterposition="200,0,202,400" onload="onload();" ontimer="ontimer();">
+    <div type="splitlayout" name="divMain" candragsplitter="true" layoutstyle="bottomtotop" dock="fill" size="400,400" splitterposition="0,360,400,360" onload="onload();" ontimer="ontimer();">
       <!--右边图层-->
-      <div name="divRight">
-        <!--创建任务按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnCreate" forecolor="80,255,80" font="微软雅黑,14,bold" text="创建任务" location="13,13" size="175,38" onclick="onclick();" />
-        <!--修改任务按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnModify" forecolor="255,80,255" font="微软雅黑,14,bold" text="修改任务" location="13,59" size="175,38" onclick="onclick();" />
-        <!--删除任务按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnDelete" forecolor="200,200,200" font="微软雅黑,14,bold" text="删除任务" location="13,105" size="175,38" onclick="onclick();" />
-        <!--启动任务按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnStart" font="微软雅黑,14,bold" text="启动任务" location="13,152" size="175,38" onclick="onclick();" />
-        <!--全部启动按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnStartAll" forecolor="255,255,80" font="微软雅黑,14,bold" text="全部启动" location="13,202" size="175,38" onclick="onclick();" />
-        <!--全部禁止按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnStopAll" forecolor="80,255,255" font="微软雅黑,14,bold" text="全部禁止" location="13,249" size="175,38" onclick="onclick();" />
-         <!--全部禁止按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" forecolor="80,255,255" font="微软雅黑,14,bold" text="导出到Txt" location="13,296" size="175,38" />
-         <!--全部禁止按钮-->
-        <input type="usercontrol" cid="ribbonbutton" name="btnExportExcel" forecolor="80,255,255" font="微软雅黑,14,bold" text="导出到Excel" location="13,343" size="175,38"  />
+      <div name="divRight" type="layout" style="lefttoright" showhscrollbar="true">
+        <input type="usercontrol" cid="ribbonbutton" name="btnCreate" forecolor="80,255,80" font="微软雅黑,14,bold" text="创建任务" size="175,38" onclick="onclick();" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnModify" forecolor="255,80,255" font="微软雅黑,14,bold" text="修改任务" size="175,38" onclick="onclick();" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnDelete" forecolor="200,200,200" font="微软雅黑,14,bold" text="删除任务" size="175,38" onclick="onclick();" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnStart" font="微软雅黑,14,bold" text="启动任务" size="175,38" onclick="onclick();" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnExportTxt" forecolor="80,255,255" font="微软雅黑,14,bold" text="导出到Txt" size="175,38" />
+        <input type="usercontrol" cid="ribbonbutton" name="btnExportExcel" forecolor="80,255,255" font="微软雅黑,14,bold" text="导出到Excel" size="175,38" />
       </div>
-      <!--左边图层-->
-      <div type="splitlayout" name="divLeft" candragsplitter="true" layoutstyle="bottomtotop" size="200,250" splitterposition="0,50,200,52">
-        <!--日志表格-->
-        <input type="text" name="txtLog" multiline="true" workwrap="true" font="微软雅黑,14,bold" readonly="true" />
-        <!--计划表格-->
-        <table name="gridPlan" autoellipsis="true" onselectedrowchanged="selectedrowchanged();" headerheight="30">
-          <tr>
-            <th name="colP1" text="ID" visible="false" />
-            <th name="colP2" text="任务名称" width="300" />
-            <th name="colP4" cellalign="center" text="状态" width="60" visible="false" />
-            <th name="colP5" text="到期时间" width="200" />
-            <th name="colP6" text="上次运行时间" width="150" visible="false"/>
-            <th name="colP7" text="上次运行结果" width="80" visible="false"/>
-            <th name="colP8" cellalign="center" text="频率(秒)" width="80" visible="false"/>
-            <th name="colP9" text="开始时间" width="200" />
-            <th name="colP3" text="备注" width="200"/>
-          </tr>
-        </table>
-      </div>
+      <!--计划表格-->
+      <table name="gridPlan" autoellipsis="true" onselectedrowchanged="selectedrowchanged();" headerheight="30">
+        <tr>
+          <th name="colP1" text="ID" visible="false" />
+          <th name="colP2" text="任务名称" width="200" />
+          <th name="colP10" text="责任人" width="200" />
+          <th name="colP4" cellalign="center" text="状态" width="60" visible="false" />
+          <th name="colP5" text="到期时间" width="200" />
+          <th name="colP6" text="上次运行时间" width="150" visible="false" />
+          <th name="colP7" text="上次运行结果" width="80" visible="false" />
+          <th name="colP8" cellalign="center" text="频率(秒)" width="80" visible="false" />
+          <th name="colP9" text="开始时间" width="200" />
+          <th name="colP3" text="结果" width="300" />
+        </tr>
+      </table>
     </div>
   </body>
 </html>

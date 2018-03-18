@@ -26,7 +26,7 @@ namespace OwLib
         /// <summary>
         /// 是否支持透明度
         /// </summary>
-        private bool m_supportTransparent = true;
+        private bool m_supportTransparent = true;       
 
         /// <summary>
         /// 获取颜色
@@ -35,7 +35,14 @@ namespace OwLib
         /// <returns>输出颜色</returns>
         public override long GetColor(long dwPenColor)
         {
-            return CDraw.GetWhiteColor(dwPenColor);
+            if (CDraw.m_drawType == 0)
+            {
+                return CDraw.GetWhiteColor(dwPenColor);
+            }
+            else
+            {
+                return CDraw.GetBlueColor(dwPenColor);
+            }
         }
 
         /// <summary>

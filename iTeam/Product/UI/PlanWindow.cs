@@ -45,13 +45,6 @@ namespace OwLib
         public void Check()
         {
             m_planService.OnTimer();
-            String newLog = m_planService.GetNewLogs();
-            if (newLog != null && newLog.Length > 0)
-            {
-                TextBoxA txtLog = GetTextBox("txtLog");
-                txtLog.Text += newLog;
-                txtLog.Invalidate();
-            }
             Dictionary<int, GridColumn> columnsIndex = new Dictionary<int, GridColumn>();
             List<GridColumn> columns = m_gridPlan.GetColumns();
             int columnsSize = columns.Count;
@@ -106,7 +99,7 @@ namespace OwLib
                 else
                 {
                     row = new GridRow();
-                    row.Height = 30;
+                    row.Height = 50;
                     selectedRow = row;
                     m_gridPlan.AddRow(row);
                     newData = true;
@@ -201,6 +194,10 @@ namespace OwLib
                         case 9:
                             cell.SetString(new DateTime(plan.m_createTime).ToString());
                             break;
+                            //相关人员
+                        case 10:
+                            cell.SetString(plan.m_member);
+                            break;
                     }
                 }
             }
@@ -239,7 +236,20 @@ namespace OwLib
                 }
                 else if (name == "btnExportTxt")
                 {
-                    ExportToTxt("计划任务.txt", m_gridPlan);
+                    StringBuilder sb = new StringBuilder();
+                    List<GridRow> rows = m_gridPlan.m_rows;
+                    int rowsSize = rows.Count;
+                    for (int i = 0; i < rowsSize; i++)
+                    {
+                        GridRow row = rows[i];
+                        sb.AppendLine("----计划任务" + (i + 1).ToString() + "----");
+                        sb.AppendLine("名称:" + row.GetCell("colP2").GetString());
+                        sb.AppendLine("责任人:" + row.GetCell("colP10").GetString());
+                        sb.AppendLine("开始时间:" + row.GetCell("colP9").GetString());
+                        sb.AppendLine("结束时间:" + row.GetCell("colP5").GetString());
+                        sb.AppendLine("目前状态:" + row.GetCell("colP3").GetString());
+                    }
+                    DataCenter.ExportService.ExportHtmlToTxt("任务计划.txt", sb.ToString());
                 }
             }
         }

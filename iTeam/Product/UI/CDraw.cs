@@ -193,6 +193,8 @@ namespace OwLib
         /// </summary>
         public const long PCOLORS_WINDOWCONTENTBACKCOLOR = PCOLORS_USERCOLOR - 506;
 
+        public static int m_drawType = 0;
+
         /// <summary>
         /// »æÖÆÎÄ×Ö
         /// </summary>
@@ -366,15 +368,15 @@ namespace OwLib
                 }
                 else if (color == PCOLORS_SELECTEDROWCOLOR)
                 {
-                    color = COLOR.ARGB(43, 138, 195);
+                    color = COLOR.ARGB(100, 43, 138, 195);
                 }
                 else if (color == PCOLORS_HOVEREDROWCOLOR)
                 {
-                    color = COLOR.ARGB(200, 43, 138, 195);
+                    color = COLOR.ARGB(50, 43, 138, 195);
                 }
                 else if (color == PCOLORS_ALTERNATEROWCOLOR)
                 {
-                    color = COLOR.ARGB(100, 43, 138, 195);
+                    color = COLOR.ARGB(50, 43, 138, 195);
                 }
                 else if (color == CDraw.PCOLORS_WINDOWFORECOLOR)
                 {

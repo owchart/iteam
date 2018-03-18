@@ -21,54 +21,63 @@
       {窗体加载}
       function onload()
       {
-      var(id, '', name, '' , interval, 0, cmd, '');
-      plan.getselected(id, name, interval, cmd);
+      var(id, '', name, '' , stime, '', member, '', cmd, '');
+      plan.getselected(id, name, stime, member, cmd);
       setproperty('lblID', 'text', id);
       setproperty('txtName', 'text', name);
-      setproperty('spinInterval', 'value', interval);
+      setproperty('dtpNextTime', 'text', stime);
+	  setproperty('txtMember', 'text', member);
       setproperty('txtScript', 'text', cmd);
       }
 
       {修改计划}
       function savemodifyplan()
       {
-      var(sender, '', id, '', name, '' , interval, '', cmd, '');
+      var(sender, '', id, '', name, '' , stime, '', cmd, '', member, '');
       getsender(sender);
       getproperty(id, 'lblID', 'text');
       getproperty(name, 'txtName', 'text');
-      getproperty(interval, 'spinInterval', 'value');
+      getproperty(stime, 'dtpNextTime', 'text');
       getproperty(cmd, 'txtScript', 'text');
+	  getproperty(member, 'txtMember', 'text');
       if(str.length(name) = 0)
       {
         alert('请填写名称!','提示');
         return(0);
       }
-      if(str.equals(interval, '0'))
+      if(str.length(stime) = 0)
       {
-        alert('时间间隔不能为0!','提示');
+        alert('请填写时间!','提示');
         return(0);
       }
-      if(str.length(cmd) = 0)
+      if(str.length(member) = 0)
       {
-        alert('请填写脚本!','提示');
+        alert('请填写相关人员!','提示');
         return(0);
       }
-      plan.modify(id, name, interval, cmd);
+      if(str.length(cmd,) = 0)
+      {
+        alert('请填写结果!','提示');
+        return(0);
+      }
+      plan.modify(id, name, stime, member, cmd);
       return(1);
       }
     </script>
   </head>
   <body>
     <div type="usercontrol" cid="windowex" name="windowModifyPlan" size="374,430" location="3,3" text="修改任务" onload="onload();">
-      <label name="Label1" location="19,38" size="46,20" text="名称：" />
-      <label name="Label2" location="19,76" size="60,20" text="间隔(秒)：" />
-      <label name="Label3" location="19,113" size="70,20" text="请输入脚本：" />
+      <label name="Label1" location="19,40" size="46,20" text="名称：" />
       <label name="lblID" location="19,38" size="46,20" visible="false" />
-      <input type="text" name="txtName" location="75,38" size="268,21" text="新的计划" />
-      <input type="range" name="spinInterval" location="75,76" size="113,20" maximum="10000000" minimum="0" value="60" step="1" />
-      <input type="text" name="txtScript" location="15,142" size="345,220" text="win_execute('demo.exe');" multiline="true" tabstop="false" wordwrap="true" />
+      <input type="text" name="txtName" location="97,38" size="246,21" text="新的计划" />
       <input type="usercontrol" cid="ribbonbutton" name="btnOK" location="147,386" size="79,28" Text="确定" onclick="onclick();" />
       <input type="usercontrol" cid="ribbonbutton" name="btnCancel" location="245,386" size="79,28" Text="关闭" onclick="onclick();" />
+      <label name="Label" text="结束时间：" location="19,79" size="73,17" />
+      <datetimepicker name="dtpNextTime" location="97,76" size="246,20" />
+      <label name="Label2" text="相关人员：" location="19,117" size="73,17" />
+      <input type="text" name="txtMember" location="97,114" size="246,20" />
+      <label name="Label3" location="19,150" size="73,44" text="最终结果：" />
+      <input type="text" name="txtScript" location="15,182" size="345,184" text="" multiline="true" tabstop="false" wordwrap="true" />
     </div>
   </body>
 </html>

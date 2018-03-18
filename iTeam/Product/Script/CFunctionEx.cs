@@ -178,12 +178,14 @@ namespace OwLib
                 newVar2.m_expression = "'" + plan.m_name + "'";
                 m_indicator.SetVariable(var.m_parameters[1], newVar2);
                 CVariable newVar3 = new CVariable(m_indicator);
-                newVar3.m_value = plan.m_timeSpan;
-                newVar3.m_type = 3;
+                newVar3.m_expression = "'" + new DateTime(plan.m_nextTime).ToString("yyyy-MM-dd HH:mm:ss") + "'";
                 m_indicator.SetVariable(var.m_parameters[2], newVar3);
-                CVariable newVar4 = new CVariable(m_indicator);
-                newVar4.m_expression = "'" + plan.m_command + "'";
+                 CVariable newVar4 = new CVariable(m_indicator);
+                newVar4.m_expression =  "'" + plan.m_member + "'";
                 m_indicator.SetVariable(var.m_parameters[3], newVar4);
+                CVariable newVar5 = new CVariable(m_indicator);
+                newVar5.m_expression = "'" + plan.m_command + "'";
+                m_indicator.SetVariable(var.m_parameters[4], newVar5);
                 return 1;
             }
             else
@@ -205,15 +207,9 @@ namespace OwLib
                 CPlan plan = new CPlan();
                 DataCenter.PlanService.GetPlan(id, ref plan);
                 plan.m_name = m_indicator.GetText(var.m_parameters[1]);
-                int newTimeSpan = (int)m_indicator.GetValue(var.m_parameters[2]);
-                if (plan.m_timeSpan != newTimeSpan)
-                {
-                    plan.m_timeSpan = newTimeSpan;
-                    DateTime startTime = new DateTime(new TimeSpan(DateTime.Now.Ticks + (long)plan.m_timeSpan * 1000 * 10000).Ticks);
-                    long newStartTime = startTime.Ticks;
-                    plan.m_nextTime = newStartTime;
-                }
-                plan.m_command = m_indicator.GetText(var.m_parameters[3]);
+                plan.m_nextTime = Convert.ToDateTime(m_indicator.GetText(var.m_parameters[2])).Ticks;
+                plan.m_member = m_indicator.GetText(var.m_parameters[3]);
+                plan.m_command = m_indicator.GetText(var.m_parameters[4]);
                 DataCenter.PlanService.SavePlans();
                 return 1;
             }
@@ -233,6 +229,7 @@ namespace OwLib
             String name = "";
             String sTime = "";
             String command = "";
+            String member = "";
             int timeSpan = 60;
             String runImmediately = "·ñ";
             if (var.m_parameters.Length == 1)
@@ -246,10 +243,8 @@ namespace OwLib
                 index = text.IndexOf("\r\n");
                 sTime = text.Substring(index + 2);
                 index = text.IndexOf("\r\n");
-                timeSpan = Convert.ToInt32(text.Substring(0, index));
+                member = text.Substring(0, index);
                 text = text.Substring(index + 2);
-                index = text.IndexOf("\r\n");
-                runImmediately = text.Substring(0, index);
                 index = text.IndexOf("\r\n");
                 command = text.Substring(index + 2);
             }
@@ -257,12 +252,12 @@ namespace OwLib
             {
                 name = m_indicator.GetText(var.m_parameters[0]);
                 sTime = m_indicator.GetText(var.m_parameters[1]);
-                timeSpan = (int)m_indicator.GetValue(var.m_parameters[2]);
-                command = m_indicator.GetText(var.m_parameters[4]);
-                runImmediately = m_indicator.GetText(var.m_parameters[3]) == "True" ? "ÊÇ" : "·ñ";
+                member = m_indicator.GetText(var.m_parameters[2]);
+                command = m_indicator.GetText(var.m_parameters[3]);
             }
             plan.m_id = id;
             plan.m_name = name;
+            plan.m_member = member;
             plan.m_status = "Æô¶¯";
             if (command != null && command.Length > 0)
             {

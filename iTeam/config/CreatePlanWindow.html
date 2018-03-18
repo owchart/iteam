@@ -21,29 +21,33 @@
       {保存新的计划}
       function savenewplan()
       {
-        var(sender, '', name, '' , stime, '', interval, '', runnow, '', cmd, '', );
+        var(sender, '', name, '' , stime, '', cmd, '', member, '');
         getsender(sender);
         getproperty(name, 'txtName', 'text');
 		getproperty(stime, 'dtpNextTime', 'text');
-        getproperty(interval, 'spinInterval', 'value');
-        getproperty(runnow, 'cbRunNow', 'checked');
         getproperty(cmd, 'txtScript', 'text');
+		getproperty(member, 'txtMember', 'text');
         if(str.length(name) = 0)
         {
           alert('请填写名称!','提示');
           return(0);
         }
-        if(str.equals(interval, '0'))
-        {
-          alert('时间间隔不能为0!','提示');
-          return(0);
-        }
-        if(str.length(cmd) = 0)
-        {
-          alert('请填写脚本!','提示'),
-          return(0);
-        }
-        plan.create(name, stime, interval, runnow, cmd);
+		if(str.length(stime) = 0)
+		{
+			alert('请填写时间!','提示');
+			return(0);
+		}
+		if(str.length(member) = 0)
+		{
+			alert('请填写相关人员!','提示');
+			return(0);
+		}
+		if(str.length(cmd) = 0)
+		{
+			alert('请填写结果!','提示');
+			return(0);
+		}
+        plan.create(name, stime, member, cmd);
         return(1);
       }
     </script>
@@ -51,16 +55,15 @@
   <body>
     <div type="usercontrol" cid="windowex" name="windowCreatePlan" size="374,430" location="3,3" text="创建任务">
       <label name="Label1" location="15,38" size="46,20" text="名称：" />
-      <label name="Label2" location="16,108" size="62,15" text="间隔(秒)：" />
-      <label name="Label3" location="16,149" size="81,15" text="请输入脚本：" />
-      <checkbox name="cbRunNow" text="立即运行一次" location="225,104" size="111,21" />
+      <label name="Label2" location="15,110" size="73,17" text="相关人员：" />
+      <label name="Label3" location="15,149" size="73,17" text="最终结果：" />
       <input type="text" name="txtName" location="107,36" size="240,21" text="新的任务" />
-      <input type="range" name="spinInterval" location="107,105" size="113,20" maximum="10000000" minimum="0" value="60" step="1" />
-      <input type="text" name="txtScript" location="15,177" size="345,185" text="win.beep(1000,500);" multiline="true" tabstop="false" wordwrap="true" />
+      <input type="text" name="txtScript" location="15,176" size="345,186" text="进行中..." multiline="true" tabstop="false" wordwrap="true" />
       <input type="usercontrol" cid="ribbonbutton" name="btnOK" location="147,386" size="79,28" Text="确定" onclick="onclick();" />
       <input type="usercontrol" cid="ribbonbutton" name="btnCancel" location="245,386" size="79,28" Text="关闭" onclick="onclick();" />
-      <label name="Label" text="结束时间：" location="15,74" size="94,15" />
-      <input type="datetime" name="dtpNextTime" location="106,71" size="140,20" customformat="yyyy-MM-dd HH:mm:ss" />
+      <label name="Label" text="结束时间：" location="15,74" size="73,17" />
+      <input type="datetime" name="dtpNextTime" location="107,70" size="240,20" customformat="yyyy-MM-dd HH:mm:ss" />
+      <input type="text" name="txtMember" location="107,106" size="240,20" />
     </div>
   </body>
 </html>

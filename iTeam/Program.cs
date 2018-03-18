@@ -29,6 +29,7 @@ namespace OwLib
             }
             else if(args[0].Trim() == "-plan")
             {
+                CDraw.m_drawType = 1;
                 MainForm mainForm = new MainForm();
                 mainForm.LoadXml("PlanWindow");
                 Application.Run(mainForm);
