@@ -31,7 +31,7 @@ namespace OwLib
         /// <param name="native">方法库</param>
         public EmailWindow()
         {
-            
+
         }
 
         /// <summary>
@@ -106,6 +106,7 @@ namespace OwLib
         {
             int filesSize = files.Length;
             m_gridEmail.BeginUpdate();
+            String sendDir = DataCenter.GetAppPath() + "\\send";
             for (int i = filesSize - 1; i >= 0; i--)
             {
                 String file = files[i];
@@ -264,7 +265,20 @@ namespace OwLib
                     row.AddCell("colP9", new GridStringCell(salary));
                     row.AddCell("colP10", new GridStringCell(zhiye));
                     row.AddCell("colP11", new GridStringCell(jingYan.ToString()));
-                    row.AddCell("colP12", new GridStringCell("发给徐明月"));
+                    if (CFileA.IsFileExist(sendDir + "\\" + file.Substring(file.LastIndexOf("\\") + 1)))
+                    {
+                        row.AddCell("colP12", new GridStringCell("已发送"));
+                        row.GetCell("colP12").Style = new GridCellStyle();
+                        row.GetCell("colP12").Style.BackColor = COLOR.ARGB(255, 0, 0);
+                        row.GetCell("colP12").Style.ForeColor = COLOR.ARGB(255, 255, 255);
+                    }
+                    else
+                    {
+                        row.AddCell("colP12", new GridStringCell("单击发送"));
+                        row.GetCell("colP12").Style = new GridCellStyle();
+                        row.GetCell("colP12").Style.BackColor = COLOR.ARGB(0, 255, 0);
+                        row.GetCell("colP12").Style.ForeColor = COLOR.ARGB(0, 0, 0);
+                    }
                     row.AddCell("colP13", new GridStringCell(file));
                 }
             }
@@ -367,7 +381,7 @@ namespace OwLib
                         visible = row.GetCell("colP8").GetString() == m_emailCondition.m_filterStatus;
                     }
                 }
-                if(visible)
+                if (visible)
                 {
                     if (m_emailCondition.m_filterXueli != "全部")
                     {
@@ -434,9 +448,9 @@ namespace OwLib
         /// <param name="delta">滚轮值</param>
         private void GridCellClick(object sender, GridCell cell, POINT mp, MouseButtonsA button, int clicks, int delta)
         {
-            if (clicks == 2)
+            if (cell.Grid == m_gridCondition)
             {
-                if (cell.Grid == m_gridCondition)
+                if (clicks == 2)
                 {
                     m_emailCondition = (cell.Row.Tag as EmailCondition).Copy();
                     m_gridEmail.BeginUpdate();
@@ -444,14 +458,17 @@ namespace OwLib
                     m_gridEmail.EndUpdate();
                     m_gridEmail.Invalidate();
                 }
-                else
+            }
+            else
+            {
+                if (cell.Column.Name == "colP12")
                 {
-                    if (cell.Column.Name == "colP12")
+                    if (clicks == 1)
                     {
                         String file = cell.Row.GetCell("colP13").GetString();
                         String content = "";
                         CFileA.Read(file, ref content);
-                        if(content != null && content.Length > 0)
+                        if (content != null && content.Length > 0)
                         {
                             try
                             {
@@ -464,7 +481,16 @@ namespace OwLib
                                 sb.AppendLine("性别:" + cell.Row.GetCell("colP5").GetString());
                                 sb.AppendLine("职位:" + cell.Row.GetCell("colP10").GetString());
                                 sb.AppendLine("联系方式:" + url);
-                                SendMail("mingyu.xu@gaiafintech.com", "请通知面试", sb.ToString());
+                                SendMail("MingYue.Xu@gaiafintech.com", "请通知面试", sb.ToString());
+                                String sendDir = DataCenter.GetAppPath() + "\\send";
+                                String filePath = sendDir + "\\" + file.Substring(file.LastIndexOf("\\") + 1);
+                                CFileA.Write(filePath, "");
+                                cell.Row.GetCell("colP12").Text = "已发送";
+                                cell.Row.GetCell("colP12").Style = new GridCellStyle();
+                                cell.Row.GetCell("colP12").Style.BackColor = COLOR.ARGB(255, 0, 0);
+                                cell.Row.GetCell("colP12").Style.ForeColor = COLOR.ARGB(255, 255, 255);
+                                m_gridEmail.Invalidate();
+
                             }
                             catch (Exception ex)
                             {
@@ -472,7 +498,10 @@ namespace OwLib
                             }
                         }
                     }
-                    else
+                }
+                else
+                {
+                    if (clicks == 2)
                     {
                         String file = cell.Row.GetCell("colP13").GetString();
                         Process.Start(file);
@@ -524,7 +553,7 @@ namespace OwLib
             m_gridEmail.RegisterEvent(new GridCellMouseEvent(GridCellClick), EVENTID.GRIDCELLCLICK);
             m_gridCondition = GetGrid("gridCondition");
             m_gridCondition.RegisterEvent(new GridCellMouseEvent(GridCellClick), EVENTID.GRIDCELLCLICK);
-            m_gridCondition.RegisterEvent(new GridCellEvent(GridCellEditEnd), EVENTID.GRIDCELLEDITEND);    
+            m_gridCondition.RegisterEvent(new GridCellEvent(GridCellEditEnd), EVENTID.GRIDCELLEDITEND);
         }
 
         /// <summary>
@@ -536,6 +565,11 @@ namespace OwLib
             if (!CFileA.IsDirectoryExist(dir))
             {
                 CFileA.CreateDirectory(dir);
+            }
+            String sendDir = DataCenter.GetAppPath() + "\\send";
+            if (!CFileA.IsDirectoryExist(sendDir))
+            {
+                CFileA.CreateDirectory(sendDir);
             }
             List<String> files = new List<String>();
             CFileA.GetFiles(dir, files);
@@ -730,8 +764,8 @@ namespace OwLib
                  m_emailInfo.m_pwd);
 
             System.Web.Mail.SmtpMail.SmtpServer = "smtp.exmail.qq.com";
-            System.Web.Mail.SmtpMail.Send(mailmsg);  
-        }  
+            System.Web.Mail.SmtpMail.Send(mailmsg);
+        }
 
         /// <summary>
         /// 开始读取邮件
@@ -862,7 +896,7 @@ namespace OwLib
             StringBuilder sb = new StringBuilder();
             sb.Append("最近" + m_filterDate + "天 ");
             sb.Append(m_filterAge + "岁以下 ");
-            sb.Append(m_filterHuKou.Length > 0 ? m_filterHuKou +" ": "");
+            sb.Append(m_filterHuKou.Length > 0 ? m_filterHuKou + " " : "");
             sb.Append(m_filterMarry != "全部" ? m_filterMarry + " " : "");
             sb.Append(m_filterSex != "全部" ? m_filterSex + " " : "");
             sb.Append(m_filterStatus != "全部" ? m_filterStatus + " " : "");
