@@ -16,6 +16,7 @@ using OpenPop.Pop3;
 using System.Threading;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using node.gs;
 
 namespace OwLib
 {
@@ -263,7 +264,8 @@ namespace OwLib
                     row.AddCell("colP9", new GridStringCell(salary));
                     row.AddCell("colP10", new GridStringCell(zhiye));
                     row.AddCell("colP11", new GridStringCell(jingYan.ToString()));
-                    row.AddCell("colP12", new GridStringCell(file));
+                    row.AddCell("colP12", new GridStringCell("发给徐明月"));
+                    row.AddCell("colP13", new GridStringCell(file));
                 }
             }
             FilterGrid();
@@ -436,16 +438,45 @@ namespace OwLib
             {
                 if (cell.Grid == m_gridCondition)
                 {
-                    m_emailCondition = cell.Row.Tag as EmailCondition;
-                    m_gridCondition.BeginUpdate();
+                    m_emailCondition = (cell.Row.Tag as EmailCondition).Copy();
+                    m_gridEmail.BeginUpdate();
                     FilterGrid();
-                    m_gridCondition.EndUpdate();
-                    m_gridCondition.Invalidate();
+                    m_gridEmail.EndUpdate();
+                    m_gridEmail.Invalidate();
                 }
                 else
                 {
-                    String file = cell.Row.GetCell("colP12").GetString();
-                    Process.Start(file);
+                    if (cell.Column.Name == "colP12")
+                    {
+                        String file = cell.Row.GetCell("colP13").GetString();
+                        String content = "";
+                        CFileA.Read(file, ref content);
+                        if(content != null && content.Length > 0)
+                        {
+                            try
+                            {
+                                int idx = content.IndexOf("https://ihr.zhaopin.com/job/relay.html?");
+                                int idx2 = content.IndexOf(">", idx + 10);
+                                String url = content.Substring(idx, idx2 - idx - 1);
+                                String text = HttpGetService.Get(url);
+                                StringBuilder sb = new StringBuilder();
+                                sb.AppendLine("姓名:" + cell.Row.GetCell("colP2").GetString());
+                                sb.AppendLine("性别:" + cell.Row.GetCell("colP5").GetString());
+                                sb.AppendLine("职位:" + cell.Row.GetCell("colP10").GetString());
+                                sb.AppendLine("联系方式:" + url);
+                                SendMail("mingyu.xu@gaiafintech.com", "请通知面试", sb.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("发送失败");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        String file = cell.Row.GetCell("colP13").GetString();
+                        Process.Start(file);
+                    }
                 }
             }
         }
@@ -672,6 +703,37 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 发送邮件
+        /// </summary>
+        /// <param name="sendTo"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        public void SendMail(string sendTo, string subject, string body)
+        {
+            System.Web.Mail.MailMessage mailmsg = new System.Web.Mail.MailMessage();
+            mailmsg.To = sendTo;
+            //mailmsg.Cc = cc;  
+            mailmsg.Subject = subject;
+            mailmsg.Body = body;
+
+            //sender here  
+            mailmsg.From = m_emailInfo.m_userName;
+            // certify needed    
+            mailmsg.Fields.Add("http://schemas.microsoft.com/cdo/configuration/smtpauthenticate", "1");//1 is to certify  
+            //the user id     
+            mailmsg.Fields.Add(
+                "http://schemas.microsoft.com/cdo/configuration/sendusername",
+                m_emailInfo.m_userName);
+            //the password  
+            mailmsg.Fields.Add(
+                "http://schemas.microsoft.com/cdo/configuration/sendpassword",
+                 m_emailInfo.m_pwd);
+
+            System.Web.Mail.SmtpMail.SmtpServer = "smtp.exmail.qq.com";
+            System.Web.Mail.SmtpMail.Send(mailmsg);  
+        }  
+
+        /// <summary>
         /// 开始读取邮件
         /// </summary>
         private void StartReadPop3()
@@ -771,6 +833,25 @@ namespace OwLib
         /// 名称
         /// </summary>
         public String m_name = "请取名";
+
+        /// <summary>
+        /// 拷贝
+        /// </summary>
+        /// <returns></returns>
+        public EmailCondition Copy()
+        {
+            EmailCondition copyCondition = new EmailCondition();
+            copyCondition.m_filterAge = m_filterAge;
+            copyCondition.m_filterDate = m_filterDate;
+            copyCondition.m_filterHuKou = m_filterHuKou;
+            copyCondition.m_filterJingYan = m_filterJingYan;
+            copyCondition.m_filterMarry = m_filterMarry;
+            copyCondition.m_filterSex = m_filterSex;
+            copyCondition.m_filterStatus = m_filterStatus;
+            copyCondition.m_filterXueli = m_filterXueli;
+            copyCondition.m_filterZhiYe = m_filterZhiYe;
+            return copyCondition;
+        }
 
         /// <summary>
         /// 转换为String
