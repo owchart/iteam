@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Threading;
 using OwLib;
+using iEmail;
 
 namespace OwLib
 {
@@ -83,6 +84,10 @@ namespace OwLib
             (m_host.ToolTip as ToolTipA).InitialDelay = 250;
             m_native.Update();
             Invalidate();
+            LoginForm loginForm = new LoginForm();
+            loginForm.ShowDialog();
+            (m_xml as EmailWindow).EmailInfo = loginForm.EmailInfo;
+            m_xml.LoadData();
         }
 
         /// <summary>

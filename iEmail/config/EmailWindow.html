@@ -5,12 +5,12 @@
     </script>
   </head>
   <body>
-    <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,250,400,250" name="SplitLayoutDiv" text="SplitLayoutDiv" dock="Fill">
+    <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,200,400,200" name="SplitLayoutDiv" text="SplitLayoutDiv" dock="Fill">
       <div>
-        <input type="button" name="btnApply" text="应用过滤条件" location="25,108" size="130,29" topmost="True" />
-        <label name="Label" text="最近几天：" location="21,23" size="100,20" />
-        <input type="range" name="spinDate" location="94,19" size="100,20" value="10" />
-        <select name="cbXueli" location="271,19" size="100,20" selectedindex="0">
+        <input type="button" name="btnApplyCondition" text="应用当前" location="213,147" size="82,20" topmost="True" opacity="1" />
+        <label name="Label" text="最近几天：" location="21,13" size="73,17" />
+        <input type="range" name="spinDate" location="94,9" size="100,20" value="10" />
+        <select name="cbXueli" location="94,78" size="100,20" selectedindex="0">
           <option text="全部" />
           <option text="中技" />
           <option text="中专" />
@@ -21,29 +21,41 @@
           <option text="本科在读" />
           <option text="硕士" />
         </select>
-        <label name="Label2" text="学历：" location="222,21" size="46,17" />
-        <label name="Label3" text="性别：" location="394,23" size="46,17" />
-        <select name="cbSex" location="441,20" size="100,20" selectedindex="0">
+        <label name="Label2" text="最高学历：" location="21,80" size="73,17" />
+        <label name="Label3" text="性别：" location="210,13" size="46,17" />
+        <select name="cbSex" location="286,10" size="100,20" selectedindex="0">
           <option text="全部" />
           <option text="男" />
           <option text="女" />
         </select>
-        <label name="Label4" text="婚姻：" location="560,22" size="46,17" tabstop="False" />
-        <select name="cbMarry" location="609,19" size="100,20" selectedindex="0" selectedtext="全部">
+        <label name="Label4" text="婚姻状况：" location="210,83" size="73,17" tabstop="False" />
+        <select name="cbMarry" location="286,80" size="100,20" selectedindex="0" selectedtext="全部">
           <option text="全部" />
           <option text="已婚" />
           <option text="未婚" />
         </select>
-        <label name="Label5" text="状态：" location="222,54" size="46,17" />
-        <label name="Label6" text="最高年龄：" location="21,55" size="73,17" />
-        <input type="range" name="spinAge" location="94,52" size="100,20" value="40" />
-        <select name="cbStatus" location="272,51" size="100,20" selectedindex="0">
+        <label name="Label5" text="目前状态：" location="21,115" size="73,17" />
+        <label name="Label6" text="最高年龄：" location="21,46" size="73,17" />
+        <input type="range" name="spinAge" location="94,43" size="100,20" value="40" />
+        <select name="cbStatus" location="94,113" size="100,20" selectedindex="0">
           <option text="全部" />
           <option text="离职" />
           <option text="在职" />
         </select>
-        <label name="Label7" text="户口：" location="394,55" size="100,20" />
-        <input type="text" name="txtHukou" location="442,52" size="100,19" />
+        <label name="Label7" text="户口所在地：" location="210,47" size="87,17" />
+        <input type="text" name="txtHukou" location="286,44" size="100,19" />
+        <label name="Label8" text="工作次数：" location="210,116" size="73,17" />
+        <input type="text" name="txtJingYan" location="286,112" size="100,20" />
+        <input type="button" name="btnSaveCondition" text="保存条件" location="305,146" size="80,20" topmost="True" />
+        <table name="gridCondition" text="Grid" location="406,10" size="650,184">
+          <tr>
+            <th name="colP1" visible="false">ID</th>
+            <th name="colP2" width="150">名称</th>
+            <th name="colP3" width="500" location="100,0">条件</th>
+          </tr>
+        </table>
+        <label name="Label9" text="期望职业：" location="22,149" size="46,17" />
+        <input type="text" name="txtZhiYe" location="93,146" size="100,20" />
       </div>
       <table name="gridFollows" dock="fill" autoellipsis="true">
         <tr>
@@ -57,7 +69,7 @@
           <th name="colP8" text="状态" width="80" />
           <th name="colP9" text="月薪" width="120" />
           <th name="colP10" text="职业" width="200" />
-          <th name="colP11" text="工作经验" width="100" />
+          <th name="colP11" text="工作次数" width="100" />
           <th name="colP12" text="文件" width="100" visible="false" />
         </tr>
       </table>
