@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using OpenPop.Pop3;
+using System.Threading;
+using HtmlAgilityPack;
 
 namespace OwLib
 {
@@ -35,6 +37,64 @@ namespace OwLib
         /// 表格
         /// </summary>
         private GridA m_gridEmail;
+
+        /// <summary>
+        /// 绑定表格
+        /// </summary>
+        public void BindGrid()
+        {
+            String dir = DataCenter.GetAppPath() + "\\email";
+            List<String> files = new List<String>();
+            CFileA.GetFiles(dir, files);
+            int filesSize = files.Count;
+            m_gridEmail.BeginUpdate();
+            for (int i = 0; i < filesSize; i++)
+            {
+                String file = files[i];
+                String content = "";
+                CFileA.Read(file, ref content);
+                if (content != null && content.Length > 100)
+                {
+                    GridRow row = new GridRow();
+                    m_gridEmail.AddRow(row);
+                    String date = file.Substring(file.LastIndexOf("\\") + 1);
+                    String identifier1 = "padding-left:12px;line-height:50px\">";
+                    int year = CStr.ConvertStrToInt(date.Substring(0, 4));
+                    int month = CStr.ConvertStrToInt(date.Substring(4, 2));
+                    int day = CStr.ConvertStrToInt(date.Substring(6, 2));
+                    int hour = CStr.ConvertStrToInt(date.Substring(8, 2));
+                    int minute = CStr.ConvertStrToInt(date.Substring(10, 2));
+                    int second = CStr.ConvertStrToInt(date.Substring(12, 2));
+                    int idx = content.IndexOf(identifier1);
+                    int nidx = content.IndexOf("</td>", idx + 1);
+                    DateTime dt = new DateTime(year, month, day, hour, minute, second);
+                    String name = content.Substring(idx + identifier1.Length, nidx - idx - identifier1.Length);
+                    String identifier2 = "</small><font style=\"font-weight:bold\">";
+                    int idx2 = content.IndexOf(identifier2, nidx);
+                    int nidx2 = content.IndexOf("</font>", idx2 + 1);
+                    String birthday = content.Substring(idx2 + identifier2.Length, nidx2 - idx2 - identifier2.Length);
+                    if (birthday.IndexOf("工作经验") != -1)
+                    {
+                        idx2 = content.IndexOf(identifier2, nidx2);
+                        nidx2 = content.IndexOf("</font>", idx2 + 1);
+                        birthday = content.Substring(idx2 + identifier2.Length, nidx2 - idx2 - identifier2.Length);
+                    }
+                    row.AddCell("colP1", new GridStringCell(dt.ToString("yyyy-MM-dd HH:mm:ss")));
+                    row.AddCell("colP2", new GridStringCell(name));
+                    row.AddCell("colP3", new GridStringCell(birthday));
+                    row.AddCell("colP4", new GridStringCell(""));
+                    row.AddCell("colP5", new GridStringCell(""));
+                    row.AddCell("colP6", new GridStringCell(""));
+                    row.AddCell("colP7", new GridStringCell(""));
+                    row.AddCell("colP8", new GridStringCell(""));
+                    row.AddCell("colP9", new GridStringCell(""));
+                    row.AddCell("colP10", new GridStringCell(""));
+                }
+            }
+            m_gridEmail.EndUpdate();
+            m_gridEmail.Invalidate();
+            files.Clear();
+        }
 
         /// <summary>
         /// 查询按钮、重置按钮点击事件
@@ -67,14 +127,17 @@ namespace OwLib
             {
                 CFileA.CreateDirectory(dir);
             }
-            ReadPop3();
+            BindGrid();
+            Thread pop3Thread = new Thread(new ThreadStart(StartReadPop3));
+            pop3Thread.Start();
         }
 
         /// <summary>
         /// 读取邮件
         /// </summary>
-        public void ReadPop3()
+        public List<String> ReadPop3()
         {
+            List<String> newList = new List<String>();
             String dir = DataCenter.GetAppPath() + "\\email";
             using (Pop3Client client = new Pop3Client())
             {
@@ -95,68 +158,67 @@ namespace OwLib
                 DateTime writeTime = DateTime.MinValue;
                 for(int i = messageCount; i >= 1; i--)
                 {
-                    OpenPop.Mime.Message message = client.GetMessage(i);
-                    if (message != null)
+                    try
                     {
-                        try
+                        OpenPop.Mime.Message message = client.GetMessage(i);
+                        string sender = message.Headers.From.DisplayName;
+                        string from = message.Headers.From.Address;
+                        if (from.IndexOf("zhaopinmail.com") != -1)
                         {
-                            string sender = message.Headers.From.DisplayName;
-                            string from = message.Headers.From.Address;
-                            if (from.IndexOf("zhaopinmail.com") != -1)
+                            string subject = message.Headers.Subject;
+                            DateTime Datesent = message.Headers.DateSent;
+                            if (Datesent >= dt)
                             {
-                                string subject = message.Headers.Subject;
-                                DateTime Datesent = message.Headers.DateSent;
-                                if (Datesent >= dt)
+                                OpenPop.Mime.MessagePart messagePart = message.MessagePart;
+                                string body = " ";
+                                if (messagePart.IsText)
                                 {
-                                    OpenPop.Mime.MessagePart messagePart = message.MessagePart;
-                                    string body = " ";
-                                    if (messagePart.IsText)
-                                    {
-                                        body = messagePart.GetBodyAsText();
-                                    }
-                                    else if (messagePart.IsMultiPart)
-                                    {
-                                        String key = sender + " " + Datesent.ToString("yyyyMMddHHmmss");
-                                        String file = dir + "\\" + key + ".html";
-                                        if (writeTime < Datesent)
-                                        {
-                                            writeTime = Datesent;
-                                            CFileA.Write(dir + "\\datetime", writeTime.ToString());
-                                        }
-                                        if (!CFileA.IsFileExist(file))
-                                        {
-                                            OpenPop.Mime.MessagePart plainTextPart = message.FindFirstPlainTextVersion();
-                                            if (plainTextPart != null)
-                                            {
-                                                body = plainTextPart.GetBodyAsText();
-                                            }
-                                            else
-                                            {
-                                                List<OpenPop.Mime.MessagePart> textVersions = message.FindAllTextVersions();
-                                                if (textVersions.Count >= 1)
-                                                    body = textVersions[0].GetBodyAsText();
-                                                else
-                                                    body = "<<OpenPop>> Cannot find a text version body in this message.";
-                                            }
-                                            if (body != null && body.Length > 0)
-                                            {
-                                                CFileA.Write(file, body);
-                                            }
-                                        }
-                                    }
+                                    body = messagePart.GetBodyAsText();
                                 }
-                                else
+                                else if (messagePart.IsMultiPart)
                                 {
-                                    break;
+                                    String key = Datesent.ToString("yyyyMMddHHmmss") + " " + sender;
+                                    String file = dir + "\\" + key + ".html";
+                                    if (writeTime < Datesent)
+                                    {
+                                        writeTime = Datesent;
+                                        CFileA.Write(dir + "\\datetime", writeTime.ToString());
+                                    }
+                                    if (!CFileA.IsFileExist(file))
+                                    {
+                                        OpenPop.Mime.MessagePart plainTextPart = message.FindFirstPlainTextVersion();
+                                        if (plainTextPart != null)
+                                        {
+                                            body = plainTextPart.GetBodyAsText();
+                                        }
+                                        else
+                                        {
+                                            List<OpenPop.Mime.MessagePart> textVersions = message.FindAllTextVersions();
+                                            if (textVersions.Count >= 1)
+                                                body = textVersions[0].GetBodyAsText();
+                                            else
+                                                body = "<<OpenPop>> Cannot find a text version body in this message.";
+                                        }
+                                        if (body != null && body.Length > 0)
+                                        {
+                                            CFileA.Write(file, body);
+                                            newList.Add(file);
+                                        }
+                                    }
                                 }
                             }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                        }
+                    }
+                    catch (Exception ex)
+                    {
                     }
                 }
             }
+            return newList;
         }
 
         /// 注册事件
@@ -208,6 +270,18 @@ namespace OwLib
                     grid.UseAnimation = true;
                 }
                 RegisterEvents(controls[i]);
+            }
+        }
+
+        /// <summary>
+        /// 开始读取邮件
+        /// </summary>
+        private void StartReadPop3()
+        {
+            while (true)
+            {
+                ReadPop3();
+                Thread.Sleep(10000);
             }
         }
     }
