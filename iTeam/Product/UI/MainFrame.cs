@@ -210,15 +210,6 @@ namespace OwLib
                     TrainingWindow trainingWindow = new TrainingWindow(Native);
                     trainingWindow.ShowDialog();
                 }
-                else if (name == "EM")
-                {
-                    Process process = new Process();
-                    ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = DataCenter.GetAppPath() + "\\iTeam.exe";
-                    startInfo.Arguments = "-email";
-                    process.StartInfo = startInfo;
-                    process.Start();
-                }
             }
         }
 
@@ -486,7 +477,6 @@ namespace OwLib
             type1List.Add(new UserAppsTable("OW", "加班记录"));
             type3List.Add(new UserAppsTable("BC", "名片"));
             type2List.Add(new UserAppsTable("TR", "个人训练"));
-            type2List.Add(new UserAppsTable("EM", "招聘管理"));
             GetApps(type1List, type2List, type3List, type4List);
             RegisterEvents(control);
         }

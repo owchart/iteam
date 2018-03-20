@@ -36,12 +36,6 @@ namespace OwLib
                 mainForm.LoadXml("PlanWindow");
                 Application.Run(mainForm);
             }
-            else if (args[0].Trim() == "-email")
-            {
-                MainForm mainForm = new MainForm();
-                mainForm.LoadXml("EmailWindow");
-                Application.Run(mainForm);
-            }
         }
 
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
