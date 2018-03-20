@@ -7,6 +7,8 @@ using System.IO;
 using OwLib;
 using System.Runtime.InteropServices;
 using System.Text;
+using iTeam;
+using OpenPop.Pop3;
 
 namespace OwLib
 {
@@ -27,11 +29,17 @@ namespace OwLib
                 mainForm.LoadXml("MainFrame");
                 Application.Run(mainForm);
             }
-            else if(args[0].Trim() == "-plan")
+            else if (args[0].Trim() == "-plan")
             {
                 CDraw.m_drawType = 1;
                 MainForm mainForm = new MainForm();
                 mainForm.LoadXml("PlanWindow");
+                Application.Run(mainForm);
+            }
+            else if (args[0].Trim() == "-email")
+            {
+                MainForm mainForm = new MainForm();
+                mainForm.LoadXml("EmailWindow");
                 Application.Run(mainForm);
             }
         }

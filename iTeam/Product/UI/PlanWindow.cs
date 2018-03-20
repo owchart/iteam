@@ -30,11 +30,6 @@ namespace OwLib
         private GridA m_gridPlan;
 
         /// <summary>
-        /// 方法库
-        /// </summary>
-        private INativeBase m_native;
-
-        /// <summary>
         /// 计划服务
         /// </summary>
         private PlanService m_planService = DataCenter.PlanService;
@@ -210,7 +205,7 @@ namespace OwLib
 
             }
             m_gridPlan.EndUpdate();
-            m_native.Invalidate();
+            Native.Invalidate();
             columnsIndex.Clear();
             pids.Clear();
             plans.Clear();
@@ -292,9 +287,8 @@ namespace OwLib
         public override void Load(String xmlPath)
         {
             LoadFile(xmlPath, null);
-            m_native = Native;
             m_gridPlan = GetGrid("gridPlan");
-            RegisterEvents(m_native.GetControls()[0]);
+            RegisterEvents(Native.GetControls()[0]);
         }
 
         /// 注册事件
@@ -367,7 +361,7 @@ namespace OwLib
                         btnStart.Text = "启动任务";
                         btnStart.ForeColor = CDraw.PCOLORS_DOWNCOLOR;
                     }
-                    m_native.Invalidate();
+                    Native.Invalidate();
                 }
             }
         }
@@ -396,7 +390,7 @@ namespace OwLib
                     btnStart.Text = "禁用任务";
                     btnStart.ForeColor = CDraw.PCOLORS_UPCOLOR;
                 }
-                m_native.Invalidate();
+                Native.Invalidate();
             }
         }
 

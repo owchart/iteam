@@ -146,14 +146,17 @@ namespace OwLib
         /// <returns>状态</returns>
         private double PLAN_DELETE(CVariable var)
         {
-            if (m_indicator.Name != null && m_indicator.Name.Length > 0)
+            if (DialogResult.Yes == MessageBox.Show("是否确认删除?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
             {
-                DataCenter.PlanService.RemoveService(m_indicator.Name);
-            }
-            else
-            {
-                PlanWindow planWindow = DataCenter.PlanWindow;
-                planWindow.Delete();
+                if (m_indicator.Name != null && m_indicator.Name.Length > 0)
+                {
+                    DataCenter.PlanService.RemoveService(m_indicator.Name);
+                }
+                else
+                {
+                    PlanWindow planWindow = DataCenter.PlanWindow;
+                    planWindow.Delete();
+                }
             }
             return 1;
         }

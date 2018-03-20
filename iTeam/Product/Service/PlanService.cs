@@ -299,12 +299,12 @@ namespace OwLib
                             else
                             {
                                 //计算出最近的执行时间
-                                long newDate = plan.m_nextTime + timeSpan;
-                                while (newDate < nowTicks)
-                                {
-                                    newDate += timeSpan;
-                                }
-                                plan.m_nextTime = newDate;
+                                //long newDate = plan.m_nextTime + timeSpan;
+                                //while (newDate < nowTicks)
+                                //{
+                                //    newDate += timeSpan;
+                                //}
+                                //plan.m_nextTime = newDate;
                             }
                         }
                     }

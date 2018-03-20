@@ -73,6 +73,11 @@ namespace OwLib
                 DataCenter.PlanWindow = m_xml as PlanWindow;
                 timer.Stop();
             }
+            else if (name == "EmailWindow")
+            {
+                m_xml = new EmailWindow();
+                timer.Stop();
+            }
             m_xml.CreateNative();
             m_native = m_xml.Native;
             m_native.Paint = new GdiPlusPaintEx();
