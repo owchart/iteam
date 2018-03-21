@@ -37,22 +37,12 @@ namespace OwLib
     /// <summary>
     /// 主机信息
     /// </summary>
-    public class HostInfo
+    public class GintechHostInfo
     {
         /// <summary>
         /// IP地址
         /// </summary>
         public String m_ip;
-
-        /// <summary>
-        /// 端口
-        /// </summary>
-        public int m_port;
-
-        /// <summary>
-        /// 端口
-        /// </summary>
-        public int m_socketID;
     }
 
     /// <summary>
@@ -80,9 +70,9 @@ namespace OwLib
         public const int FUNCTIONID_GETHOSTS = 1;
 
         /// <summary>
-        /// 发送聊天功能ID
+        /// 广播聊天功能ID
         /// </summary>
-        public const int FUNCTIONID_GINTECH_SEND = 2;
+        public const int FUNCTIONID_GINTECH_SENDALL = 2;
 
         /// <summary>
         /// 接收聊天功能ID
@@ -139,17 +129,15 @@ namespace OwLib
         /// <param name="body">包体</param>
         /// <param name="bodyLength">包体长度</param>
         /// <returns></returns>
-        public static int GetHostInfos(List<HostInfo> datas, byte[] body, int bodyLength)
+        public static int GetHostInfos(List<GintechHostInfo> datas, byte[] body, int bodyLength)
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
             int size = br.ReadInt();
             for (int i = 0; i < size; i++)
             {
-                HostInfo data = new HostInfo();
+                GintechHostInfo data = new GintechHostInfo();
                 data.m_ip = br.ReadString();
-                data.m_port = br.ReadInt();
-                data.m_socketID = br.ReadInt();
                 datas.Add(data);
             }
             br.Close();
@@ -175,10 +163,7 @@ namespace OwLib
         public override void OnReceive(CMessage message)
         {
             base.OnReceive(message);
-            if (message.m_functionID == FUNCTIONID_GINTECH_RECV)
-            {
-                SendToListener(message);
-            }         
+            SendToListener(message);  
         }
 
         /// <summary>
@@ -191,7 +176,7 @@ namespace OwLib
         {
             List<GintechData> datas = new List<GintechData>();
             datas.Add(data);
-            int ret = SendAll(FUNCTIONID_GINTECH_SEND, requestID, datas);
+            int ret = SendAll(FUNCTIONID_GINTECH_SENDALL, requestID, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }

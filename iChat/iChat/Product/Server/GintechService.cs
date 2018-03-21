@@ -39,22 +39,12 @@ namespace OwLibSV
     /// <summary>
     /// 主机信息
     /// </summary>
-    public class HostInfo
+    public class GintechHostInfo
     {
         /// <summary>
         /// IP地址
         /// </summary>
         public String m_ip;
-
-        /// <summary>
-        /// 端口
-        /// </summary>
-        public int m_port;
-
-        /// <summary>
-        /// 端口
-        /// </summary>
-        public int m_socketID;
     }
 
     /// <summary>
@@ -92,9 +82,9 @@ namespace OwLibSV
         public const int FUNCTIONID_GETHOSTS = 1;
 
         /// <summary>
-        /// 发送聊天功能ID
+        /// 广播聊天功能ID
         /// </summary>
-        public const int FUNCTIONID_GINTECH_SEND = 2;
+        public const int FUNCTIONID_GINTECH_SENDALL = 2;
 
         /// <summary>
         /// 接收聊天功能ID
@@ -130,15 +120,15 @@ namespace OwLibSV
         /// <returns>状态</returns>
         public int GetHostInfos(CMessage message)
         {
-            List<HostInfo> hostInfos = new List<HostInfo>();
+            List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
             lock (m_socketIDs)
             {
                 foreach (int socketID in m_socketIDs.Keys)
                 {
-                    HostInfo hf = new HostInfo();
-                    hf.m_socketID = socketID;
-                    hf.m_ip = m_socketIDs[socketID];
-                    hf.m_port = 0;
+                    GintechHostInfo hf = new GintechHostInfo();
+                    String strIPPort = m_socketIDs[socketID].Replace("accept:", "");
+                    String[] strs = strIPPort.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                    hf.m_ip = strs[0];
                     hostInfos.Add(hf);
                 }
             }
@@ -147,10 +137,8 @@ namespace OwLibSV
             bw.WriteInt(hostInfosSize);
             for (int i = 0; i < hostInfosSize; i++)
             {
-                HostInfo hostInfo = hostInfos[i];
+                GintechHostInfo hostInfo = hostInfos[i];
                 bw.WriteString(hostInfo.m_ip);
-                bw.WriteInt(hostInfo.m_port);
-                bw.WriteInt(hostInfo.m_socketID);
             }
             byte[] bytes = bw.GetBytes();
             message.m_body = bytes;
@@ -217,7 +205,7 @@ namespace OwLibSV
                 case FUNCTIONID_GETHOSTS:
                     GetHostInfos(message);
                     break;
-                case FUNCTIONID_GINTECH_SEND:
+                case FUNCTIONID_GINTECH_SENDALL:
                     SendAll(message);
                     break;
                 default:

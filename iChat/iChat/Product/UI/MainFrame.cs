@@ -108,24 +108,33 @@ namespace OwLib
             CMessage message = args as CMessage;
             if (message.m_serviceID == GintechService.SERVICEID_GINTECH)
             {
-                List<GintechData> datas = new List<GintechData>();
-                GintechService.GetGintechDatas(datas, message.m_body, message.m_bodyLength);
-                int datasSize = datas.Count;
-                for (int i = 0; i < datasSize; i++)
+                if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_RECV)
                 {
-                    GintechData data = datas[i];
-                    if (data.m_type == 1)
+                    List<GintechData> datas = new List<GintechData>();
+                    GintechService.GetGintechDatas(datas, message.m_body, message.m_bodyLength);
+                    int datasSize = datas.Count;
+                    for (int i = 0; i < datasSize; i++)
                     {
-                        CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
-                        indicator.Clear();
-                        indicator.Dispose();
+                        GintechData data = datas[i];
+                        if (data.m_type == 1)
+                        {
+                            CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
+                            indicator.Clear();
+                            indicator.Dispose();
+                        }
+                        else
+                        {
+                            Barrage barrage = new Barrage();
+                            barrage.Text = data.m_text;
+                            m_barrageDiv.AddBarrage(barrage);
+                        }
                     }
-                    else
-                    {
-                        Barrage barrage = new Barrage();
-                        barrage.Text = data.m_text;
-                        m_barrageDiv.AddBarrage(barrage);
-                    }
+                    DataCenter.ClientGintechService.GetHostInfos(DataCenter.ClientGintechService.RequestID);
+                }
+                else if (message.m_functionID == GintechService.FUNCTIONID_GETHOSTS)
+                {
+                    List<GintechHostInfo> datas = new List<GintechHostInfo>();
+                    GintechService.GetHostInfos(datas, message.m_body, message.m_bodyLength);
                 }
             }
         }
