@@ -163,20 +163,6 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 秒表事件
-        /// </summary>
-        /// <param name="sender">调用者</param>
-        /// <param name="e">参数</param>
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            m_tick--;
-            if (m_tick <= 0)
-            {
-                Environment.Exit(0);
-            }
-        }
-
-        /// <summary>
         /// 消息监听
         /// </summary>
         /// <param name="m"></param>

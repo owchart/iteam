@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                             *
-* ChatService.cs -  Base service functions, types, and definitions            *
+* GintechService.cs -  Gintech service functions, types, and definitions            *
 *                                                                             *
 *               Version 1.00 ★                                               *
 *                                                                             *
@@ -19,7 +19,7 @@ namespace OwLib
     /// <summary>
     /// 聊天数据
     /// </summary>
-    public class ChatData
+    public class GintechData
     {
         #region 齐春友 2016/6/9
         /// <summary>
@@ -35,33 +35,59 @@ namespace OwLib
     }
 
     /// <summary>
+    /// 主机信息
+    /// </summary>
+    public class HostInfo
+    {
+        /// <summary>
+        /// IP地址
+        /// </summary>
+        public String m_ip;
+
+        /// <summary>
+        /// 端口
+        /// </summary>
+        public int m_port;
+
+        /// <summary>
+        /// 端口
+        /// </summary>
+        public int m_socketID;
+    }
+
+    /// <summary>
     /// 聊天服务
     /// </summary>
-    public class ChatService:BaseService
+    public class GintechService:BaseService
     {
         #region 齐春友 2016/6/3
         /// <summary>
         /// 构造函数
         /// </summary>
-        public ChatService()
+        public GintechService()
         {
-            ServiceID = SERVICEID_CHAT;
+            ServiceID = SERVICEID_GINTECH;
         }
 
         /// <summary>
         /// 聊天服务ID
         /// </summary>
-        public const int SERVICEID_CHAT = 7;
+        public const int SERVICEID_GINTECH = 7;
+
+        /// <summary>
+        /// 主机信息
+        /// </summary>
+        public const int FUNCTIONID_GETHOSTS = 1;
 
         /// <summary>
         /// 发送聊天功能ID
         /// </summary>
-        public const int FUNCTIONID_CHAT_SENDALL = 2;
+        public const int FUNCTIONID_GINTECH_SEND = 2;
 
         /// <summary>
         /// 接收聊天功能ID
         /// </summary>
-        public const int FUNCTIONID_CHAT_RECV = 3;
+        public const int FUNCTIONID_GINTECH_RECV = 3;
 
         private int m_requestID = BaseService.GetRequestID();
 
@@ -91,20 +117,55 @@ namespace OwLib
         /// <param name="body">包体</param>
         /// <param name="bodyLength">包体长度</param>
         /// <returns></returns>
-        public static int GetChatDatas(List<ChatData> datas, byte[] body, int bodyLength)
+        public static int GetGintechDatas(List<GintechData> datas, byte[] body, int bodyLength)
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
             int size = br.ReadInt();
             for (int i = 0; i < size; i++)
             {
-                ChatData chat = new ChatData();
-                chat.m_type = br.ReadChar();
-                chat.m_text = br.ReadString();
-                datas.Add(chat);
+                GintechData data = new GintechData();
+                data.m_type = br.ReadChar();
+                data.m_text = br.ReadString();
+                datas.Add(data);
             }
             br.Close();
             return 1;     
+        }
+
+        /// <summary>
+        /// 获取主机信息
+        /// </summary>
+        /// <param name="body">包体</param>
+        /// <param name="bodyLength">包体长度</param>
+        /// <returns></returns>
+        public static int GetHostInfos(List<HostInfo> datas, byte[] body, int bodyLength)
+        {
+            Binary br = new Binary();
+            br.Write(body, bodyLength);
+            int size = br.ReadInt();
+            for (int i = 0; i < size; i++)
+            {
+                HostInfo data = new HostInfo();
+                data.m_ip = br.ReadString();
+                data.m_port = br.ReadInt();
+                data.m_socketID = br.ReadInt();
+                datas.Add(data);
+            }
+            br.Close();
+            return 1;     
+        }
+
+        /// <summary>
+        /// 获取主机信息
+        /// </summary>
+        /// <param name="requestID"></param>
+        /// <returns></returns>
+        public int GetHostInfos(int requestID)
+        {
+            byte[] bytes = new byte[1];
+            int ret = Send(new CMessage(GroupID, ServiceID, FUNCTIONID_GETHOSTS, SessionID, requestID, m_socketID, 0, CompressType, bytes.Length, bytes));
+            return ret > 0 ? 1 : 0;
         }
 
         /// <summary>
@@ -114,7 +175,7 @@ namespace OwLib
         public override void OnReceive(CMessage message)
         {
             base.OnReceive(message);
-            if (message.m_functionID == FUNCTIONID_CHAT_RECV)
+            if (message.m_functionID == FUNCTIONID_GINTECH_RECV)
             {
                 SendToListener(message);
             }         
@@ -126,11 +187,11 @@ namespace OwLib
         /// <param name="userID">用户ID</param>
         /// <param name="requestID">请求ID</param>
         /// <param name="args"></param>
-        public int Send(int requestID, ChatData chat)
+        public int Send(int requestID, GintechData data)
         {
-            List<ChatData> datas = new List<ChatData>();
-            datas.Add(chat);
-            int ret = SendToAllClients(FUNCTIONID_CHAT_SENDALL, requestID, datas);
+            List<GintechData> datas = new List<GintechData>();
+            datas.Add(data);
+            int ret = SendAll(FUNCTIONID_GINTECH_SEND, requestID, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }
@@ -141,16 +202,16 @@ namespace OwLib
         /// <param name="userID">方法ID</param>
         /// <param name="userID">请求ID</param>
         /// <param name="text">发送字符</param>
-        public int SendToAllClients(int functionID, int requestID, List<ChatData> datas)
+        public int SendAll(int functionID, int requestID, List<GintechData> datas)
         {
             Binary bw = new Binary();
-            int chatSize = datas.Count;
-            bw.WriteInt(chatSize);
-            for (int i = 0; i < chatSize; i++)
+            int dataSize = datas.Count;
+            bw.WriteInt(dataSize);
+            for (int i = 0; i < dataSize; i++)
             {
-                ChatData chat = datas[i];
-                bw.WriteChar((char)chat.m_type);
-                bw.WriteString(chat.m_text);
+                GintechData data = datas[i];
+                bw.WriteChar((char)data.m_type);
+                bw.WriteString(data.m_text);
             }
             byte[] bytes = bw.GetBytes();
             int ret = Send(new CMessage(GroupID, ServiceID, functionID, SessionID, requestID, m_socketID, 0, CompressType, bytes.Length, bytes));

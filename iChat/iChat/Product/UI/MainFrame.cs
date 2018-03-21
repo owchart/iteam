@@ -51,7 +51,7 @@ namespace OwLib
         /// 聊天数据回调
         /// </summary>
         /// <param name="message">消息</param>
-        public void ChatMessageCallBack(CMessage message)
+        public void GintechMessageCallBack(CMessage message)
         {
             m_mainDiv.BeginInvoke(message);
         }
@@ -72,9 +72,13 @@ namespace OwLib
                 String name = control.Name;
                 if (name == "btnSend")
                 {
-                    ChatData chatData = new ChatData();
-                    chatData.m_text = GetTextBox("txtSend").Text;
-                    DataCenter.ClientChatService.Send(DataCenter.ClientChatService.RequestID, chatData);
+                    GintechData gintechData = new GintechData();
+                    gintechData.m_text = GetTextBox("txtSend").Text;
+                    if (GetRadioButton("rbCmd").Checked)
+                    {
+                        gintechData.m_type = 1;
+                    }
+                    DataCenter.ClientGintechService.Send(DataCenter.ClientGintechService.RequestID, gintechData);
                 }
             }
         }
@@ -102,17 +106,26 @@ namespace OwLib
         public void Invoke(object sender, object args)
         {
             CMessage message = args as CMessage;
-            if (message.m_serviceID == ChatService.SERVICEID_CHAT)
+            if (message.m_serviceID == GintechService.SERVICEID_GINTECH)
             {
-                List<ChatData> datas = new List<ChatData>();
-                ChatService.GetChatDatas(datas, message.m_body, message.m_bodyLength);
+                List<GintechData> datas = new List<GintechData>();
+                GintechService.GetGintechDatas(datas, message.m_body, message.m_bodyLength);
                 int datasSize = datas.Count;
                 for (int i = 0; i < datasSize; i++)
                 {
-                    ChatData data = datas[i];
-                    CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
-                    indicator.Clear();
-                    indicator.Dispose();
+                    GintechData data = datas[i];
+                    if (data.m_type == 1)
+                    {
+                        CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
+                        indicator.Clear();
+                        indicator.Dispose();
+                    }
+                    else
+                    {
+                        Barrage barrage = new Barrage();
+                        barrage.Text = data.m_text;
+                        m_barrageDiv.AddBarrage(barrage);
+                    }
                 }
             }
         }
@@ -149,7 +162,7 @@ namespace OwLib
             ControlPaintEvent paintLayoutEvent = new ControlPaintEvent(PaintLayoutDiv);
             m_mainDiv.RegisterEvent(paintLayoutEvent, EVENTID.PAINT);
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
-            DataCenter.ClientChatService.RegisterListener(DataCenter.ClientChatService.RequestID, new ListenerMessageCallBack(ChatMessageCallBack));
+            DataCenter.ClientGintechService.RegisterListener(DataCenter.ClientGintechService.RequestID, new ListenerMessageCallBack(GintechMessageCallBack));
             m_barrageDiv = new BarrageDiv();
             m_barrageDiv.Dock = DockStyleA.Fill;
             m_barrageDiv.TopMost = true;

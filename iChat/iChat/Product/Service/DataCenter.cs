@@ -31,24 +31,24 @@ namespace OwLib
     public class DataCenter
     {
         #region Lord 2016/3/10
-        private static OwLib.ChatService m_clientChatService = new OwLib.ChatService();
+        private static OwLib.GintechService m_clientGintechService = new OwLib.GintechService();
 
         /// <summary>
         /// 获取客户端的聊天服务
         /// </summary>
-        public static OwLib.ChatService ClientChatService
+        public static OwLib.GintechService ClientGintechService
         {
-            get { return DataCenter.m_clientChatService; }
+            get { return DataCenter.m_clientGintechService; }
         }
 
-        private static OwLibSV.ChatService m_serverChatService = new OwLibSV.ChatService();
+        private static OwLibSV.GintechService m_serverGintechService = new OwLibSV.GintechService();
 
         /// <summary>
         /// 获取服务端的聊天服务
         /// </summary>
-        public static OwLibSV.ChatService ServerChatService
+        public static OwLibSV.GintechService ServerGintechService
         {
-            get { return DataCenter.m_serverChatService; }
+            get { return DataCenter.m_serverGintechService; }
         }
 
         private static UIXmlEx m_mainUI;
@@ -106,11 +106,11 @@ namespace OwLib
         /// <param name="appPath">程序路径</param>
         public static void StartService()
         {
-            OwLibSV.BaseService.AddService(m_serverChatService);
+            OwLibSV.BaseService.AddService(m_serverGintechService);
             OwLibSV.BaseService.StartServer(0, 9966);
-            OwLib.BaseService.AddService(m_clientChatService);
+            OwLib.BaseService.AddService(m_clientGintechService);
             int socketID = OwLib.BaseService.Connect("127.0.0.1", 9966);
-            m_clientChatService.SocketID = socketID;
+            m_clientGintechService.SocketID = socketID;
 
         }
         #endregion
