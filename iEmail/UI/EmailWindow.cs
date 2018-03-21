@@ -102,11 +102,12 @@ namespace OwLib
         /// <summary>
         /// 绑定表格
         /// </summary>
-        public void BindGrid(String[] files)
+        public void BindGrid(String[] files, bool isNew)
         {
             int filesSize = files.Length;
             m_gridEmail.BeginUpdate();
             String sendDir = DataCenter.GetAppPath() + "\\send";
+            String contactDir = DataCenter.GetAppPath() + "\\contact";
             for (int i = filesSize - 1; i >= 0; i--)
             {
                 String file = files[i];
@@ -115,7 +116,14 @@ namespace OwLib
                 if (content != null && content.Length > 100)
                 {
                     GridRow row = new GridRow();
-                    m_gridEmail.AddRow(row);
+                    if (isNew)
+                    {
+                        m_gridEmail.InsertRow(0, row);
+                    }
+                    else
+                    {
+                        m_gridEmail.AddRow(row);
+                    }
                     String date = file.Substring(file.LastIndexOf("\\") + 1);
                     String identifier1 = "padding-left:12px;line-height:50px\">";
                     int year = CStr.ConvertStrToInt(date.Substring(0, 4));
@@ -222,11 +230,11 @@ namespace OwLib
                             salary = content.Substring(idx5 + identifier5.Length, salaryIndex2 - idx5 - identifier5.Length);
                             if (Math.Abs(salaryIndex - salaryIndex2) < 50)
                             {
-                                salary = "期望" + salary;
+                                salary = salary;
                             }
                             else
                             {
-                                salary = "目前" + salary;
+                                salary = salary + "以上";
                             }
                         }
                     }
@@ -241,17 +249,21 @@ namespace OwLib
                     }
                     int jingYan = 0;
                     int startIndex = 0;
-                    while (true)
+                    if (jingYan == 0)
                     {
-                        int index = content.IndexOf("企业性质", startIndex);
-                        if (index != -1)
+                        startIndex = 0;
+                        while (true)
                         {
-                            jingYan++;
-                            startIndex = index + 50;
-                        }
-                        else
-                        {
-                            break;
+                            int index = content.IndexOf("工作描述：", startIndex);
+                            if (index != -1)
+                            {
+                                jingYan++;
+                                startIndex = index + 50;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                     row.AddCell("colP1", new GridStringCell(dt.ToString("yyyy-MM-dd HH:mm:ss")));
@@ -265,21 +277,69 @@ namespace OwLib
                     row.AddCell("colP9", new GridStringCell(salary));
                     row.AddCell("colP10", new GridStringCell(zhiye));
                     row.AddCell("colP11", new GridStringCell(jingYan.ToString()));
-                    if (CFileA.IsFileExist(sendDir + "\\" + file.Substring(file.LastIndexOf("\\") + 1)))
+                    String contactFile = contactDir + "\\" + file.Substring(file.LastIndexOf("\\") + 1);
+                    String strPhone = "";
+                    String strEmail = "";
+                    if (CFileA.IsFileExist(contactFile))
                     {
-                        row.AddCell("colP12", new GridStringCell("已发送"));
-                        row.GetCell("colP12").Style = new GridCellStyle();
-                        row.GetCell("colP12").Style.BackColor = COLOR.ARGB(255, 0, 0);
-                        row.GetCell("colP12").Style.ForeColor = COLOR.ARGB(255, 255, 255);
+                        String content2 = "";
+                        CFileA.Read(contactFile, ref content2);
+                        String[] strs = content2.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                        strPhone = strs[0];
+                        strEmail = strs[1];
+                        row.AddCell("colP12", new GridStringCell(strPhone));
+                        row.AddCell("colP13", new GridStringCell(strEmail));
                     }
                     else
                     {
-                        row.AddCell("colP12", new GridStringCell("单击发送"));
-                        row.GetCell("colP12").Style = new GridCellStyle();
-                        row.GetCell("colP12").Style.BackColor = COLOR.ARGB(0, 255, 0);
-                        row.GetCell("colP12").Style.ForeColor = COLOR.ARGB(0, 0, 0);
+                        if (isNew)
+                        {
+                            int idxH = content.IndexOf("https://ihr.zhaopin.com/job/relay.html?");
+                            if (idxH == -1)
+                            {
+                                idxH = content.IndexOf("http://rd.zhaopin.com/resumepreview/resume/emailim?ldparam=");
+                            }
+                            int idxH2 = content.IndexOf(">", idxH + 10);
+                            String url = content.Substring(idxH, idxH2 - idxH - 1);
+                            String contentUrl = "https://ihr.zhaopin.com/resumemanage/emailim.do?s=" + url.Replace("https://ihr.zhaopin.com/job/relay.html?param=", "").Replace("http://rd.zhaopin.com/resumepreview/resume/emailim?ldparam=", "");
+                            String text = HttpGetService.Get(contentUrl);
+                            if (text != null && text.Length > 0)
+                            {
+                                try
+                                {
+                                    String identifierP = "\"phone\":\"";
+                                    int pIndex = text.IndexOf(identifierP);
+                                    int pIndex2 = text.IndexOf("\",\"email\"");
+                                    strPhone = text.Substring(pIndex + identifierP.Length, pIndex2 - pIndex - identifierP.Length);
+                                    identifierP = "\",\"email\":\"";
+                                    int pIndex3 = text.IndexOf("\",\"gid\":\"");
+                                    strEmail = text.Substring(pIndex2 + identifierP.Length, pIndex3 - pIndex2 - identifierP.Length);
+                                    CFileA.Write(contactFile, strPhone + "," + strEmail);
+                                }
+                                catch (Exception ex)
+                                {
+                                }
+                            }
+                        }
+                        row.AddCell("colP12", new GridStringCell(strPhone));
+                        row.AddCell("colP13", new GridStringCell(strEmail));
                     }
-                    row.AddCell("colP13", new GridStringCell(file));
+                    if (strPhone.Length > 0 && CFileA.IsFileExist(sendDir + "\\" + strPhone))
+                    {
+                        row.AddCell("colP14", new GridStringCell("已发送"));
+                        row.GetCell("colP14").Style = new GridCellStyle();
+                        row.GetCell("colP14").Style.BackColor = COLOR.ARGB(255, 0, 0);
+                        row.GetCell("colP14").Style.ForeColor = COLOR.ARGB(255, 255, 255);
+                    }
+                    else
+                    {
+                        row.AddCell("colP14", new GridStringCell("点击发送"));
+                        row.GetCell("colP14").Style = new GridCellStyle();
+                        row.GetCell("colP14").Style.BackColor = COLOR.ARGB(0, 255, 0);
+                        row.GetCell("colP14").Style.ForeColor = COLOR.ARGB(0, 0, 0);
+                    }
+                    row.AddCell("colP15", new GridStringCell(file));
+                    row.AddCell("colP16", new GridStringCell(content));
                 }
             }
             FilterGrid();
@@ -311,7 +371,7 @@ namespace OwLib
                     m_emailCondition.m_filterStatus = GetComboBox("cbStatus").Text;
                     m_emailCondition.m_filterXueli = GetComboBox("cbXueli").Text;
                     m_emailCondition.m_filterJingYan = GetTextBox("txtJingYan").Text;
-                    m_emailCondition.m_filterZhiYe = GetTextBox("txtZhiYe").Text;
+                    m_emailCondition.m_filterKey = GetTextBox("txtZhiYe").Text;
                     FilterGrid();
                     m_gridEmail.Update();
                     m_gridEmail.Invalidate();
@@ -328,9 +388,9 @@ namespace OwLib
                     emailCondition.m_filterStatus = GetComboBox("cbStatus").Text;
                     emailCondition.m_filterXueli = GetComboBox("cbXueli").Text;
                     emailCondition.m_filterJingYan = GetTextBox("txtJingYan").Text;
-                    emailCondition.m_filterZhiYe = GetTextBox("txtZhiYe").Text;
+                    emailCondition.m_filterKey = GetTextBox("txtZhiYe").Text;
                     m_emailConditions.Add(emailCondition);
-                    String conditionFilePath = DataCenter.GetAppPath() + "\\condition.txt";
+                    String conditionFilePath = DataCenter.GetAppPath() + "\\condition.dat";
                     CFileA.Write(conditionFilePath, JsonConvert.SerializeObject(m_emailConditions));
                     BindConditions();
                 }
@@ -344,7 +404,7 @@ namespace OwLib
                         m_emailConditions.Remove(selectedRow.Tag as EmailCondition);
                         m_gridCondition.OnRowEditEnd();
                         m_gridCondition.RemoveRow(selectedRow);
-                        String conditionFilePath = DataCenter.GetAppPath() + "\\condition.txt";
+                        String conditionFilePath = DataCenter.GetAppPath() + "\\condition.dat";
                         CFileA.Write(conditionFilePath, JsonConvert.SerializeObject(m_emailConditions));
                         BindConditions();
                     }
@@ -399,14 +459,15 @@ namespace OwLib
                 {
                     DateTime dt = Convert.ToDateTime(row.GetCell("colP1").GetString());
                     DateTime now = DateTime.Now;
-                    if (dt <= now.AddDays(-m_emailCondition.m_filterDate))
+                    if (dt <= now.AddHours(-m_emailCondition.m_filterDate * 24))
                     {
                         visible = false;
                     }
                 }
                 if (visible)
                 {
-                    DateTime dt = Convert.ToDateTime(row.GetCell("colP3").GetString());
+                    DateTime dt = DateTime.MinValue;
+                    DateTime.TryParse(row.GetCell("colP3").GetString(), out dt);
                     DateTime now = DateTime.Now;
                     if (dt <= now.AddYears(-m_emailCondition.m_filterAge))
                     {
@@ -425,11 +486,18 @@ namespace OwLib
                 }
                 if (visible)
                 {
-                    if (m_emailCondition.m_filterZhiYe.Length > 0)
+                    if (m_emailCondition.m_filterKey.Length > 0)
                     {
-                        if (m_emailCondition.m_filterZhiYe.Length > 0)
+                        String[] keys = m_emailCondition.m_filterKey.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                        int keysSize = keys.Length;
+                        String content = row.GetCell("colP16").GetString();
+                        for (int j = 0; j < keysSize; j++)
                         {
-                            visible = row.GetCell("colP10").GetString().IndexOf(m_emailCondition.m_filterZhiYe) != -1;
+                            if (content.IndexOf(keys[j]) == -1)
+                            {
+                                visible = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -461,36 +529,85 @@ namespace OwLib
             }
             else
             {
-                if (cell.Column.Name == "colP12")
+                if (cell.Column.Name == "colP14")
                 {
                     if (clicks == 1)
                     {
-                        String file = cell.Row.GetCell("colP13").GetString();
+                        String file = cell.Row.GetCell("colP15").GetString();
                         String content = "";
                         CFileA.Read(file, ref content);
                         if (content != null && content.Length > 0)
                         {
                             try
                             {
-                                int idx = content.IndexOf("https://ihr.zhaopin.com/job/relay.html?");
-                                int idx2 = content.IndexOf(">", idx + 10);
-                                String url = content.Substring(idx, idx2 - idx - 1);
-                                String text = HttpGetService.Get(url);
-                                StringBuilder sb = new StringBuilder();
-                                sb.AppendLine("姓名:" + cell.Row.GetCell("colP2").GetString());
-                                sb.AppendLine("性别:" + cell.Row.GetCell("colP5").GetString());
-                                sb.AppendLine("职位:" + cell.Row.GetCell("colP10").GetString());
-                                sb.AppendLine("联系方式:" + url);
-                                SendMail("MingYue.Xu@gaiafintech.com", "请通知面试", sb.ToString());
-                                String sendDir = DataCenter.GetAppPath() + "\\send";
-                                String filePath = sendDir + "\\" + file.Substring(file.LastIndexOf("\\") + 1);
-                                CFileA.Write(filePath, "");
-                                cell.Row.GetCell("colP12").Text = "已发送";
-                                cell.Row.GetCell("colP12").Style = new GridCellStyle();
-                                cell.Row.GetCell("colP12").Style.BackColor = COLOR.ARGB(255, 0, 0);
-                                cell.Row.GetCell("colP12").Style.ForeColor = COLOR.ARGB(255, 255, 255);
-                                m_gridEmail.Invalidate();
-
+                                String strPhone = "";
+                                String strEmail = "";
+                                String contactDir = DataCenter.GetAppPath() + "\\contact";
+                                String contactFile = contactDir + "\\" + file.Substring(file.LastIndexOf("\\") + 1);
+                                if (CFileA.IsFileExist(contactFile))
+                                {
+                                    String content2 = "";
+                                    CFileA.Read(contactFile, ref content2);
+                                    String[] strs = content2.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                                    strPhone = strs[0];
+                                    strEmail = strs[1];
+                                }
+                                else
+                                {
+                                    int idxH = content.IndexOf("https://ihr.zhaopin.com/job/relay.html?");
+                                    if (idxH == -1)
+                                    {
+                                        idxH = content.IndexOf("http://rd.zhaopin.com/resumepreview/resume/emailim?ldparam=");
+                                    }
+                                    int idxH2 = content.IndexOf(">", idxH + 10);
+                                    String url = content.Substring(idxH, idxH2 - idxH - 1);
+                                    String contentUrl = "https://ihr.zhaopin.com/resumemanage/emailim.do?s=" + url.Replace("https://ihr.zhaopin.com/job/relay.html?param=", "").Replace("http://rd.zhaopin.com/resumepreview/resume/emailim?ldparam=", "");
+                                    String text = HttpGetService.Get(contentUrl);
+                                    if (text != null && text.Length > 0)
+                                    {
+                                        try
+                                        {
+                                            String identifierP = "\"phone\":\"";
+                                            int pIndex = text.IndexOf(identifierP);
+                                            int pIndex2 = text.IndexOf("\",\"email\"");
+                                            identifierP = "\",\"email\":\"";
+                                            int pIndex3 = text.IndexOf("\",\"gid\":\"");
+                                            strEmail = text.Substring(pIndex2 + identifierP.Length, pIndex3 - pIndex2 - identifierP.Length);
+                                            CFileA.Write(contactFile, strPhone + "," + strEmail);
+                                            cell.Row.GetCell("colP12").SetString(strPhone);
+                                            cell.Row.GetCell("colP13").SetString(strPhone);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                        }
+                                    }
+                                }
+                                if (strPhone != null && strPhone.Length > 0)
+                                {
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.AppendLine("职位:" + cell.Row.GetCell("colP10").GetString());
+                                    sb.AppendLine("姓名:" + cell.Row.GetCell("colP2").GetString());
+                                    sb.AppendLine("性别:" + cell.Row.GetCell("colP5").GetString());
+                                    sb.AppendLine("户口:" + cell.Row.GetCell("colP6").GetString());
+                                    sb.AppendLine("月薪:" + cell.Row.GetCell("colP9").GetString());
+                                    sb.AppendLine("工作经验:" + cell.Row.GetCell("colP11").GetString() + "次");
+                                    sb.AppendLine("状态:" + cell.Row.GetCell("colP8").GetString());
+                                    sb.AppendLine("手机:" + strPhone);
+                                    sb.AppendLine("邮箱:" + strEmail);
+                                    SendMail("MingYue.Xu@gaiafintech.com", "请通知面试", sb.ToString());
+                                    String sendDir = DataCenter.GetAppPath() + "\\send";
+                                    String filePath = sendDir + "\\" + strPhone;
+                                    CFileA.Write(filePath, "");
+                                    cell.Row.GetCell("colP14").Text = "已发送";
+                                    cell.Row.GetCell("colP14").Style = new GridCellStyle();
+                                    cell.Row.GetCell("colP14").Style.BackColor = COLOR.ARGB(255, 0, 0);
+                                    cell.Row.GetCell("colP14").Style.ForeColor = COLOR.ARGB(255, 255, 255);
+                                    m_gridEmail.Invalidate();
+                                }
+                                else
+                                {
+                                    MessageBox.Show("发送失败");
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -503,7 +620,7 @@ namespace OwLib
                 {
                     if (clicks == 2)
                     {
-                        String file = cell.Row.GetCell("colP13").GetString();
+                        String file = cell.Row.GetCell("colP15").GetString();
                         Process.Start(file);
                     }
                 }
@@ -520,7 +637,7 @@ namespace OwLib
             if (cell != null)
             {
                 (cell.Row.Tag as EmailCondition).m_name = cell.GetString();
-                String conditionFilePath = DataCenter.GetAppPath() + "\\condition.txt";
+                String conditionFilePath = DataCenter.GetAppPath() + "\\condition.dat";
                 CFileA.Write(conditionFilePath, JsonConvert.SerializeObject(m_emailConditions));
                 BindConditions();
             }
@@ -536,7 +653,7 @@ namespace OwLib
             String[] files = args as String[];
             if (files != null)
             {
-                BindGrid(files);
+                BindGrid(files, true);
             }
         }
 
@@ -571,11 +688,16 @@ namespace OwLib
             {
                 CFileA.CreateDirectory(sendDir);
             }
+            String contactDir = DataCenter.GetAppPath() + "\\contact";
+            if (!CFileA.IsDirectoryExist(contactDir))
+            {
+                CFileA.CreateDirectory(contactDir);
+            }
             List<String> files = new List<String>();
             CFileA.GetFiles(dir, files);
             files.Sort();
-            BindGrid(files.ToArray());
-            String conditionFilePath = DataCenter.GetAppPath() + "\\condition.txt";
+            BindGrid(files.ToArray(), false);
+            String conditionFilePath = DataCenter.GetAppPath() + "\\condition.dat";
             if (CFileA.IsFileExist(conditionFilePath))
             {
                 String content = "";
@@ -590,9 +712,8 @@ namespace OwLib
         /// <summary>
         /// 读取邮件
         /// </summary>
-        public List<String> ReadPop3()
+        public void ReadPop3()
         {
-            List<String> newList = new List<String>();
             try
             {
                 String dir = DataCenter.GetAppPath() + "\\email";
@@ -611,6 +732,7 @@ namespace OwLib
                         dt = Convert.ToDateTime(content);
                     }
                     DateTime writeTime = DateTime.MinValue;
+                    String writeStr = "";
                     for (int i = messageCount; i >= 1; i--)
                     {
                         try
@@ -637,7 +759,7 @@ namespace OwLib
                                         if (writeTime < Datesent)
                                         {
                                             writeTime = Datesent;
-                                            CFileA.Write(dir + "\\datetime", writeTime.ToString());
+                                            writeStr = writeTime.ToString();
                                         }
                                         if (!CFileA.IsFileExist(file))
                                         {
@@ -661,7 +783,9 @@ namespace OwLib
                                             if (body != null && body.Length > 0)
                                             {
                                                 CFileA.Write(file, body);
-                                                newList.Add(file);
+                                                List<String> files = new List<String>();
+                                                files.Add(file);
+                                                m_gridEmail.BeginInvoke(files.ToArray());
                                             }
                                         }
                                     }
@@ -676,12 +800,15 @@ namespace OwLib
                         {
                         }
                     }
+                    if (writeStr != null && writeStr.Length > 0)
+                    {
+                        CFileA.Write(dir + "\\datetime", writeStr);
+                    }
                 }
             }
             catch (Exception ex)
             {
             }
-            return newList;
         }
 
         /// 注册事件
@@ -774,12 +901,7 @@ namespace OwLib
         {
             while (true)
             {
-                List<String> strs = ReadPop3();
-                if (strs.Count > 0)
-                {
-                    strs.Sort();
-                    m_gridEmail.BeginInvoke(strs.ToArray());
-                }
+                ReadPop3();
                 Thread.Sleep(10000);
             }
         }
@@ -829,6 +951,11 @@ namespace OwLib
         public String m_filterHuKou = "";
 
         /// <summary>
+        /// 过滤关键字
+        /// </summary>
+        public String m_filterKey = "";
+
+        /// <summary>
         /// 几次工作
         /// </summary>
         public String m_filterJingYan = "";
@@ -852,11 +979,6 @@ namespace OwLib
         /// 过滤学历
         /// </summary>
         public String m_filterXueli = "全部";
-
-        /// <summary>
-        /// 过滤职业
-        /// </summary>
-        public String m_filterZhiYe = "";
 
         /// <summary>
         /// 标识ID
@@ -883,7 +1005,7 @@ namespace OwLib
             copyCondition.m_filterSex = m_filterSex;
             copyCondition.m_filterStatus = m_filterStatus;
             copyCondition.m_filterXueli = m_filterXueli;
-            copyCondition.m_filterZhiYe = m_filterZhiYe;
+            copyCondition.m_filterKey = m_filterKey;
             return copyCondition;
         }
 
@@ -902,7 +1024,7 @@ namespace OwLib
             sb.Append(m_filterStatus != "全部" ? m_filterStatus + " " : "");
             sb.Append(m_filterXueli != "全部" ? m_filterXueli + " " : "");
             sb.Append(m_filterJingYan.Length > 0 ? "上过" + m_filterJingYan + "次班 " : "");
-            sb.Append(m_filterZhiYe.Length > 0 ? m_filterZhiYe : "");
+            sb.Append(m_filterKey.Length > 0 ? m_filterKey : "");
             return sb.ToString();
         }
     }
