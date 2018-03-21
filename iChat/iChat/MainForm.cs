@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using System.IO;
 using System.Threading;
 using OwLib;
-using iEmail;
 
 namespace OwLib
 {
@@ -61,10 +60,9 @@ namespace OwLib
         /// <param name="name">Ãû³Æ</param>
         public void LoadXml(String name)
         {
-            if (name == "EmailWindow")
+            if (name == "MainFrame")
             {
-                m_xml = new EmailWindow();
-                timer.Stop();
+                m_xml = new MainFrame();
             }
             m_xml.CreateNative();
             m_native = m_xml.Native;
@@ -76,18 +74,14 @@ namespace OwLib
             m_native.AllowScaleSize = true;
             m_native.DisplaySize = new SIZE(ClientSize.Width, ClientSize.Height);
             m_xml.ResetScaleSize(GetClientSize());
-            m_xml.Native.ResourcePath = DataCenter.GetAppPath() + "\\image";
             m_xml.Script = new GaiaScript(m_xml);
+            m_xml.Native.ResourcePath = DataCenter.GetAppPath() + "\\config";
             m_xml.Load(DataCenter.GetAppPath() + "\\config\\" + name+ ".html");
             m_host.ToolTip = new ToolTipA();
             m_host.ToolTip.Font = new FONT("SimSun", 20, true, false, false);
             (m_host.ToolTip as ToolTipA).InitialDelay = 250;
             m_native.Update();
             Invalidate();
-            LoginForm loginForm = new LoginForm();
-            loginForm.ShowDialog();
-            (m_xml as EmailWindow).EmailInfo = loginForm.EmailInfo;
-            m_xml.LoadData();
         }
 
         /// <summary>

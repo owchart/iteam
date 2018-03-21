@@ -108,6 +108,7 @@ namespace OwLib
             m_gridEmail.BeginUpdate();
             String sendDir = DataCenter.GetAppPath() + "\\send";
             String contactDir = DataCenter.GetAppPath() + "\\contact";
+            String imageDir = DataCenter.GetAppPath() + "\\image";
             for (int i = filesSize - 1; i >= 0; i--)
             {
                 String file = files[i];
@@ -116,6 +117,7 @@ namespace OwLib
                 if (content != null && content.Length > 100)
                 {
                     GridRow row = new GridRow();
+                    row.Height = 40;
                     if (isNew)
                     {
                         m_gridEmail.InsertRow(0, row);
@@ -230,7 +232,6 @@ namespace OwLib
                             salary = content.Substring(idx5 + identifier5.Length, salaryIndex2 - idx5 - identifier5.Length);
                             if (Math.Abs(salaryIndex - salaryIndex2) < 50)
                             {
-                                salary = salary;
                             }
                             else
                             {
@@ -266,6 +267,33 @@ namespace OwLib
                             }
                         }
                     }
+                    String imageFilePath = "";
+                    String imageName = "";
+                    int imgIndex = content.IndexOf("https://mypics.zhaopin.cn/pic/");
+                    if (imgIndex == -1)
+                    {
+                        imgIndex = content.IndexOf("https://mypics.zhaopin.cn/avatar/");
+                    }
+                    if (imgIndex != -1)
+                    {
+                        int imgIndex2 = content.IndexOf("\">", imgIndex);
+                        String imageUrl = content.Substring(imgIndex, imgIndex2 - imgIndex);
+                        imageName = imageUrl.Substring(imageUrl.LastIndexOf("/") + 1);
+                        imageFilePath = imageDir + "\\" + imageName;
+                        if (!CFileA.IsFileExist(imageFilePath))
+                        {
+                            HttpGetService.Download(imageFilePath, imageUrl);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("1");
+                    }
+                    GridControlCell imageCell = new GridControlCell();
+                    imageCell.Control = new ControlA();
+                    imageCell.Control.Native = Native;
+                    imageCell.Control.BackImage = imageName;
+                    row.AddCell("colP0", imageCell);
                     row.AddCell("colP1", new GridStringCell(dt.ToString("yyyy-MM-dd HH:mm:ss")));
                     row.AddCell("colP2", new GridStringCell(name));
                     row.AddCell("colP3", new GridStringCell(birthday));
@@ -620,8 +648,16 @@ namespace OwLib
                 {
                     if (clicks == 2)
                     {
-                        String file = cell.Row.GetCell("colP15").GetString();
-                        Process.Start(file);
+                        if (cell.Column.Name == "colP0")
+                        {
+                            String imageDir = DataCenter.GetAppPath() + "\\image";
+                            Process.Start(imageDir + "\\" + (cell as GridControlCell).Control.BackImage);
+                        }
+                        else
+                        {
+                            String file = cell.Row.GetCell("colP15").GetString();
+                            Process.Start(file);
+                        }
                     }
                 }
             }
@@ -692,6 +728,11 @@ namespace OwLib
             if (!CFileA.IsDirectoryExist(contactDir))
             {
                 CFileA.CreateDirectory(contactDir);
+            }
+            String imageDir = DataCenter.GetAppPath() + "\\image";
+            if (!CFileA.IsDirectoryExist(imageDir))
+            {
+                CFileA.CreateDirectory(imageDir);
             }
             List<String> files = new List<String>();
             CFileA.GetFiles(dir, files);
