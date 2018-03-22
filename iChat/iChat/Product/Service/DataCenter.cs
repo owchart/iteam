@@ -31,14 +31,24 @@ namespace OwLib
     public class DataCenter
     {
         #region Lord 2016/3/10
-        private static OwLib.GintechService m_clientGintechService = new OwLib.GintechService();
+        private static Dictionary<String, OwLib.GintechService> m_clientGintechServices = new Dictionary<String, OwLib.GintechService>();
 
         /// <summary>
         /// 获取客户端的聊天服务
         /// </summary>
-        public static OwLib.GintechService ClientGintechService
+        public static Dictionary<String, OwLib.GintechService> ClientGintechServices
         {
-            get { return DataCenter.m_clientGintechService; }
+            get { return DataCenter.m_clientGintechServices; }
+        }
+
+        private static OwLib.GintechService m_mainGintechService;
+
+        /// <summary>
+        /// 获取主通讯服务
+        /// </summary>
+        public static OwLib.GintechService MainGintechService
+        {
+            get { return DataCenter.m_mainGintechService; }
         }
 
         private static OwLibSV.GintechService m_serverGintechService = new OwLibSV.GintechService();
@@ -108,9 +118,13 @@ namespace OwLib
         {
             OwLibSV.BaseService.AddService(m_serverGintechService);
             OwLibSV.BaseService.StartServer(0, 9966);
-            OwLib.BaseService.AddService(m_clientGintechService);
-            int socketID = OwLib.BaseService.Connect("127.0.0.1", 9966);
-            m_clientGintechService.SocketID = socketID;
+            OwLib.GintechService clientGintechService = new OwLib.GintechService();
+            String mainGintechIP = "192.168.88.103";
+            m_clientGintechServices[mainGintechIP] = clientGintechService;
+            OwLib.BaseService.AddService(clientGintechService);
+            int socketID = OwLib.BaseService.Connect(mainGintechIP, 9966);
+            clientGintechService.SocketID = socketID;
+            m_mainGintechService = clientGintechService;
 
         }
         #endregion

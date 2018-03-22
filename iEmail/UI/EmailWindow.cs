@@ -366,8 +366,9 @@ namespace OwLib
                         row.GetCell("colP14").Style.BackColor = COLOR.ARGB(0, 255, 0);
                         row.GetCell("colP14").Style.ForeColor = COLOR.ARGB(0, 0, 0);
                     }
-                    row.AddCell("colP15", new GridStringCell(file));
-                    row.AddCell("colP16", new GridStringCell(content));
+                    row.AddCell("colP15", new GridStringCell("挑选"));
+                    row.AddCell("colP16", new GridStringCell(file));
+                    row.AddCell("colP17", new GridStringCell(content));
                 }
             }
             FilterGrid();
@@ -561,7 +562,7 @@ namespace OwLib
                 {
                     if (clicks == 1)
                     {
-                        String file = cell.Row.GetCell("colP15").GetString();
+                        String file = cell.Row.GetCell("colP16").GetString();
                         String content = "";
                         CFileA.Read(file, ref content);
                         if (content != null && content.Length > 0)
@@ -644,6 +645,15 @@ namespace OwLib
                         }
                     }
                 }
+                else if (cell.Column.Name == "colP15")
+                {
+                    String cacheDir = DataCenter.GetAppPath() + "\\cache";
+                    if (!CFileA.IsDirectoryExist(cacheDir))
+                    {
+                        CFileA.CreateDirectory(cacheDir);
+                    }
+                    CFileA.Write(cacheDir + "\\" + cell.Row.GetCell("colP2").GetString() + cell.Row.GetCell("colP10").GetString() + ".html", cell.Row.GetCell("colP17").GetString());
+                }
                 else
                 {
                     if (clicks == 2)
@@ -655,7 +665,7 @@ namespace OwLib
                         }
                         else
                         {
-                            String file = cell.Row.GetCell("colP15").GetString();
+                            String file = cell.Row.GetCell("colP16").GetString();
                             Process.Start(file);
                         }
                     }

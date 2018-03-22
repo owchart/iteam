@@ -92,6 +92,11 @@ namespace OwLibSV
         public const int FUNCTIONID_GINTECH_RECV = 3;
 
         /// <summary>
+        /// 发送消息
+        /// </summary>
+        public const int FUNCTIONID_GINTECH_SEND = 4;
+
+        /// <summary>
         /// 获取弹幕信息
         /// </summary>
         /// <param name="loginInfos">弹幕信息</param>
@@ -205,6 +210,9 @@ namespace OwLibSV
                 case FUNCTIONID_GETHOSTS:
                     GetHostInfos(message);
                     break;
+                case FUNCTIONID_GINTECH_SEND:
+                    SendMsg(message);
+                    break;
                 case FUNCTIONID_GINTECH_SENDALL:
                     SendAll(message);
                     break;
@@ -236,6 +244,17 @@ namespace OwLibSV
             int ret = Send(message);
             bw.Close();
             return ret;
+        }
+
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        /// <param name="message">消息</param>
+        /// <returns>状态</returns>
+        public int SendMsg(CMessage message)
+        {
+            SendToListener(message);
+            return 1;
         }
 
         /// <summary>

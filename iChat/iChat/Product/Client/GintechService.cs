@@ -79,6 +79,11 @@ namespace OwLib
         /// </summary>
         public const int FUNCTIONID_GINTECH_RECV = 3;
 
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        public const int FUNCTIONID_GINTECH_SEND = 4;
+
         private int m_requestID = BaseService.GetRequestID();
 
         /// <summary>
@@ -167,7 +172,7 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 进入弹幕
+        /// 发送消息
         /// </summary>
         /// <param name="userID">用户ID</param>
         /// <param name="requestID">请求ID</param>
@@ -176,7 +181,22 @@ namespace OwLib
         {
             List<GintechData> datas = new List<GintechData>();
             datas.Add(data);
-            int ret = SendAll(FUNCTIONID_GINTECH_SENDALL, requestID, datas);
+            int ret = Send(FUNCTIONID_GINTECH_SEND, requestID, datas);
+            datas.Clear();
+            return ret > 0 ? 1 : 0;
+        }
+
+        /// <summary>
+        /// 进入弹幕
+        /// </summary>
+        /// <param name="userID">用户ID</param>
+        /// <param name="requestID">请求ID</param>
+        /// <param name="args"></param>
+        public int SendAll(int requestID, GintechData data)
+        {
+            List<GintechData> datas = new List<GintechData>();
+            datas.Add(data);
+            int ret = Send(FUNCTIONID_GINTECH_SENDALL, requestID, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }
@@ -187,7 +207,7 @@ namespace OwLib
         /// <param name="userID">方法ID</param>
         /// <param name="userID">请求ID</param>
         /// <param name="text">发送字符</param>
-        public int SendAll(int functionID, int requestID, List<GintechData> datas)
+        public int Send(int functionID, int requestID, List<GintechData> datas)
         {
             Binary bw = new Binary();
             int dataSize = datas.Count;

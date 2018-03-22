@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Base\Binary.cs" />
     <Compile Include="Base\CFile.cs" />
+    <Compile Include="Base\CMessage.cs" />
     <Compile Include="Base\CStr.cs" />
     <Compile Include="Base\Sound.cs" />
     <Compile Include="MainForm.cs">

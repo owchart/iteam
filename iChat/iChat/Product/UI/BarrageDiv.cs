@@ -141,7 +141,7 @@ namespace OwLib
         /// <summary>
         /// ÏµÍ³ÑÕÉ«
         /// </summary>
-        private long[] m_sysColors = new long[] { COLOR.ARGB(255, 255, 255), COLOR.ARGB(255,255,0), COLOR.ARGB(255, 0, 255),
+        private long[] m_sysColors = new long[] { COLOR.ARGB(255, 0, 255), COLOR.ARGB(255,255,0), COLOR.ARGB(255, 0, 255),
             COLOR.ARGB(0, 255, 0), COLOR.ARGB(82, 255, 255), COLOR.ARGB(255, 82, 82) };
 
         /// <summary>
