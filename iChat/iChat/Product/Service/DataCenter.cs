@@ -34,27 +34,25 @@ namespace OwLib
         private static Dictionary<String, OwLib.GintechService> m_clientGintechServices = new Dictionary<String, OwLib.GintechService>();
 
         /// <summary>
-        /// 获取客户端的聊天服务
+        /// 获取客户端的区块链服务
         /// </summary>
         public static Dictionary<String, OwLib.GintechService> ClientGintechServices
         {
             get { return DataCenter.m_clientGintechServices; }
         }
 
-        private static OwLib.GintechService m_mainGintechService;
-
         /// <summary>
-        /// 获取主通讯服务
+        /// 区块链通用请求ID
         /// </summary>
-        public static OwLib.GintechService MainGintechService
+        public static int GintechRequestID
         {
-            get { return DataCenter.m_mainGintechService; }
+            get { return 9999; }
         }
 
         private static OwLibSV.GintechService m_serverGintechService = new OwLibSV.GintechService();
 
         /// <summary>
-        /// 获取服务端的聊天服务
+        /// 获取服务端的区块链服务
         /// </summary>
         public static OwLibSV.GintechService ServerGintechService
         {
@@ -117,15 +115,20 @@ namespace OwLib
         public static void StartService()
         {
             OwLibSV.BaseService.AddService(m_serverGintechService);
-            OwLibSV.BaseService.StartServer(0, 9966);
+            Random rd = new Random();
+            //m_serverGintechService.Port = rd.Next(10001, 20000);
+            OwLibSV.BaseService.StartServer(0, m_serverGintechService.Port);
             OwLib.GintechService clientGintechService = new OwLib.GintechService();
-            String mainGintechIP = "127.0.0.1";// "192.168.88.103";
-            m_clientGintechServices[mainGintechIP] = clientGintechService;
-            OwLib.BaseService.AddService(clientGintechService);
-            int socketID = OwLib.BaseService.Connect(mainGintechIP, 9966);
-            clientGintechService.SocketID = socketID;
-            m_mainGintechService = clientGintechService;
-
+            String[] servers = new String[] { "127.0.0.1:9966" };
+            foreach (String server in servers)
+            {
+                String[] strs = server.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                m_clientGintechServices[server] = clientGintechService;
+                OwLib.BaseService.AddService(clientGintechService);
+                clientGintechService.ToServer = true;
+                int socketID = OwLib.BaseService.Connect(strs[0], CStr.ConvertStrToInt(strs[1]));
+                clientGintechService.SocketID = socketID;
+            }
         }
         #endregion
     }

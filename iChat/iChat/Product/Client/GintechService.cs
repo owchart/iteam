@@ -17,7 +17,7 @@ using System.IO;
 namespace OwLib
 {
     /// <summary>
-    /// 聊天数据
+    /// 区块链数据
     /// </summary>
     public class GintechData
     {
@@ -43,10 +43,15 @@ namespace OwLib
         /// IP地址
         /// </summary>
         public String m_ip;
+
+        /// <summary>
+        /// 服务端端口
+        /// </summary>
+        public int m_serverPort;
     }
 
     /// <summary>
-    /// 聊天服务
+    /// 区块链服务
     /// </summary>
     public class GintechService:BaseService
     {
@@ -60,9 +65,9 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 聊天服务ID
+        /// 区块链服务ID
         /// </summary>
-        public const int SERVICEID_GINTECH = 7;
+        public const int SERVICEID_GINTECH = 10000;
 
         /// <summary>
         /// 主机信息
@@ -70,12 +75,12 @@ namespace OwLib
         public const int FUNCTIONID_GETHOSTS = 1;
 
         /// <summary>
-        /// 广播聊天功能ID
+        /// 广播区块链功能ID
         /// </summary>
         public const int FUNCTIONID_GINTECH_SENDALL = 2;
 
         /// <summary>
-        /// 接收聊天功能ID
+        /// 接收区块链功能ID
         /// </summary>
         public const int FUNCTIONID_GINTECH_RECV = 3;
 
@@ -84,25 +89,34 @@ namespace OwLib
         /// </summary>
         public const int FUNCTIONID_GINTECH_SEND = 4;
 
-        private int m_requestID = BaseService.GetRequestID();
+        /// <summary>
+        /// 进入
+        /// </summary>
+        public const int FUNCTIONID_GINTECH_ENTER = 5;
+
+        private bool m_toServer;
 
         /// <summary>
-        /// 获取请求ID
+        /// 获取或设置是否发送到服务端
         /// </summary>
-        public int RequestID
+        public bool ToServer
         {
-            get { return m_requestID; }
+            get { return m_toServer; }
+            set { m_toServer = value; }
         }
 
-        private int m_socketID;
-
         /// <summary>
-        /// 获取或设置套接字ID
+        /// 进入区块链
         /// </summary>
-        public int SocketID
+        /// <returns>状态</returns>
+        public int Enter()
         {
-            get { return m_socketID; }
-            set { m_socketID = value; }
+            Binary bw = new Binary();
+            bw.WriteInt(DataCenter.ServerGintechService.Port);
+            byte[] bytes = bw.GetBytes();
+            int ret = Send(new CMessage(GroupID, ServiceID, FUNCTIONID_GINTECH_ENTER, SessionID, DataCenter.GintechRequestID, SocketID, 0, CompressType, bytes.Length, bytes));
+            bw.Close();
+            return ret;
         }
 
         /// <summary>
@@ -134,31 +148,21 @@ namespace OwLib
         /// <param name="body">包体</param>
         /// <param name="bodyLength">包体长度</param>
         /// <returns></returns>
-        public static int GetHostInfos(List<GintechHostInfo> datas, byte[] body, int bodyLength)
+        public static int GetHostInfos(List<GintechHostInfo> datas, ref int type, byte[] body, int bodyLength)
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
             int size = br.ReadInt();
+            type = br.ReadInt();
             for (int i = 0; i < size; i++)
             {
                 GintechHostInfo data = new GintechHostInfo();
                 data.m_ip = br.ReadString();
+                data.m_serverPort = br.ReadInt();        
                 datas.Add(data);
             }
             br.Close();
             return 1;     
-        }
-
-        /// <summary>
-        /// 获取主机信息
-        /// </summary>
-        /// <param name="requestID"></param>
-        /// <returns></returns>
-        public int GetHostInfos(int requestID)
-        {
-            byte[] bytes = new byte[1];
-            int ret = Send(new CMessage(GroupID, ServiceID, FUNCTIONID_GETHOSTS, SessionID, requestID, m_socketID, 0, CompressType, bytes.Length, bytes));
-            return ret > 0 ? 1 : 0;
         }
 
         /// <summary>
@@ -177,11 +181,11 @@ namespace OwLib
         /// <param name="userID">用户ID</param>
         /// <param name="requestID">请求ID</param>
         /// <param name="args"></param>
-        public int Send(int requestID, GintechData data)
+        public int Send(GintechData data)
         {
             List<GintechData> datas = new List<GintechData>();
             datas.Add(data);
-            int ret = Send(FUNCTIONID_GINTECH_SEND, requestID, datas);
+            int ret = Send(FUNCTIONID_GINTECH_SEND, DataCenter.GintechRequestID, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }
@@ -192,11 +196,11 @@ namespace OwLib
         /// <param name="userID">用户ID</param>
         /// <param name="requestID">请求ID</param>
         /// <param name="args"></param>
-        public int SendAll(int requestID, GintechData data)
+        public int SendAll(GintechData data)
         {
             List<GintechData> datas = new List<GintechData>();
             datas.Add(data);
-            int ret = Send(FUNCTIONID_GINTECH_SENDALL, requestID, datas);
+            int ret = Send(FUNCTIONID_GINTECH_SENDALL, DataCenter.GintechRequestID, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }
@@ -219,7 +223,7 @@ namespace OwLib
                 bw.WriteString(data.m_text);
             }
             byte[] bytes = bw.GetBytes();
-            int ret = Send(new CMessage(GroupID, ServiceID, functionID, SessionID, requestID, m_socketID, 0, CompressType, bytes.Length, bytes));
+            int ret = Send(new CMessage(GroupID, ServiceID, functionID, SessionID, requestID, SocketID, 0, CompressType, bytes.Length, bytes));
             bw.Close();
             return ret;
         }

@@ -77,7 +77,7 @@ namespace OwLib
         /// <summary>
         /// 所有的服务
         /// </summary>
-        private static Dictionary<int, BaseService> m_services = new Dictionary<int, BaseService>();
+        private static List<BaseService> m_services = new List<BaseService>();
 
         /// <summary>
         /// 等待消息队列
@@ -147,6 +147,17 @@ namespace OwLib
         {
             get { return m_sessionID; }
             set { m_sessionID = value; }
+        }
+
+        private int m_socketID;
+
+        /// <summary>
+        /// 获取或设置套接字ID
+        /// </summary>
+        public int SocketID
+        {
+            get { return m_socketID; }
+            set { m_socketID = value; }
         }
 
         private static long m_upFlow;
@@ -219,7 +230,7 @@ namespace OwLib
                 m_messageCallBack = new MessageCallBack(CallBack);
                 RegisterCallBack(m_messageCallBack);
             }
-            m_services[service.ServiceID] = service;
+            m_services.Add(service);
         }
 
         /// <summary>
@@ -253,9 +264,12 @@ namespace OwLib
                     int head = br.ReadInt();
                     //int groupID = br.ReadShort();
                     int serviceID = br.ReadShort();
-                    if (m_services.ContainsKey(serviceID))
+                    foreach (BaseService service in m_services)
                     {
-                        m_services[serviceID].OnCallBack(br, socketID, localSID, len);
+                        if (service.SocketID == localSID)
+                        {
+                            service.OnCallBack(br, socketID, localSID, len);
+                        }
                     }
                     br.Close();
                 }
@@ -293,7 +307,7 @@ namespace OwLib
         /// <param name="services">服务列表</param>
         public static void GetServices(List<BaseService> services)
         {
-            foreach (BaseService service in m_services.Values)
+            foreach (BaseService service in m_services)
             {
                 services.Add(service);
             }

@@ -53,7 +53,7 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 聊天数据回调
+        /// 区块链数据回调
         /// </summary>
         /// <param name="message">消息</param>
         public void GintechMessageCallBack(CMessage message)
@@ -79,8 +79,16 @@ namespace OwLib
                 {
                     GintechData gintechData = new GintechData();
                     gintechData.m_text = GetTextBox("txtSend").Text;
-                    DataCenter.MainGintechService.SendAll(DataCenter.MainGintechService.RequestID, gintechData);
-
+                    foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
+                    {
+                        if (gs.ToServer)
+                        {
+                            gs.SendAll(gintechData);
+                        }
+                    }
+                    CIndicator indicator = CFunctionEx.CreateIndicator("", gintechData.m_text, this);
+                    indicator.Clear();
+                    indicator.Dispose();
                 }
                 else if (name == "btnSend")
                 {
@@ -90,50 +98,28 @@ namespace OwLib
                     {
                         GridRow firstSelectedRow = selectedRows[0];
                         String ip = selectedRows[0].GetCell("colP1").GetString();
+                        int port = selectedRows[0].GetCell("colP2").GetInt();
                         GintechService gintechService = null;
-                        if (DataCenter.ClientGintechServices.ContainsKey(ip))
+                        String key = ip + ":" + CStr.ConvertIntToStr(port);
+                        if (DataCenter.ClientGintechServices.ContainsKey(key))
                         {
-                            gintechService = DataCenter.ClientGintechServices[ip];
+                            gintechService = DataCenter.ClientGintechServices[key];
                         }
                         else
                         {
-                            int socketID = BaseService.Connect(ip, 9966);
+                            int socketID = BaseService.Connect(ip, port);
                             if (socketID != -1)
                             {
                                 gintechService = new GintechService();
                                 gintechService.SocketID = socketID;
-                                DataCenter.ClientGintechServices[ip] = gintechService;
+                                DataCenter.ClientGintechServices[key] = gintechService;
                                 BaseService.AddService(gintechService);
                             }
                         }
                         GintechData gintechData = new GintechData();
                         gintechData.m_text = GetTextBox("txtSend").Text;
-                        gintechService.Send(0, gintechData);
+                        gintechService.Send(gintechData);
                     }
-                }
-                else if (name == "btnLeft")
-                {
-                    GintechData gintechData = new GintechData();
-                    gintechData.m_text = "win.mouseevent('move',-10,0);";
-                    DataCenter.MainGintechService.SendAll(DataCenter.MainGintechService.RequestID, gintechData);
-                }
-                else if (name == "btnTop")
-                {
-                    GintechData gintechData = new GintechData();
-                    gintechData.m_text = "win.mouseevent('move',0,-10);";
-                    DataCenter.MainGintechService.SendAll(DataCenter.MainGintechService.RequestID, gintechData);
-                }
-                else if (name == "btnRight")
-                {
-                    GintechData gintechData = new GintechData();
-                    gintechData.m_text = "win.mouseevent('move',10,0);";
-                    DataCenter.MainGintechService.SendAll(DataCenter.MainGintechService.RequestID, gintechData);
-                }
-                else if (name == "btnBottom")
-                {
-                    GintechData gintechData = new GintechData();
-                    gintechData.m_text = "win.mouseevent('move',0,10);";
-                    DataCenter.MainGintechService.SendAll(DataCenter.MainGintechService.RequestID, gintechData);
                 }
             }
         }
@@ -171,25 +157,59 @@ namespace OwLib
                     for (int i = 0; i < datasSize; i++)
                     {
                         GintechData data = datas[i];
-                        CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
-                        indicator.Clear();
-                        indicator.Dispose();
+                        if (data.m_type == 0)
+                        {
+                            CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
+                            indicator.Clear();
+                            indicator.Dispose();
+                        }
                     }
-                    DataCenter.MainGintechService.GetHostInfos(DataCenter.MainGintechService.RequestID);
                 }
                 else if (message.m_functionID == GintechService.FUNCTIONID_GETHOSTS)
                 {
                     List<GintechHostInfo> datas = new List<GintechHostInfo>();
-                    GintechService.GetHostInfos(datas, message.m_body, message.m_bodyLength);
-                    m_gridHosts.ClearRows();
+                    int type = 0;
+                    GintechService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
                     m_gridHosts.BeginUpdate();
-                    int datasSize = datas.Count;
-                    for (int i = 0; i < datasSize; i++)
+                    if (type == 0)
                     {
-                        GridRow row = new GridRow();
-                        m_gridHosts.AddRow(row);
-                        GintechHostInfo hostInfo = datas[i];
-                        row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
+                        m_gridHosts.ClearRows();
+                    }
+                    if (type != 2)
+                    {
+                        int datasSize = datas.Count;
+                        for (int i = 0; i < datasSize; i++)
+                        {
+                            GridRow row = new GridRow();
+                            m_gridHosts.AddRow(row);
+                            GintechHostInfo hostInfo = datas[i];
+                            row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
+                            row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
+                        }
+                    }
+                    else
+                    {
+                        Dictionary<String, String> removeHosts = new Dictionary<String, String>();
+                        foreach (GintechHostInfo hostInfo in datas)
+                        {
+                            removeHosts[hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort)] = "";
+                        }
+                        List<GridRow> rows = m_gridHosts.m_rows;
+                        int rowsSize = rows.Count;
+                        if (rowsSize > 0)
+                        {
+                            for (int i = 0; i < rowsSize; i++)
+                            {
+                                GridRow row = rows[i];
+                                String key = row.GetCell("colP1").GetString() + ":" + row.GetCell("colP2").GetString();
+                                if (removeHosts.ContainsKey(key))
+                                {
+                                    m_gridHosts.RemoveRow(row);
+                                    i--;
+                                    rowsSize--;
+                                }
+                            }
+                        }
                     }
                     m_gridHosts.EndUpdate();
                     m_gridHosts.Invalidate();
@@ -242,14 +262,24 @@ namespace OwLib
             ControlPaintEvent paintLayoutEvent = new ControlPaintEvent(PaintLayoutDiv);
             m_mainDiv.RegisterEvent(paintLayoutEvent, EVENTID.PAINT);
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
-            DataCenter.MainGintechService.RegisterListener(DataCenter.MainGintechService.RequestID, new ListenerMessageCallBack(GintechMessageCallBack));
-            DataCenter.ServerGintechService.RegisterListener(0, new ListenerMessageCallBack(GintechMessageCallBack));
+            foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
+            {
+                if (gs.ToServer)
+                {
+                    gs.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                }
+            }
+            DataCenter.ServerGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
             m_barrageDiv = new BarrageDiv();
             m_barrageDiv.Dock = DockStyleA.Fill;
             m_barrageDiv.TopMost = true;
             Native.AddControl(m_barrageDiv);
             m_gridHosts = GetGrid("gridHosts");
             RegisterEvents(m_mainDiv);
+            foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
+            {
+                gs.Enter();
+            }
         }
 
         /// <summary>
