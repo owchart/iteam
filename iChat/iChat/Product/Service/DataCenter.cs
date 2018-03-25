@@ -119,7 +119,7 @@ namespace OwLib
             OwLibSV.BaseService.AddService(m_serverGintechService);
             OwLibSV.BaseService.StartServer(0, 9966);
             OwLib.GintechService clientGintechService = new OwLib.GintechService();
-            String mainGintechIP = "192.168.88.103";
+            String mainGintechIP = "127.0.0.1";// "192.168.88.103";
             m_clientGintechServices[mainGintechIP] = clientGintechService;
             OwLib.BaseService.AddService(clientGintechService);
             int socketID = OwLib.BaseService.Connect(mainGintechIP, 9966);

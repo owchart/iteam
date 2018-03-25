@@ -519,7 +519,7 @@ namespace OwLib
                     {
                         String[] keys = m_emailCondition.m_filterKey.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                         int keysSize = keys.Length;
-                        String content = row.GetCell("colP16").GetString();
+                        String content = row.GetCell("colP17").GetString();
                         for (int j = 0; j < keysSize; j++)
                         {
                             if (content.IndexOf(keys[j]) == -1)

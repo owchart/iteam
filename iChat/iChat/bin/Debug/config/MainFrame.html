@@ -5,11 +5,21 @@
     </script>
   </head>
   <body>
-    <div dock="fill" size="1000,800">
-      <input type="text" name="txtSend" location="25,33" size="437,154" wordwrap="True" multiline="True" showvscrollbar="True" />
-      <input type="button" name="btnSend" text="发送" location="358,201" size="100,20" />
-      <input type="radio" name="rbText" text="文字" location="143,201" size="100,20" checked="True" />
-      <input type="radio" name="rbCmd" text="指令" location="250,201" size="100,20" />
+    <div type="splitlayout" name="divMain" layoutstyle="lefttoright" dock="fill" size="400,400" splitterposition="150,0,150,400">
+      <table name="gridHosts">
+        <tr>
+          <th name="colP1" text="IP列表" width="150" />
+        </tr>
+      </table>
+      <div>
+        <input type="text" name="txtSend" location="15,12" size="472,164" wordwrap="True" multiline="True" showvscrollbar="True" />
+        <input type="button" name="btnSendAll" text="发送所有人" location="386,186" size="100,20" />
+        <input type="button" name="btnSend" text="点对点发送" location="274,186" size="100,20" />
+        <input type="button" name="btnRight" text="右" location="144,283" size="55,52" />
+        <input type="button" name="btnTop" text="上" location="90,232" size="55,52" />
+        <input type="button" name="btnLeft" text="左" location="36,283" size="55,52" />
+        <input type="button" name="btnBottom" text="下" location="90,334" size="55,52" />
+      </div>
     </div>
   </body>
 </html>
