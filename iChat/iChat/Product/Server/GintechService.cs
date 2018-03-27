@@ -28,11 +28,6 @@ namespace OwLibSV
         /// 内容
         /// </summary>
         public String m_text = "";
-
-        /// <summary>
-        /// 类型
-        /// </summary>
-        public int m_type;
         #endregion
     }
 
@@ -97,11 +92,6 @@ namespace OwLibSV
         public const int FUNCTIONID_GINTECH_SENDALL = 2;
 
         /// <summary>
-        /// 接收区块链功能ID
-        /// </summary>
-        public const int FUNCTIONID_GINTECH_RECV = 3;
-
-        /// <summary>
         /// 发送消息
         /// </summary>
         public const int FUNCTIONID_GINTECH_SEND = 4;
@@ -109,9 +99,9 @@ namespace OwLibSV
         /// <summary>
         /// 登入
         /// </summary>
-        public const int FUNCTIONID_GINTECH_ENTER = 5;
+        public const int FUNCTIONID_GINTECH_ENTER = 6;
 
-        private int m_port = 9966;
+        private int m_port = 16666;
 
         /// <summary>
         /// 获取或设置端口
@@ -133,6 +123,7 @@ namespace OwLibSV
             Binary br = new Binary();
             br.Write(message.m_body, message.m_bodyLength);
             int port = br.ReadInt();
+            int type = br.ReadInt();
             List<int> sendSocketIDs = new List<int>();
             List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
             lock (m_socketIDs)
@@ -140,6 +131,7 @@ namespace OwLibSV
                 if (m_socketIDs.ContainsKey(message.m_socketID))
                 {
                     m_socketIDs[message.m_socketID].m_serverPort = port;
+                    m_socketIDs[message.m_socketID].m_type = type;
                     hostInfos.Add(m_socketIDs[message.m_socketID]);
                 }
                 foreach (int socketID in m_socketIDs.Keys)
@@ -186,7 +178,6 @@ namespace OwLibSV
             for (int i = 0; i < gintechSize; i++)
             {
                 GintechData data = new GintechData();
-                data.m_type = (int)br.ReadChar();
                 data.m_text = br.ReadString();
                 datas.Add(data);
             }
@@ -293,7 +284,6 @@ namespace OwLibSV
             for (int i = 0; i < gintechSize; i++)
             {
                 GintechData data = datas[i];
-                bw.WriteChar((char)data.m_type);
                 bw.WriteString(data.m_text);
             }
             byte[] bytes = bw.GetBytes();
@@ -314,10 +304,8 @@ namespace OwLibSV
             int rtnSocketID = message.m_socketID;
             List<GintechData> datas = new List<GintechData>();
             GetGintechDatas(datas, message.m_body, message.m_bodyLength);
-            message.m_functionID = FUNCTIONID_GINTECH_RECV;
             lock (m_socketIDs)
             {
-                List<int> socketlist = new List<int>();
                 foreach (int socketID in m_socketIDs.Keys)
                 {
                     if (rtnSocketID != socketID)
@@ -325,11 +313,6 @@ namespace OwLibSV
                         message.m_socketID = socketID;
                         int ret = Send(message, datas);
                     }
-                }
-                int listsize = socketlist.Count;
-                for (int i = 0; i < listsize; i++)
-                {
-                    m_socketIDs.Remove(socketlist[i]);
                 }
             }
             datas.Clear();
@@ -351,6 +334,7 @@ namespace OwLibSV
                 GintechHostInfo hostInfo = hostInfos[i];
                 bw.WriteString(hostInfo.m_ip);
                 bw.WriteInt(hostInfo.m_serverPort);
+                bw.WriteInt(hostInfo.m_type);
             }
             byte[] bytes = bw.GetBytes();
             CMessage message = new CMessage(GroupID, ServiceID, FUNCTIONID_GETHOSTS, SessionID, DataCenter.GintechRequestID, 0, 0, CompressType, bytes.Length, bytes);

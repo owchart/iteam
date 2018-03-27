@@ -652,7 +652,7 @@ namespace OwLib
                     {
                         CFileA.CreateDirectory(cacheDir);
                     }
-                    CFileA.Write(cacheDir + "\\" + cell.Row.GetCell("colP2").GetString() + cell.Row.GetCell("colP10").GetString() + ".html", cell.Row.GetCell("colP17").GetString());
+                    CFileA.Write(cacheDir + "\\" + cell.Row.GetCell("colP2").GetString() + ".html", cell.Row.GetCell("colP17").GetString());
                 }
                 else
                 {

@@ -49,14 +49,15 @@ namespace OwLib
             get { return 9999; }
         }
 
-        private static OwLibSV.GintechService m_serverGintechService = new OwLibSV.GintechService();
+        private static bool m_isFull;
 
         /// <summary>
-        /// 获取服务端的区块链服务
+        /// 获取或设置是否全节点
         /// </summary>
-        public static OwLibSV.GintechService ServerGintechService
+        public static bool IsFull
         {
-            get { return DataCenter.m_serverGintechService; }
+            get { return m_isFull; }
+            set { m_isFull = value; }
         }
 
         private static UIXmlEx m_mainUI;
@@ -67,6 +68,16 @@ namespace OwLib
         public static UIXmlEx MainUI
         {
             set { DataCenter.m_mainUI = value; }
+        }
+
+        private static OwLibSV.GintechService m_serverGintechService = new OwLibSV.GintechService();
+
+        /// <summary>
+        /// 获取服务端的区块链服务
+        /// </summary>
+        public static OwLibSV.GintechService ServerGintechService
+        {
+            get { return DataCenter.m_serverGintechService; }
         }
 
         private static UserCookieService m_userCookieService = new UserCookieService();
@@ -114,21 +125,15 @@ namespace OwLib
         /// <param name="appPath">程序路径</param>
         public static void StartService()
         {
-            OwLibSV.BaseService.AddService(m_serverGintechService);
             Random rd = new Random();
-            //m_serverGintechService.Port = rd.Next(10001, 20000);
-            OwLibSV.BaseService.StartServer(0, m_serverGintechService.Port);
-            OwLib.GintechService clientGintechService = new OwLib.GintechService();
-            String[] servers = new String[] { "127.0.0.1:9966" };
-            foreach (String server in servers)
+            m_isFull = true;
+            String[] servers = new String[] { };
+            if (!m_isFull)
             {
-                String[] strs = server.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                m_clientGintechServices[server] = clientGintechService;
-                OwLib.BaseService.AddService(clientGintechService);
-                clientGintechService.ToServer = true;
-                int socketID = OwLib.BaseService.Connect(strs[0], CStr.ConvertStrToInt(strs[1]));
-                clientGintechService.SocketID = socketID;
+                m_serverGintechService.Port = rd.Next(10000, 20000);
             }
+            OwLibSV.BaseService.AddService(m_serverGintechService);
+            OwLibSV.BaseService.StartServer(0, m_serverGintechService.Port);
         }
         #endregion
     }

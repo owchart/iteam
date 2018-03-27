@@ -26,11 +26,6 @@ namespace OwLib
         /// 内容
         /// </summary>
         public String m_text = "";
-
-        /// <summary>
-        /// 类型
-        /// </summary>
-        public int m_type;
         #endregion
     }
 
@@ -48,6 +43,11 @@ namespace OwLib
         /// 服务端端口
         /// </summary>
         public int m_serverPort;
+
+        /// <summary>
+        /// 类型
+        /// </summary>
+        public int m_type;
     }
 
     /// <summary>
@@ -80,11 +80,6 @@ namespace OwLib
         public const int FUNCTIONID_GINTECH_SENDALL = 2;
 
         /// <summary>
-        /// 接收区块链功能ID
-        /// </summary>
-        public const int FUNCTIONID_GINTECH_RECV = 3;
-
-        /// <summary>
         /// 发送消息
         /// </summary>
         public const int FUNCTIONID_GINTECH_SEND = 4;
@@ -92,7 +87,7 @@ namespace OwLib
         /// <summary>
         /// 进入
         /// </summary>
-        public const int FUNCTIONID_GINTECH_ENTER = 5;
+        public const int FUNCTIONID_GINTECH_ENTER = 6;
 
         private bool m_toServer;
 
@@ -105,6 +100,28 @@ namespace OwLib
             set { m_toServer = value; }
         }
 
+        private String m_serverIP;
+
+        /// <summary>
+        /// 获取或设置服务器地址
+        /// </summary>
+        public String ServerIP
+        {
+            get { return m_serverIP; }
+            set { m_serverIP = value; }
+        }
+
+        private int m_serverPort;
+
+        /// <summary>
+        /// 获取或设置服务器端口
+        /// </summary>
+        public int ServerPort
+        {
+            get { return m_serverPort; }
+            set { m_serverPort = value; }
+        }
+
         /// <summary>
         /// 进入区块链
         /// </summary>
@@ -113,6 +130,7 @@ namespace OwLib
         {
             Binary bw = new Binary();
             bw.WriteInt(DataCenter.ServerGintechService.Port);
+            bw.WriteInt(DataCenter.IsFull ? 1 : 0);
             byte[] bytes = bw.GetBytes();
             int ret = Send(new CMessage(GroupID, ServiceID, FUNCTIONID_GINTECH_ENTER, SessionID, DataCenter.GintechRequestID, SocketID, 0, CompressType, bytes.Length, bytes));
             bw.Close();
@@ -134,7 +152,6 @@ namespace OwLib
             for (int i = 0; i < size; i++)
             {
                 GintechData data = new GintechData();
-                data.m_type = br.ReadChar();
                 data.m_text = br.ReadString();
                 datas.Add(data);
             }
@@ -158,7 +175,8 @@ namespace OwLib
             {
                 GintechHostInfo data = new GintechHostInfo();
                 data.m_ip = br.ReadString();
-                data.m_serverPort = br.ReadInt();        
+                data.m_serverPort = br.ReadInt();
+                data.m_type = br.ReadInt();
                 datas.Add(data);
             }
             br.Close();
@@ -172,7 +190,11 @@ namespace OwLib
         public override void OnReceive(CMessage message)
         {
             base.OnReceive(message);
-            SendToListener(message);  
+            SendToListener(message);
+            if (DataCenter.IsFull && message.m_functionID == FUNCTIONID_GINTECH_SENDALL && message.m_socketID != SocketID)
+            {
+                DataCenter.ServerGintechService.SendAll(message);
+            }
         }
 
         /// <summary>
@@ -219,7 +241,6 @@ namespace OwLib
             for (int i = 0; i < dataSize; i++)
             {
                 GintechData data = datas[i];
-                bw.WriteChar((char)data.m_type);
                 bw.WriteString(data.m_text);
             }
             byte[] bytes = bw.GetBytes();

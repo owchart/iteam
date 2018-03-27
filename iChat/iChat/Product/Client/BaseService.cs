@@ -77,7 +77,7 @@ namespace OwLib
         /// <summary>
         /// 所有的服务
         /// </summary>
-        private static List<BaseService> m_services = new List<BaseService>();
+        public static List<BaseService> m_services = new List<BaseService>();
 
         /// <summary>
         /// 等待消息队列
@@ -240,7 +240,7 @@ namespace OwLib
         /// <param name="port">端口</param>
         public static int Connect(String ip, int port)
         {
-            int socketID = ConnectToServer(0, 0, ip, port, "", 0, "", "", "", 10);
+            int socketID = ConnectToServer(0, 0, ip, port, "", 0, "", "", "", 6);
             return socketID;
         }
 

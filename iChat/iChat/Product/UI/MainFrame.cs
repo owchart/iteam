@@ -16,6 +16,7 @@ using OwLib;
 using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace OwLib
 {
@@ -77,8 +78,13 @@ namespace OwLib
                 String name = control.Name;
                 if (name == "btnSendAll")
                 {
+                    String text = GetTextBox("txtSend").Text;
+                    if (text == null || text.Trim().Length == 0)
+                    {
+                        MessageBox.Show("请输入要发送的内容!", "提示");
+                    }
                     GintechData gintechData = new GintechData();
-                    gintechData.m_text = GetTextBox("txtSend").Text;
+                    gintechData.m_text = text;
                     foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
                     {
                         if (gs.ToServer)
@@ -86,12 +92,14 @@ namespace OwLib
                             gs.SendAll(gintechData);
                         }
                     }
-                    CIndicator indicator = CFunctionEx.CreateIndicator("", gintechData.m_text, this);
-                    indicator.Clear();
-                    indicator.Dispose();
                 }
                 else if (name == "btnSend")
                 {
+                    String text = GetTextBox("txtSend").Text;
+                    if (text == null || text.Trim().Length == 0)
+                    {
+                        MessageBox.Show("请输入要发送的内容!", "提示");
+                    }
                     List<GridRow> selectedRows = m_gridHosts.SelectedRows;
                     int selectedRowsSize = selectedRows.Count;
                     if (selectedRowsSize > 0)
@@ -112,12 +120,18 @@ namespace OwLib
                             {
                                 gintechService = new GintechService();
                                 gintechService.SocketID = socketID;
+                                int type = selectedRows[0].GetCell("colP3").GetInt();
+                                if (type == 1)
+                                {
+                                    gintechService.ServerIP = ip;
+                                    gintechService.ServerPort = port;
+                                }
                                 DataCenter.ClientGintechServices[key] = gintechService;
                                 BaseService.AddService(gintechService);
                             }
                         }
                         GintechData gintechData = new GintechData();
-                        gintechData.m_text = GetTextBox("txtSend").Text;
+                        gintechData.m_text = text;
                         gintechService.Send(gintechData);
                     }
                 }
@@ -149,7 +163,7 @@ namespace OwLib
             CMessage message = args as CMessage;
             if (message.m_serviceID == GintechService.SERVICEID_GINTECH)
             {
-                if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_RECV)
+                if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_SENDALL)
                 {
                     List<GintechData> datas = new List<GintechData>();
                     GintechService.GetGintechDatas(datas, message.m_body, message.m_bodyLength);
@@ -157,12 +171,9 @@ namespace OwLib
                     for (int i = 0; i < datasSize; i++)
                     {
                         GintechData data = datas[i];
-                        if (data.m_type == 0)
-                        {
-                            CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
-                            indicator.Clear();
-                            indicator.Dispose();
-                        }
+                        CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
+                        indicator.Clear();
+                        indicator.Dispose();
                     }
                 }
                 else if (message.m_functionID == GintechService.FUNCTIONID_GETHOSTS)
@@ -185,6 +196,58 @@ namespace OwLib
                             GintechHostInfo hostInfo = datas[i];
                             row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
                             row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
+                            row.AddCell("colP3", new GridStringCell(hostInfo.m_type == 1 ? "服务端" : "客户端"));
+                            //全节点
+                            if (hostInfo.m_type == 1)
+                            {
+                                if (hostInfo.m_ip != "127.0.0.1")
+                                {
+                                    String newServer = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                                    List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
+                                    UserCookie cookie = new UserCookie();
+                                    if (DataCenter.UserCookieService.GetCookie("FULLSERVERS", ref cookie) > 0)
+                                    {
+                                        hostInfos = JsonConvert.DeserializeObject<List<GintechHostInfo>>(cookie.m_value);
+                                    }
+                                    int hostInfosSize = hostInfos.Count;
+                                    bool contains = false;
+                                    for (int j = 0; j < hostInfosSize; j++)
+                                    {
+                                        GintechHostInfo oldHostInfo = hostInfos[j];
+                                        String key = oldHostInfo.m_ip + ":" + CStr.ConvertIntToStr(oldHostInfo.m_serverPort);
+                                        if (key == newServer)
+                                        {
+                                            contains = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!contains)
+                                    {
+                                        hostInfos.Add(hostInfo);
+                                        cookie.m_key = "FULLSERVERS";
+                                        cookie.m_value = JsonConvert.SerializeObject(hostInfos);
+                                        DataCenter.UserCookieService.AddCookie(cookie);
+                                    }
+                                     String key2 = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                                     if (!DataCenter.ClientGintechServices.ContainsKey(key2))
+                                     {
+                                         int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
+                                         if (socketID != -1)
+                                         {
+
+                                             Console.WriteLine(hostInfo.m_ip);
+                                             OwLib.GintechService clientGintechService = new OwLib.GintechService();
+                                             DataCenter.ClientGintechServices[key2] = clientGintechService;
+                                             OwLib.BaseService.AddService(clientGintechService);
+                                             clientGintechService.ToServer = true;
+                                             clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                                             clientGintechService.SocketID = socketID;
+                                             clientGintechService.Enter();
+                                             return;
+                                         }
+                                     }
+                                }
+                            }
                         }
                     }
                     else
@@ -262,13 +325,6 @@ namespace OwLib
             ControlPaintEvent paintLayoutEvent = new ControlPaintEvent(PaintLayoutDiv);
             m_mainDiv.RegisterEvent(paintLayoutEvent, EVENTID.PAINT);
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
-            foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
-            {
-                if (gs.ToServer)
-                {
-                    gs.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
-                }
-            }
             DataCenter.ServerGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
             m_barrageDiv = new BarrageDiv();
             m_barrageDiv.Dock = DockStyleA.Fill;
@@ -276,10 +332,8 @@ namespace OwLib
             Native.AddControl(m_barrageDiv);
             m_gridHosts = GetGrid("gridHosts");
             RegisterEvents(m_mainDiv);
-            foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
-            {
-                gs.Enter();
-            }
+            Thread thread = new Thread(new ThreadStart(StartConnect));
+            thread.Start();
         }
 
         /// <summary>
@@ -327,6 +381,46 @@ namespace OwLib
         {
             MessageBox.Show(text, caption);
             return 1;
+        }
+
+        /// <summary>
+        /// 开始启动服务
+        /// </summary>
+        public void StartConnect()
+        {
+            List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
+            UserCookie cookie = new UserCookie();
+            if (DataCenter.UserCookieService.GetCookie("FULLSERVERS", ref cookie) > 0)
+            {
+                hostInfos = JsonConvert.DeserializeObject<List<GintechHostInfo>>(cookie.m_value);
+            }
+            else
+            {
+                GintechHostInfo defaultHostInfo = new GintechHostInfo();
+                defaultHostInfo.m_ip = "192.168.88.103";
+                defaultHostInfo.m_serverPort = 16666;
+                hostInfos.Add(defaultHostInfo);
+            }
+            int hostInfosSize = hostInfos.Count;
+            Random rd = new Random();
+            while (true)
+            {
+                GintechHostInfo hostInfo = hostInfos[rd.Next(0, hostInfosSize)];
+                int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
+                if (socketID != -1)
+                {
+                    String key = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                    Console.WriteLine(hostInfo.m_ip);
+                    OwLib.GintechService clientGintechService = new OwLib.GintechService();
+                    DataCenter.ClientGintechServices[key] = clientGintechService;
+                    OwLib.BaseService.AddService(clientGintechService);
+                    clientGintechService.ToServer = true;
+                    clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                    clientGintechService.SocketID = socketID;
+                    clientGintechService.Enter();
+                    return;
+                }
+            }
         }
     }
 }
