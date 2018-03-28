@@ -53,6 +53,17 @@ namespace OwLib
             set { m_barrageDiv = value; }
         }
 
+        private MainForm m_mainForm;
+
+        /// <summary>
+        /// 获取或设置主窗体
+        /// </summary>
+        public MainForm MainForm
+        {
+            get { return m_mainForm; }
+            set { m_mainForm = value; }
+        }
+
         /// <summary>
         /// 区块链数据回调
         /// </summary>
@@ -359,6 +370,10 @@ namespace OwLib
                     if (socketID != -1)
                     {
                         String key = hostInfo.ToString();
+                        if (m_mainForm != null)
+                        {
+                            m_mainForm.Text = key;
+                        }
                         Console.WriteLine(hostInfo.m_ip);
                         OwLib.GintechService clientGintechService = new OwLib.GintechService();
                         DataCenter.ClientGintechServices[key] = clientGintechService;

@@ -63,6 +63,7 @@ namespace OwLib
             if (name == "MainFrame")
             {
                 m_xml = new MainFrame();
+                (m_xml as MainFrame).MainForm = this;
             }
             m_xml.CreateNative();
             m_native = m_xml.Native;
