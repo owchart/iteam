@@ -165,10 +165,15 @@ namespace OwLib
         /// <param name="body">包体</param>
         /// <param name="bodyLength">包体长度</param>
         /// <returns></returns>
-        public static int GetGintechDatas(List<GintechData> datas, byte[] body, int bodyLength)
+        public static int GetGintechDatas(List<GintechData> datas, List<String> ips, byte[] body, int bodyLength)
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
+            int ipsSize = br.ReadInt();
+            for (int j = 0; j < ipsSize; j++)
+            {
+                ips.Add(br.ReadString());
+            }
             int size = br.ReadInt();
             for (int i = 0; i < size; i++)
             {
@@ -321,7 +326,8 @@ namespace OwLib
         {
             List<GintechData> datas = new List<GintechData>();
             datas.Add(data);
-            int ret = Send(FUNCTIONID_GINTECH_SEND, DataCenter.GintechRequestID, datas);
+            List<String> ips = new List<String>();
+            int ret = Send(FUNCTIONID_GINTECH_SEND, DataCenter.GintechRequestID, ips, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }
@@ -336,7 +342,8 @@ namespace OwLib
         {
             List<GintechData> datas = new List<GintechData>();
             datas.Add(data);
-            int ret = Send(FUNCTIONID_GINTECH_SENDALL, DataCenter.GintechRequestID, datas);
+            List<String> ips = new List<String>();
+            int ret = Send(FUNCTIONID_GINTECH_SENDALL, DataCenter.GintechRequestID, ips, datas);
             datas.Clear();
             return ret > 0 ? 1 : 0;
         }
@@ -347,15 +354,21 @@ namespace OwLib
         /// <param name="userID">方法ID</param>
         /// <param name="userID">请求ID</param>
         /// <param name="text">发送字符</param>
-        public int Send(int functionID, int requestID, List<GintechData> datas)
+        public int Send(int functionID, int requestID, List<String> ips, List<GintechData> datas)
         {
             Binary bw = new Binary();
             int dataSize = datas.Count;
+            int ipsSize = ips.Count;
+            bw.WriteInt(ipsSize);
+            for (int j = 0; j < ipsSize; j++)
+            {
+                bw.WriteString(ips[j]);
+            }
             bw.WriteInt(dataSize);
             for (int i = 0; i < dataSize; i++)
             {
                 GintechData data = datas[i];
-                bw.WriteString(data.m_text);
+                bw.WriteString(data.m_text); 
             }
             byte[] bytes = bw.GetBytes();
             int ret = Send(new CMessage(GroupID, ServiceID, functionID, SessionID, requestID, SocketID, 0, CompressType, bytes.Length, bytes));

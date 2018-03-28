@@ -194,7 +194,8 @@ namespace OwLib
                 if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_SENDALL)
                 {
                     List<GintechData> datas = new List<GintechData>();
-                    GintechService.GetGintechDatas(datas, message.m_body, message.m_bodyLength);
+                    List<String> ips = new List<String>();
+                    GintechService.GetGintechDatas(datas, ips, message.m_body, message.m_bodyLength);
                     int datasSize = datas.Count;
                     for (int i = 0; i < datasSize; i++)
                     {
@@ -267,7 +268,8 @@ namespace OwLib
                 else if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_SEND)
                 {
                     List<GintechData> datas = new List<GintechData>();
-                    GintechService.GetGintechDatas(datas, message.m_body, message.m_bodyLength);
+                    List<String> ips = new List<String>();
+                    GintechService.GetGintechDatas(datas, ips, message.m_body, message.m_bodyLength);
                     int datasSize = datas.Count;
                     for (int i = 0; i < datasSize; i++)
                     {

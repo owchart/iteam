@@ -246,10 +246,15 @@ namespace OwLibSV
         /// <param name="loginInfos">弹幕信息</param>
         /// <param name="body">包体</param>
         /// <param name="bodyLength">包体长度</param>
-        public int GetGintechDatas(List<GintechData> datas, byte[] body, int bodyLength)
+        public int GetGintechDatas(List<GintechData> datas, List<String> ips, byte[] body, int bodyLength)
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
+            int ipsSize = br.ReadInt();
+            for (int j = 0; j < ipsSize; j++)
+            {
+                ips.Add(br.ReadString());
+            }
             int gintechSize = br.ReadInt();
             for (int i = 0; i < gintechSize; i++)
             {
@@ -352,14 +357,33 @@ namespace OwLibSV
         /// <param name="message">消息</param>
         /// <param name="loginInfos">登录信息列表</param>
         /// <returns>状态</returns>
-        public int Send(CMessage message, List<GintechData> datas)
+        public int Send(CMessage message, List<String> ips, List<GintechData> datas)
         {
             Binary bw = new Binary();
             int gintechSize = datas.Count;
+            if (DataCenter.IsFull)
+            {
+                String key = DataCenter.Config.m_localHost + ":" + CStr.ConvertIntToStr(DataCenter.Config.m_localPort);
+                if (ips.Contains(key))
+                {
+                    return 1;
+                }
+                else
+                {
+                    ips.Add(key);
+                }
+            }
+            int ipsSize = ips.Count;
+            bw.WriteInt(ipsSize);
+            for (int j = 0; j < ipsSize; j++)
+            {
+                bw.WriteString(ips[j]);
+            }
             bw.WriteInt(gintechSize);
             for (int i = 0; i < gintechSize; i++)
             {
                 GintechData data = datas[i];
+
                 bw.WriteString(data.m_text);
             }
             byte[] bytes = bw.GetBytes();
@@ -379,7 +403,8 @@ namespace OwLibSV
         {
             int rtnSocketID = message.m_socketID;
             List<GintechData> datas = new List<GintechData>();
-            GetGintechDatas(datas, message.m_body, message.m_bodyLength);
+            List<String> ips = new List<String>();
+            GetGintechDatas(datas, ips, message.m_body, message.m_bodyLength);
             lock (m_socketIDs)
             {
                 foreach (int socketID in m_socketIDs.Keys)
@@ -387,7 +412,7 @@ namespace OwLibSV
                     if (rtnSocketID != socketID)
                     {
                         message.m_socketID = socketID;
-                        int ret = Send(message, datas);
+                        int ret = Send(message, ips, datas);
                     }
                 }
             }
