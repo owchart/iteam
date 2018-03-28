@@ -411,8 +411,10 @@ namespace OwLibSV
                 {
                     if (rtnSocketID != socketID)
                     {
+                        List<String> copyIPs = new List<String>();
+                        copyIPs.AddRange(ips.ToArray());
                         message.m_socketID = socketID;
-                        int ret = Send(message, ips, datas);
+                        int ret = Send(message, copyIPs, datas);
                     }
                 }
             }
