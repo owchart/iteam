@@ -84,6 +84,11 @@ namespace OwLib
         /// </summary>
         private Dictionary<int, CMessage> m_waitMessages = new Dictionary<int, CMessage>();
 
+        /// <summary>
+        /// 写日志回调
+        /// </summary>
+        private static WriteLogCallBack m_writeLogCallBack;
+
         private int m_compressType = COMPRESSTYPE_NONE;
 
         /// <summary>
@@ -229,6 +234,8 @@ namespace OwLib
             {
                 m_messageCallBack = new MessageCallBack(CallBack);
                 RegisterCallBack(m_messageCallBack);
+                m_writeLogCallBack = new WriteLogCallBack(WriteServerLog);
+                RegisterLog(m_writeLogCallBack);
             }
             m_services.Add(service);
         }
@@ -394,6 +401,24 @@ namespace OwLib
             OnReceive(message);
             OnWaitMessageHandle(message);
             body = null;
+        }
+
+        /// <summary>
+        /// 客户端关闭方法
+        /// </summary>
+        /// <param name="socketID">连接ID</param>
+        /// <param name="localSID">本地连接ID</param>
+        public virtual void OnClientClose(int socketID, int localSID)
+        {
+        }
+
+        /// <summary>
+        /// 客户端连接方法
+        /// </summary>
+        /// <param name="socketID">连接ID</param>
+        /// <param name="localSID">本地连接ID</param>
+        public virtual void OnClientConnect(int socketID, int localSID)
+        {
         }
 
         /// <summary>
@@ -601,6 +626,37 @@ namespace OwLib
             }
             UnRegisterWait(requestID);
             return state;
+        }
+
+        /// <summary>
+        /// 写日志
+        /// </summary>
+        /// <param name="socketID">连接ID</param>
+        /// <param name="localSID">本地连接ID</param>
+        /// <param name="state">状态</param>
+        /// <param name="log">日志</param>
+        public static void WriteServerLog(int socketID, int localSID, int state, String log)
+        {
+            if (state == 1)
+            {
+                foreach (BaseService service in m_services)
+                {
+                    if (service.SocketID == socketID)
+                    {
+                        service.OnClientConnect(socketID, localSID);
+                    }
+                }
+            }
+            else if (state == 2 || state == 3)
+            {
+                foreach (BaseService service in m_services)
+                {
+                    if (service.SocketID == socketID)
+                    {
+                        service.OnClientClose(socketID, localSID);
+                    }
+                }
+            }
         }
         #endregion
     }

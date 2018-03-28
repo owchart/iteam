@@ -234,16 +234,29 @@ namespace OwLib
                                          int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
                                          if (socketID != -1)
                                          {
-
-                                             Console.WriteLine(hostInfo.m_ip);
                                              OwLib.GintechService clientGintechService = new OwLib.GintechService();
                                              DataCenter.ClientGintechServices[key2] = clientGintechService;
                                              OwLib.BaseService.AddService(clientGintechService);
                                              clientGintechService.ToServer = true;
+                                             clientGintechService.Connected = true;
                                              clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
                                              clientGintechService.SocketID = socketID;
                                              clientGintechService.Enter();
                                              return;
+                                         }
+                                     }
+                                     else
+                                     {
+                                         OwLib.GintechService clientGintechService = DataCenter.ClientGintechServices[key2];
+                                         if (!clientGintechService.Connected)
+                                         {
+                                             int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
+                                             if (socketID != -1)
+                                             {
+                                                 clientGintechService.Connected = true;
+                                                 clientGintechService.SocketID = socketID;
+                                                 clientGintechService.Enter();
+                                             }
                                          }
                                      }
                                 }
@@ -415,6 +428,7 @@ namespace OwLib
                     DataCenter.ClientGintechServices[key] = clientGintechService;
                     OwLib.BaseService.AddService(clientGintechService);
                     clientGintechService.ToServer = true;
+                    clientGintechService.Connected = true;
                     clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
                     clientGintechService.SocketID = socketID;
                     clientGintechService.Enter();

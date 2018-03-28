@@ -150,9 +150,12 @@ namespace OwLibSV
             List<GintechHostInfo> allHostInfos = new List<GintechHostInfo>();
             lock(m_socketIDs)
             {
-                foreach (GintechHostInfo hostInfo in m_socketIDs.Values)
+                foreach (int sid in m_socketIDs.Keys)
                 {
-                    allHostInfos.Add(hostInfo);
+                    if (sid != rtnSocketID)
+                    {
+                        allHostInfos.Add(m_socketIDs[sid]);
+                    }
                 }
             }
             List<int> rtnSocketIDs = new List<int>();

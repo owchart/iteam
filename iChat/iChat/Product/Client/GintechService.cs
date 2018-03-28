@@ -89,6 +89,17 @@ namespace OwLib
         /// </summary>
         public const int FUNCTIONID_GINTECH_ENTER = 6;
 
+        private bool m_connected;
+
+        /// <summary>
+        /// 获取或设置是否连接成功
+        /// </summary>
+        public bool Connected
+        {
+            get { return m_connected; }
+            set { m_connected = value; }
+        }
+
         private bool m_toServer;
 
         /// <summary>
@@ -181,6 +192,17 @@ namespace OwLib
             }
             br.Close();
             return 1;     
+        }
+
+        /// <summary>
+        /// 客户端退出方法
+        /// </summary>
+        /// <param name="socketID">连接ID</param>
+        /// <param name="localSID">本地连接ID</param>
+        public override void OnClientClose(int socketID, int localSID)
+        {
+            base.OnClientClose(socketID, localSID);
+            m_connected = false;
         }
 
         /// <summary>
