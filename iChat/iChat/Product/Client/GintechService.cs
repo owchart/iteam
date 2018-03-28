@@ -222,7 +222,7 @@ namespace OwLib
         public override void OnReceive(CMessage message)
         {
             base.OnReceive(message);
-            if (DataCenter.IsFull && message.m_functionID == FUNCTIONID_GINTECH_SENDALL && message.m_socketID != SocketID)
+            if (DataCenter.IsFull && message.m_functionID == FUNCTIONID_GINTECH_SENDALL)
             {
                 DataCenter.ServerGintechService.SendAll(message);
             }
