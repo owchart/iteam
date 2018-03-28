@@ -67,16 +67,6 @@ namespace OwLibSV
         }
 
         /// <summary>
-        /// 锁
-        /// </summary>
-        public object m_lock = new object();
-
-        /// <summary>
-        /// 会话列表
-        /// </summary>
-        public Dictionary<int, GintechHostInfo> m_socketIDs = new Dictionary<int, GintechHostInfo>();
-
-        /// <summary>
         /// 弹幕服务ID
         /// </summary>
         private const int SERVICEID_GINTECH = 10000;
@@ -101,6 +91,21 @@ namespace OwLibSV
         /// </summary>
         public const int FUNCTIONID_GINTECH_ENTER = 6;
 
+        /// <summary>
+        /// 锁
+        /// </summary>
+        public object m_lock = new object();
+
+        /// <summary>
+        /// 服务端主机
+        /// </summary>
+        private List<GintechHostInfo> m_serverHosts = new List<GintechHostInfo>();
+
+        /// <summary>
+        /// 会话列表
+        /// </summary>
+        public Dictionary<int, GintechHostInfo> m_socketIDs = new Dictionary<int, GintechHostInfo>();
+
         private int m_port = 16666;
 
         /// <summary>
@@ -110,6 +115,18 @@ namespace OwLibSV
         {
             get { return m_port; }
             set { m_port = value; }
+        }
+
+        /// <summary>
+        /// 添加
+        /// </summary>
+        /// <param name="hostInfo">主机信息</param>
+        public void AddServerHosts(GintechHostInfo hostInfo)
+        {
+            lock (m_serverHosts)
+            {
+                m_serverHosts.Add(hostInfo);
+            }
         }
 
         /// <summary>
@@ -128,17 +145,28 @@ namespace OwLibSV
             List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
             lock (m_socketIDs)
             {
-                if (m_socketIDs.ContainsKey(message.m_socketID))
+                if (m_socketIDs.ContainsKey(rtnSocketID))
                 {
-                    m_socketIDs[message.m_socketID].m_serverPort = port;
-                    m_socketIDs[message.m_socketID].m_type = type;
+                    m_socketIDs[rtnSocketID].m_serverPort = port;
+                    m_socketIDs[rtnSocketID].m_type = type;
                     hostInfos.Add(m_socketIDs[message.m_socketID]);
-                }
-                foreach (int socketID in m_socketIDs.Keys)
-                {
-                    if (socketID != rtnSocketID)
+                    foreach (int socketID in m_socketIDs.Keys)
                     {
-                        sendSocketIDs.Add(socketID);
+                        if (socketID != rtnSocketID)
+                        {
+                            GintechHostInfo gs = m_socketIDs[socketID];
+                            if (gs.m_type == 0)
+                            {
+                                sendSocketIDs.Add(socketID);
+                            }
+                            else if (gs.m_type == 1)
+                            {
+                                if (type == 1)
+                                {
+                                    sendSocketIDs.Add(socketID);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -157,6 +185,19 @@ namespace OwLibSV
                         allHostInfos.Add(m_socketIDs[sid]);
                     }
                 }
+            }
+            //发送本地IP地址
+            if (DataCenter.Config.m_localHost.Length > 0)
+            {
+                GintechHostInfo localHostInfo = new GintechHostInfo();
+                localHostInfo.m_ip = DataCenter.Config.m_localHost;
+                localHostInfo.m_serverPort = DataCenter.Config.m_localPort;
+                localHostInfo.m_type = 1;
+                allHostInfos.Add(localHostInfo);
+            }
+            lock (m_serverHosts)
+            {
+                allHostInfos.AddRange(m_serverHosts.ToArray());
             }
             List<int> rtnSocketIDs = new List<int>();
             rtnSocketIDs.Add(rtnSocketID);

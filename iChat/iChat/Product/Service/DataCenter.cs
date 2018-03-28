@@ -41,6 +41,16 @@ namespace OwLib
             get { return DataCenter.m_clientGintechServices; }
         }
 
+        private static Config m_config = new Config();
+
+        /// <summary>
+        /// 获取配置信息
+        /// </summary>
+        public static Config Config
+        {
+            get { return DataCenter.m_config; }
+        }
+
         /// <summary>
         /// 区块链通用请求ID
         /// </summary>
@@ -80,7 +90,7 @@ namespace OwLib
             get { return DataCenter.m_serverGintechService; }
         }
 
-        private static UserCookieService m_userCookieService = new UserCookieService();
+        private static UserCookieService m_userCookieService;
 
         /// <summary>
         /// 用户Cookie服务
@@ -125,8 +135,48 @@ namespace OwLib
         /// <param name="appPath">程序路径</param>
         public static void StartService()
         {
+            //读取配置
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(DataCenter.GetAppPath() + "\\config.xml");
+            XmlNode root = xmlDoc.DocumentElement;
+            foreach (XmlNode node in root.ChildNodes)
+            {
+                String name = node.Name.ToLower();
+                String value = node.InnerText;
+                if (name == "clearcache")
+                {
+                    m_config.m_clearCache = value == "1";
+                }
+                else if (name == "defaulthost")
+                {
+                    if (value.Length > 0)
+                    {
+                        String[] strs = value.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                        m_config.m_defaultHost = strs[0];
+                        m_config.m_defaultPort = CStr.ConvertStrToInt(strs[1]);
+                    }
+                }
+                else if (name == "isfull")
+                {
+                    m_config.m_isFull = value == "1";
+                }
+                else if (name == "localhost")
+                {
+                    if (value.Length > 0)
+                    {
+                        String[] strs = value.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                        m_config.m_localHost = strs[0];
+                        m_config.m_localPort = CStr.ConvertStrToInt(strs[1]);
+                    }
+                }
+            }
+            if (m_config.m_clearCache)
+            {
+                CFileA.RemoveFile(DataCenter.GetAppPath() + "\\usercookies.db");
+            }
+            m_userCookieService = new UserCookieService();
             Random rd = new Random();
-            m_isFull = true;
+            m_isFull = m_config.m_isFull;
             String[] servers = new String[] { };
             if (!m_isFull)
             {
@@ -136,5 +186,23 @@ namespace OwLib
             OwLibSV.BaseService.StartServer(0, m_serverGintechService.Port);
         }
         #endregion
+    }
+
+    /// <summary>
+    /// 服务器配置
+    /// </summary>
+    public class Config
+    {
+        public bool m_clearCache;
+
+        public String m_defaultHost = "";
+
+        public int m_defaultPort;
+
+        public bool m_isFull;
+
+        public String m_localHost = "";
+
+        public int m_localPort;
     }
 }

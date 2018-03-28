@@ -87,7 +87,7 @@ namespace OwLib
                     gintechData.m_text = text;
                     foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
                     {
-                        if (gs.ToServer)
+                        if (gs.ToServer && gs.Connected)
                         {
                             gs.SendAll(gintechData);
                         }
@@ -112,6 +112,16 @@ namespace OwLib
                         if (DataCenter.ClientGintechServices.ContainsKey(key))
                         {
                             gintechService = DataCenter.ClientGintechServices[key];
+                            if (!gintechService.Connected)
+                            {
+                                int socketID = OwLib.BaseService.Connect(ip, port);
+                                if (socketID != -1)
+                                {
+                                    gintechService.Connected = true;
+                                    gintechService.SocketID = socketID;
+                                    gintechService.Enter();
+                                }
+                            }
                         }
                         else
                         {
@@ -125,6 +135,7 @@ namespace OwLib
                                 {
                                     gintechService.ServerIP = ip;
                                     gintechService.ServerPort = port;
+                                    gintechService.ToServer = type == 1;
                                 }
                                 DataCenter.ClientGintechServices[key] = gintechService;
                                 BaseService.AddService(gintechService);
@@ -182,26 +193,41 @@ namespace OwLib
                     int type = 0;
                     GintechService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
                     m_gridHosts.BeginUpdate();
-                    if (type == 0)
-                    {
-                        m_gridHosts.ClearRows();
-                    }
                     if (type != 2)
                     {
                         int datasSize = datas.Count;
                         for (int i = 0; i < datasSize; i++)
                         {
-                            GridRow row = new GridRow();
-                            m_gridHosts.AddRow(row);
                             GintechHostInfo hostInfo = datas[i];
-                            row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
-                            row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
-                            row.AddCell("colP3", new GridStringCell(hostInfo.m_type == 1 ? "服务端" : "客户端"));
+                            List<GridRow> rows = m_gridHosts.m_rows;
+                            int rowsSize = rows.Count;
+                            bool containsRow = false;
+                            for (int j = 0; j < rowsSize; j++)
+                            {
+                                GridRow oldRow = rows[j];
+                                if (oldRow.GetCell("colP1").GetString() == hostInfo.m_ip && oldRow.GetCell("colP2").GetInt() == hostInfo.m_serverPort)
+                                {
+                                    containsRow = true;
+                                }
+                            }
+                            if (!containsRow)
+                            {
+                                GridRow row = new GridRow();
+                                m_gridHosts.AddRow(row);
+                                row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
+                                row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
+                                row.AddCell("colP3", new GridStringCell(hostInfo.m_type == 1 ? "服务端" : "客户端"));
+                            }
                             //全节点
                             if (hostInfo.m_type == 1)
                             {
                                 if (hostInfo.m_ip != "127.0.0.1")
                                 {
+                                    OwLibSV.GintechHostInfo serverHostInfo = new OwLibSV.GintechHostInfo();
+                                    serverHostInfo.m_ip = hostInfo.m_ip;
+                                    serverHostInfo.m_serverPort = hostInfo.m_serverPort;
+                                    serverHostInfo.m_type = hostInfo.m_type;
+                                    DataCenter.ServerGintechService.AddServerHosts(serverHostInfo);
                                     String newServer = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
                                     List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
                                     UserCookie cookie = new UserCookie();
@@ -237,12 +263,11 @@ namespace OwLib
                                              OwLib.GintechService clientGintechService = new OwLib.GintechService();
                                              DataCenter.ClientGintechServices[key2] = clientGintechService;
                                              OwLib.BaseService.AddService(clientGintechService);
-                                             clientGintechService.ToServer = true;
                                              clientGintechService.Connected = true;
+                                             clientGintechService.ToServer = type == 1;
                                              clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
                                              clientGintechService.SocketID = socketID;
                                              clientGintechService.Enter();
-                                             return;
                                          }
                                      }
                                      else
@@ -409,30 +434,36 @@ namespace OwLib
             }
             else
             {
-                GintechHostInfo defaultHostInfo = new GintechHostInfo();
-                defaultHostInfo.m_ip = "192.168.88.103";
-                defaultHostInfo.m_serverPort = 16666;
-                hostInfos.Add(defaultHostInfo);
+                if (DataCenter.Config.m_defaultHost.Length > 0)
+                {
+                    GintechHostInfo defaultHostInfo = new GintechHostInfo();
+                    defaultHostInfo.m_ip = DataCenter.Config.m_defaultHost;
+                    defaultHostInfo.m_serverPort = DataCenter.Config.m_defaultPort;
+                    hostInfos.Add(defaultHostInfo);
+                }
             }
             int hostInfosSize = hostInfos.Count;
-            Random rd = new Random();
-            while (true)
+            if (hostInfosSize > 0)
             {
-                GintechHostInfo hostInfo = hostInfos[rd.Next(0, hostInfosSize)];
-                int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
-                if (socketID != -1)
+                Random rd = new Random();
+                while (true)
                 {
-                    String key = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
-                    Console.WriteLine(hostInfo.m_ip);
-                    OwLib.GintechService clientGintechService = new OwLib.GintechService();
-                    DataCenter.ClientGintechServices[key] = clientGintechService;
-                    OwLib.BaseService.AddService(clientGintechService);
-                    clientGintechService.ToServer = true;
-                    clientGintechService.Connected = true;
-                    clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
-                    clientGintechService.SocketID = socketID;
-                    clientGintechService.Enter();
-                    return;
+                    GintechHostInfo hostInfo = hostInfos[rd.Next(0, hostInfosSize)];
+                    int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
+                    if (socketID != -1)
+                    {
+                        String key = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                        Console.WriteLine(hostInfo.m_ip);
+                        OwLib.GintechService clientGintechService = new OwLib.GintechService();
+                        DataCenter.ClientGintechServices[key] = clientGintechService;
+                        OwLib.BaseService.AddService(clientGintechService);
+                        clientGintechService.ToServer = true;
+                        clientGintechService.Connected = true;
+                        clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                        clientGintechService.SocketID = socketID;
+                        clientGintechService.Enter();
+                        return;
+                    }
                 }
             }
         }
