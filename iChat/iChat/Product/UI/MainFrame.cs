@@ -362,6 +362,13 @@ namespace OwLib
                 }
             }
             int hostInfosSize = hostInfos.Count;
+            if (DataCenter.IsFull && hostInfosSize == 0)
+            {
+                GintechHostInfo defaultHostInfo = new GintechHostInfo();
+                defaultHostInfo.m_ip = "127.0.0.1";
+                defaultHostInfo.m_serverPort = 16666;
+                hostInfos.Add(defaultHostInfo);
+            }
             if (hostInfosSize > 0)
             {
                 Random rd = new Random();

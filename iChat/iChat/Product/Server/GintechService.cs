@@ -162,6 +162,7 @@ namespace OwLibSV
             int rtnSocketID = message.m_socketID;
             Binary br = new Binary();
             br.Write(message.m_body, message.m_bodyLength);
+            String ip = "";
             int port = br.ReadInt();
             int type = br.ReadInt();
             List<int> sendSocketIDs = new List<int>();
@@ -170,6 +171,7 @@ namespace OwLibSV
             {
                 if (m_socketIDs.ContainsKey(rtnSocketID))
                 {
+                    ip = m_socketIDs[rtnSocketID].m_ip;
                     m_socketIDs[rtnSocketID].m_serverPort = port;
                     m_socketIDs[rtnSocketID].m_type = type;
                     hostInfos.Add(m_socketIDs[message.m_socketID]);
@@ -237,6 +239,24 @@ namespace OwLibSV
             rtnSocketIDs.Clear();
             hostInfos.Clear();
             sendSocketIDs.Clear();
+            if (DataCenter.IsFull && type == 1)
+            {
+                if (DataCenter.ClientGintechServices.Count == 0)
+                {
+                    int socketID = OwLib.BaseService.Connect(ip, port);
+                    if (socketID != -1)
+                    {
+                        String key = ip + ":" + CStr.ConvertIntToStr(port);
+                        OwLib.GintechService clientGintechService = new OwLib.GintechService();
+                        DataCenter.ClientGintechServices[key] = clientGintechService;
+                        OwLib.BaseService.AddService(clientGintechService);
+                        clientGintechService.ToServer = true;
+                        clientGintechService.Connected = true;
+                        clientGintechService.SocketID = socketID;
+                        clientGintechService.Enter();
+                    }
+                }
+            }
             return 0;
         }
 
