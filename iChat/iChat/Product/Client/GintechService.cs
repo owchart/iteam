@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace OwLib
 {
@@ -212,11 +213,93 @@ namespace OwLib
         public override void OnReceive(CMessage message)
         {
             base.OnReceive(message);
-            SendToListener(message);
             if (DataCenter.IsFull && message.m_functionID == FUNCTIONID_GINTECH_SENDALL && message.m_socketID != SocketID)
             {
                 DataCenter.ServerGintechService.SendAll(message);
             }
+            if (message.m_functionID == FUNCTIONID_GETHOSTS)
+            {
+                List<GintechHostInfo> datas = new List<GintechHostInfo>();
+                int type = 0;
+                GintechService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
+                if (type != 2)
+                {
+                    int datasSize = datas.Count;
+                    for (int i = 0; i < datasSize; i++)
+                    {
+                        GintechHostInfo hostInfo = datas[i];
+                        //È«½Úµã
+                        if (hostInfo.m_type == 1)
+                        {
+                            if (hostInfo.m_ip != "127.0.0.1")
+                            {
+                                OwLibSV.GintechHostInfo serverHostInfo = new OwLibSV.GintechHostInfo();
+                                serverHostInfo.m_ip = hostInfo.m_ip;
+                                serverHostInfo.m_serverPort = hostInfo.m_serverPort;
+                                serverHostInfo.m_type = hostInfo.m_type;
+                                DataCenter.ServerGintechService.AddServerHosts(serverHostInfo);
+                                String newServer = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                                List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
+                                UserCookie cookie = new UserCookie();
+                                if (DataCenter.UserCookieService.GetCookie("FULLSERVERS", ref cookie) > 0)
+                                {
+                                    hostInfos = JsonConvert.DeserializeObject<List<GintechHostInfo>>(cookie.m_value);
+                                }
+                                int hostInfosSize = hostInfos.Count;
+                                bool contains = false;
+                                for (int j = 0; j < hostInfosSize; j++)
+                                {
+                                    GintechHostInfo oldHostInfo = hostInfos[j];
+                                    String key = oldHostInfo.m_ip + ":" + CStr.ConvertIntToStr(oldHostInfo.m_serverPort);
+                                    if (key == newServer)
+                                    {
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+                                if (!contains)
+                                {
+                                    hostInfos.Add(hostInfo);
+                                    cookie.m_key = "FULLSERVERS";
+                                    cookie.m_value = JsonConvert.SerializeObject(hostInfos);
+                                    DataCenter.UserCookieService.AddCookie(cookie);
+                                }
+                                String key2 = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                                if (!DataCenter.ClientGintechServices.ContainsKey(key2))
+                                {
+                                    int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
+                                    if (socketID != -1)
+                                    {
+                                        OwLib.GintechService clientGintechService = new OwLib.GintechService();
+                                        DataCenter.ClientGintechServices[key2] = clientGintechService;
+                                        OwLib.BaseService.AddService(clientGintechService);
+                                        clientGintechService.Connected = true;
+                                        clientGintechService.ToServer = type == 1;
+                                        //clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                                        clientGintechService.SocketID = socketID;
+                                        clientGintechService.Enter();
+                                    }
+                                }
+                                else
+                                {
+                                    OwLib.GintechService clientGintechService = DataCenter.ClientGintechServices[key2];
+                                    if (!clientGintechService.Connected)
+                                    {
+                                        int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
+                                        if (socketID != -1)
+                                        {
+                                            clientGintechService.Connected = true;
+                                            clientGintechService.SocketID = socketID;
+                                            clientGintechService.Enter();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            SendToListener(message);
         }
 
         /// <summary>
