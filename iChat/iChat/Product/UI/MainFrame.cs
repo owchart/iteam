@@ -92,6 +92,9 @@ namespace OwLib
                             gs.SendAll(gintechData);
                         }
                     }
+                    CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                    indicator.Clear();
+                    indicator.Dispose();
                 }
                 else if (name == "btnSend")
                 {
@@ -144,6 +147,9 @@ namespace OwLib
                         GintechData gintechData = new GintechData();
                         gintechData.m_text = text;
                         gintechService.Send(gintechData);
+                        CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                        indicator.Clear();
+                        indicator.Dispose();
                     }
                 }
             }
@@ -359,7 +365,10 @@ namespace OwLib
                         OwLib.BaseService.AddService(clientGintechService);
                         clientGintechService.ToServer = true;
                         clientGintechService.Connected = true;
-                        clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                        if (!DataCenter.IsFull)
+                        {
+                            clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                        }
                         clientGintechService.SocketID = socketID;
                         clientGintechService.Enter();
                         return;
