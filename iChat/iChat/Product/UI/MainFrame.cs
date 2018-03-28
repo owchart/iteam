@@ -225,7 +225,7 @@ namespace OwLib
                         Dictionary<String, String> removeHosts = new Dictionary<String, String>();
                         foreach (GintechHostInfo hostInfo in datas)
                         {
-                            removeHosts[hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort)] = "";
+                            removeHosts[hostInfo.ToString()] = "";
                         }
                         List<GridRow> rows = m_gridHosts.m_rows;
                         int rowsSize = rows.Count;
@@ -261,25 +261,6 @@ namespace OwLib
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// 是否有窗体显示
-        /// </summary>
-        /// <returns>是否显示</returns>
-        public bool IsWindowShowing()
-        {
-            List<ControlA> controls = Native.GetControls();
-            int controlsSize = controls.Count;
-            for (int i = 0; i < controlsSize; i++)
-            {
-                WindowFrameA frame = controls[i] as WindowFrameA;
-                if (frame != null)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         /// <summary>
@@ -341,19 +322,6 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 显示提示窗口
-        /// </summary>
-        /// <param name="text">文本</param>
-        /// <param name="caption">标题</param>
-        /// <param name="uType">格式</param>
-        /// <returns>结果</returns>
-        public int ShowMessageBox(String text, String caption, int uType)
-        {
-            MessageBox.Show(text, caption);
-            return 1;
-        }
-
-        /// <summary>
         /// 开始启动服务
         /// </summary>
         public void StartConnect()
@@ -384,7 +352,7 @@ namespace OwLib
                     int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
                     if (socketID != -1)
                     {
-                        String key = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                        String key = hostInfo.ToString();
                         Console.WriteLine(hostInfo.m_ip);
                         OwLib.GintechService clientGintechService = new OwLib.GintechService();
                         DataCenter.ClientGintechServices[key] = clientGintechService;

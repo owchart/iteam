@@ -50,6 +50,15 @@ namespace OwLibSV
         /// 上线或下线
         /// </summary>
         public int m_type;
+
+        /// <summary>
+        /// 转换为String
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return m_ip + ":" + CStr.ConvertIntToStr(m_serverPort);
+        }
     }
 
     /// <summary>
@@ -125,7 +134,21 @@ namespace OwLibSV
         {
             lock (m_serverHosts)
             {
-                m_serverHosts.Add(hostInfo);
+                int serverHostsSize = m_serverHosts.Count;
+                bool contains = false;
+                for (int i = 0; i < serverHostsSize; i++)
+                {
+                    GintechHostInfo oldHostInfo = m_serverHosts[i];
+                    if (oldHostInfo.m_ip == hostInfo.m_ip && oldHostInfo.m_serverPort == hostInfo.m_serverPort)
+                    {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains)
+                {
+                    m_serverHosts.Add(hostInfo);
+                }
             }
         }
 
@@ -175,14 +198,14 @@ namespace OwLibSV
             {
                 SendHostInfos(sendSocketIDs, 1, hostInfos);
             }
-            List<GintechHostInfo> allHostInfos = new List<GintechHostInfo>();
+            Dictionary<String, GintechHostInfo> allHostInfos = new Dictionary<string, GintechHostInfo>();
             lock(m_socketIDs)
             {
                 foreach (int sid in m_socketIDs.Keys)
                 {
                     if (sid != rtnSocketID)
                     {
-                        allHostInfos.Add(m_socketIDs[sid]);
+                        allHostInfos[m_socketIDs[sid].ToString()] = m_socketIDs[sid];
                     }
                 }
             }
@@ -193,15 +216,24 @@ namespace OwLibSV
                 localHostInfo.m_ip = DataCenter.Config.m_localHost;
                 localHostInfo.m_serverPort = DataCenter.Config.m_localPort;
                 localHostInfo.m_type = 1;
-                allHostInfos.Add(localHostInfo);
+                allHostInfos[localHostInfo.ToString()] = localHostInfo;
             }
             lock (m_serverHosts)
             {
-                allHostInfos.AddRange(m_serverHosts.ToArray());
+                foreach (GintechHostInfo serverHost in m_serverHosts)
+                {
+                    allHostInfos[serverHost.ToString()] = serverHost;
+                }
             }
             List<int> rtnSocketIDs = new List<int>();
             rtnSocketIDs.Add(rtnSocketID);
-            SendHostInfos(rtnSocketIDs, 0, allHostInfos);
+            List<GintechHostInfo> sendAllHosts = new List<GintechHostInfo>();
+            foreach (GintechHostInfo sendHost in allHostInfos.Values)
+            {
+                sendAllHosts.Add(sendHost);
+            }
+            SendHostInfos(rtnSocketIDs, 0, sendAllHosts);
+            sendAllHosts.Clear();
             rtnSocketIDs.Clear();
             hostInfos.Clear();
             sendSocketIDs.Clear();

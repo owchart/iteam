@@ -49,6 +49,15 @@ namespace OwLib
         /// 类型
         /// </summary>
         public int m_type;
+
+        /// <summary>
+        /// 转换为String
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return m_ip + ":" + CStr.ConvertIntToStr(m_serverPort);
+        }
     }
 
     /// <summary>
@@ -250,7 +259,7 @@ namespace OwLib
                                 for (int j = 0; j < hostInfosSize; j++)
                                 {
                                     GintechHostInfo oldHostInfo = hostInfos[j];
-                                    String key = oldHostInfo.m_ip + ":" + CStr.ConvertIntToStr(oldHostInfo.m_serverPort);
+                                    String key = oldHostInfo.ToString();
                                     if (key == newServer)
                                     {
                                         contains = true;
@@ -264,7 +273,7 @@ namespace OwLib
                                     cookie.m_value = JsonConvert.SerializeObject(hostInfos);
                                     DataCenter.UserCookieService.AddCookie(cookie);
                                 }
-                                String key2 = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                                String key2 = hostInfo.ToString();
                                 if (!DataCenter.ClientGintechServices.ContainsKey(key2))
                                 {
                                     int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
