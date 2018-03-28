@@ -36,9 +36,9 @@ namespace OwLib
         private INativeBase m_native;
 
         /// <summary>
-        /// 计时器
+        /// 标题
         /// </summary>
-        private int m_tick = 60;
+        private String m_title;
 
         /// <summary>
         /// XML
@@ -97,26 +97,6 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 键盘事件
-        /// </summary>
-        /// <param name="e">参数</param>
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            m_tick = 60;
-        }
-
-        /// <summary>
-        /// 鼠标事件
-        /// </summary>
-        /// <param name="e">参数</param>
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-            m_tick = 60;
-        }
-
-        /// <summary>
         /// 尺寸改变方法
         /// </summary>
         /// <param name="e">参数</param>
@@ -161,6 +141,25 @@ namespace OwLib
                     Invalidate();
                 }
             }
+        }
+
+        /// <summary>
+        /// 设置标题
+        /// </summary>
+        /// <param name="text">标题</param>
+        public void SetTitle(String title)
+        {
+            m_title = title;
+        }
+
+        /// <summary>
+        /// 多线程设置标题
+        /// </summary>
+        /// <param name="sender">调用者</param>
+        /// <param name="e">参数</param>
+        public void SetTitle(object sender, EventArgs e)
+        {
+            Text = "iChat" + " 主服务器为" + m_title;
         }
 
         /// <summary>

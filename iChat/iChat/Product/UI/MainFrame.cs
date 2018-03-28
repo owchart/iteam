@@ -369,10 +369,12 @@ namespace OwLib
                     int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
                     if (socketID != -1)
                     {
+
                         String key = hostInfo.ToString();
                         if (m_mainForm != null)
                         {
-                            m_mainForm.Text = key;
+                            m_mainForm.SetTitle(key);
+                            m_mainForm.BeginInvoke(new EventHandler(m_mainForm.SetTitle));
                         }
                         Console.WriteLine(hostInfo.m_ip);
                         OwLib.GintechService clientGintechService = new OwLib.GintechService();
