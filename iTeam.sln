@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iAccept", "iAccept\iAccept.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iEmail", "iEmail\iEmail.csproj", "{6D1375BE-99BF-4ADB-A6D2-357FD89513BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iPlan", "iPlan\iPlan.csproj", "{AE4E43D9-D695-48B9-BC46-60ADCF8A68D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{6D1375BE-99BF-4ADB-A6D2-357FD89513BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D1375BE-99BF-4ADB-A6D2-357FD89513BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D1375BE-99BF-4ADB-A6D2-357FD89513BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE4E43D9-D695-48B9-BC46-60ADCF8A68D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE4E43D9-D695-48B9-BC46-60ADCF8A68D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE4E43D9-D695-48B9-BC46-60ADCF8A68D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE4E43D9-D695-48B9-BC46-60ADCF8A68D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

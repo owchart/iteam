@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using System.IO;
 using System.Threading;
 using OwLib;
-using iTeam;
 
 namespace OwLib
 {
@@ -37,11 +36,6 @@ namespace OwLib
         private INativeBase m_native;
 
         /// <summary>
-        /// 计时器
-        /// </summary>
-        private int m_tick = 60;
-
-        /// <summary>
         /// XML
         /// </summary>
         private UIXmlEx m_xml;
@@ -61,9 +55,12 @@ namespace OwLib
         /// <param name="name">名称</param>
         public void LoadXml(String name)
         {
-            if (name == "MainFrame")
+            if (name == "PlanWindow")
             {
-                m_xml = new MainFrame();
+                DataCenter.ExportService = new ExportService();
+                DataCenter.PlanService = new PlanService();
+                m_xml = new PlanWindow();
+                DataCenter.PlanWindow = m_xml as PlanWindow;
             }
             m_xml.CreateNative();
             m_native = m_xml.Native;
@@ -83,12 +80,6 @@ namespace OwLib
             (m_host.ToolTip as ToolTipA).InitialDelay = 250;
             m_native.Update();
             Invalidate();
-            if (name == "MainFrame")
-            {
-                LoginForm loginForm = new LoginForm();
-                loginForm.ShowDialog();
-                DataCenter.StartService();
-            }
         }
 
         /// <summary>
@@ -100,26 +91,6 @@ namespace OwLib
             m_xml.Exit();
             Environment.Exit(0);
             base.OnFormClosing(e);
-        }
-
-        /// <summary>
-        /// 键盘事件
-        /// </summary>
-        /// <param name="e">参数</param>
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            m_tick = 60;
-        }
-
-        /// <summary>
-        /// 鼠标事件
-        /// </summary>
-        /// <param name="e">参数</param>
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-            m_tick = 60;
         }
 
         /// <summary>
@@ -166,20 +137,6 @@ namespace OwLib
                     m_xml.ResetScaleSize(GetClientSize());
                     Invalidate();
                 }
-            }
-        }
-
-        /// <summary>
-        /// 秒表事件
-        /// </summary>
-        /// <param name="sender">调用者</param>
-        /// <param name="e">参数</param>
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            m_tick--;
-            if (m_tick <= 0)
-            {
-                Environment.Exit(0);
             }
         }
 

@@ -252,28 +252,6 @@ namespace OwLib
             get { return m_personalService; }
         }
 
-        private static PlanService m_planService;
-
-        /// <summary>
-        /// 获取或设置计划服务
-        /// </summary>
-        public static PlanService PlanService
-        {
-            get { return m_planService; }
-            set { m_planService = value; }
-        }
-
-        private static PlanWindow m_planWindow;
-
-        /// <summary>
-        /// 获取或设置计划窗体
-        /// </summary>
-        public static PlanWindow PlanWindow
-        {
-            get { return DataCenter.m_planWindow; }
-            set { m_planWindow = value; }
-        }
-
         private static ProjectService m_projectService;
 
         /// <summary>

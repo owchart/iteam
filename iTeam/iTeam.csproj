@@ -102,7 +102,6 @@
     <Compile Include="Product\Service\DataCenter.cs" />
     <Compile Include="Product\Service\ExportService.cs" />
     <Compile Include="Product\Service\JidianService.cs" />
-    <Compile Include="Product\Service\PlanService.cs" />
     <Compile Include="Product\Service\ProjectService.cs" />
     <Compile Include="Product\Service\SecurityService.cs" />
     <Compile Include="Product\Service\StaffService.cs" />
@@ -142,7 +141,6 @@
     <Compile Include="Product\UI\GdiPlusPaintEx.cs" />
     <Compile Include="Product\UI\GridProgressCell.cs" />
     <Compile Include="Product\UI\MainFrame.cs" />
-    <Compile Include="Product\UI\PlanWindow.cs" />
     <Compile Include="Product\UI\RibbonButton.cs" />
     <Compile Include="Product\UI\RibbonButton2.cs" />
     <Compile Include="Product\UI\Sky.cs" />
@@ -202,12 +200,6 @@
     <Compile Include="Product\UI\AwardWindow.cs" />
     <Compile Include="Product\UI\GitWindow.cs" />
     <Compile Include="Product\UI\MasterWindow.cs" />
-    <Content Include="config\PlanWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\CreatePlanWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="config\CounterspyWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -281,9 +273,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\WangYiWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\ModifyPlanWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\SnitchWindow.html">

@@ -71,7 +71,7 @@ namespace iAccept
             if (m_records.Count == 0)
             {
                 m_records.Add("培训老师");
-                m_records.Add("直属组长");
+                m_records.Add("直属主管");
                 m_records.Add("技术副总监");
                 m_records.Add("技术总监");
             }
