@@ -205,11 +205,6 @@ namespace OwLib
                     BusinessCardWindow businessCardWindow = new BusinessCardWindow(Native);
                     businessCardWindow.ShowDialog();
                 }
-                else if (name == "TR")
-                {
-                    TrainingWindow trainingWindow = new TrainingWindow(Native);
-                    trainingWindow.ShowDialog();
-                }
             }
         }
 
@@ -476,7 +471,6 @@ namespace OwLib
             type1List.Add(new UserAppsTable("RP", "考一考"));
             type1List.Add(new UserAppsTable("OW", "加班记录"));
             type3List.Add(new UserAppsTable("BC", "名片"));
-            type2List.Add(new UserAppsTable("TR", "个人训练"));
             GetApps(type1List, type2List, type3List, type4List);
             RegisterEvents(control);
         }

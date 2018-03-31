@@ -130,7 +130,6 @@
     <Compile Include="Product\Service\ExamService.cs" />
     <Compile Include="Product\Service\OverWorkService.cs" />
     <Compile Include="Product\Service\BusinessCardService.cs" />
-    <Compile Include="Product\Service\TrainingService.cs" />
     <Compile Include="Product\UI\BarrageDiv.cs" />
     <Compile Include="Product\UI\DimensionWindow.cs" />
     <Compile Include="Product\UI\CDraw.cs" />
@@ -172,7 +171,6 @@
     <Compile Include="Product\UI\ExamWindow.cs" />
     <Compile Include="Product\UI\OverWorkWindow.cs" />
     <Compile Include="Product\UI\BusinessCardWindow.cs" />
-    <Compile Include="Product\UI\TrainingWindow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="LoginForm.resx">
@@ -300,9 +298,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\BusinessCardWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\TrainingWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="oldwhite.ico" />

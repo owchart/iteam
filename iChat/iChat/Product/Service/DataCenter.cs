@@ -193,16 +193,34 @@ namespace OwLib
     /// </summary>
     public class Config
     {
+        /// <summary>
+        /// 是否清除缓存
+        /// </summary>
         public bool m_clearCache;
 
+        /// <summary>
+        /// 默认地址
+        /// </summary>
         public String m_defaultHost = "";
 
+        /// <summary>
+        /// 默认端口
+        /// </summary>
         public int m_defaultPort;
 
+        /// <summary>
+        /// 是否全节点
+        /// </summary>
         public bool m_isFull;
 
+        /// <summary>
+        /// 本地地址
+        /// </summary>
         public String m_localHost = "";
 
+        /// <summary>
+        /// 本地端口
+        /// </summary>
         public int m_localPort;
     }
 }

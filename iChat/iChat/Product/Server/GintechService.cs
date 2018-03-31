@@ -101,11 +101,6 @@ namespace OwLibSV
         public const int FUNCTIONID_GINTECH_ENTER = 6;
 
         /// <summary>
-        /// 锁
-        /// </summary>
-        public object m_lock = new object();
-
-        /// <summary>
         /// 服务端主机
         /// </summary>
         private List<GintechHostInfo> m_serverHosts = new List<GintechHostInfo>();
@@ -165,6 +160,7 @@ namespace OwLibSV
             String ip = "";
             int port = br.ReadInt();
             int type = br.ReadInt();
+            br.Close();
             List<int> sendSocketIDs = new List<int>();
             List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
             lock (m_socketIDs)

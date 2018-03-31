@@ -332,16 +332,6 @@ namespace OwLib
             get { return m_theoryService; }
         }
 
-        private static TrainingService m_trainingService;
-
-        /// <summary>
-        /// 获取训练服务
-        /// </summary>
-        public static TrainingService TrainingService
-        {
-            get { return DataCenter.m_trainingService; }
-        }
-
         private static UserCookieService m_userCookieService = new UserCookieService();
 
         /// <summary>
@@ -439,7 +429,6 @@ namespace OwLib
             m_snitchService = new SnitchService();
             m_speechService = new SpeechService();
             m_theoryService = new TheoryService();
-            m_trainingService = new TrainingService();
             m_wangYiService = new WangYiService();
             SecurityService.Start();
         }
