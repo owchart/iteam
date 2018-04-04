@@ -101,16 +101,6 @@ namespace OwLib
             get { return m_clueService; }
         }
 
-        private static CodeService m_codeService;
-
-        /// <summary>
-        /// 获取行动代号服务
-        /// </summary>
-        public static CodeService CodeService
-        {
-            get { return m_codeService; }
-        }
-
         private static CounterspyService m_counterspyService;
 
         /// <summary>
@@ -302,16 +292,6 @@ namespace OwLib
             get { return m_snitchService; }
         }
 
-        private static SpeechService m_speechService;
-
-        /// <summary>
-        /// 获取演讲服务
-        /// </summary>
-        public static SpeechService SpeechService
-        {
-            get { return m_speechService; }
-        }
-
         private static StaffService m_staffService;
 
         /// <summary>
@@ -320,16 +300,6 @@ namespace OwLib
         public static StaffService StaffService
         {
             get { return m_staffService; }
-        }
-
-        private static TheoryService m_theoryService;
-
-        /// <summary>
-        /// 获取理论服务
-        /// </summary>
-        public static TheoryService TheoryService
-        {
-            get { return m_theoryService; }
         }
 
         private static UserCookieService m_userCookieService = new UserCookieService();
@@ -408,7 +378,6 @@ namespace OwLib
             m_calendarService = new CalendarService();
             m_checkService = new CheckService();
             m_clueService = new ClueService();
-            m_codeService = new CodeService();
             m_counterspyService = new CounterspyService();
             m_dimensionService = new DimensionService();
             m_disobeyService = new DisobeyService();
@@ -427,8 +396,6 @@ namespace OwLib
             m_securityService = new SecurityService();
             m_serverService = new ServerService();
             m_snitchService = new SnitchService();
-            m_speechService = new SpeechService();
-            m_theoryService = new TheoryService();
             m_wangYiService = new WangYiService();
             SecurityService.Start();
         }

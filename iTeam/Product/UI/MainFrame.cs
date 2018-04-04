@@ -100,11 +100,6 @@ namespace OwLib
                     PersonalWindow personalWindow = new PersonalWindow(Native);
                     personalWindow.ShowDialog();
                 }
-                else if (name == "LM")
-                {
-                    SpeechWindow speechWindow = new SpeechWindow(Native);
-                    speechWindow.ShowDialog();
-                }
                 else if (name == "LP")
                 {
                     OpinionWindow opinionWindow = new OpinionWindow(Native);
@@ -119,11 +114,6 @@ namespace OwLib
                 {
                     RemoteWindow remoteWindow = new RemoteWindow(Native);
                     remoteWindow.ShowDialog();
-                }
-                else if (name == "PM")
-                {
-                    TheoryWindow theoryWindow = new TheoryWindow(Native);
-                    theoryWindow.ShowDialog();
                 }
                 else if (name == "RI")
                 {
@@ -174,11 +164,6 @@ namespace OwLib
                     WindowXmlEx skyWindow = new WindowXmlEx();
                     skyWindow.Load(Native, "SkyWindow", "skyWindow");
                     skyWindow.ShowDialog();
-                }
-                else if (name == "CO")
-                {
-                    CodeWindow codeWindow = new CodeWindow(Native);
-                    codeWindow.ShowDialog();
                 }
                 else if (name == "BS")
                 {
@@ -452,11 +437,9 @@ namespace OwLib
             type2List.Add(new UserAppsTable("COI", "服务器管理"));
             type4List.Add(new UserAppsTable("GTM", "重要线索"));
             type1List.Add(new UserAppsTable("IAC", "个人信息"));
-            type3List.Add(new UserAppsTable("LM", "演讲记录"));
             type4List.Add(new UserAppsTable("LP", "重要意见"));
             type1List.Add(new UserAppsTable("OI", "重点关注"));
             type2List.Add(new UserAppsTable("PH", "远程服务"));
-            type3List.Add(new UserAppsTable("PM", "个人理论"));
             type2List.Add(new UserAppsTable("RI", "代码统计"));
             type4List.Add(new UserAppsTable("SM", "抗命记录"));
             type4List.Add(new UserAppsTable("SS", "被攻击记录"));
@@ -465,7 +448,6 @@ namespace OwLib
             type4List.Add(new UserAppsTable("TCC", "打小报告"));
             type4List.Add(new UserAppsTable("TH", "反间谍活动"));
             type1List.Add(new UserAppsTable("UA", "水平级别"));
-            type3List.Add(new UserAppsTable("CO", "语录摘抄"));
             type3List.Add(new UserAppsTable("BS", "股票买卖"));
             type1List.Add(new UserAppsTable("CC", "公开检查"));
             type1List.Add(new UserAppsTable("RP", "考一考"));

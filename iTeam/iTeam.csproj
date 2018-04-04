@@ -111,12 +111,10 @@
     <Compile Include="Product\Service\ServerService.cs" />
     <Compile Include="Product\Service\GitService.cs" />
     <Compile Include="Product\Service\ClueService.cs" />
-    <Compile Include="Product\Service\SpeechService.cs" />
     <Compile Include="Product\Service\PersonalService.cs" />
     <Compile Include="Product\Service\OpinionService.cs" />
     <Compile Include="Product\Service\FollowService.cs" />
     <Compile Include="Product\Service\RemoteService.cs" />
-    <Compile Include="Product\Service\TheoryService.cs" />
     <Compile Include="Product\Service\CelandarService.cs" />
     <Compile Include="Product\Service\DisobeyService.cs" />
     <Compile Include="Product\Service\BeAttackedService.cs" />
@@ -124,7 +122,6 @@
     <Compile Include="Product\Service\SnitchService.cs" />
     <Compile Include="Product\Service\CounterspyService.cs" />
     <Compile Include="Product\Service\LevelService.cs" />
-    <Compile Include="Product\Service\CodeService.cs" />
     <Compile Include="Product\Service\BSStockService.cs" />
     <Compile Include="Product\Service\CheckService.cs" />
     <Compile Include="Product\Service\ExamService.cs" />
@@ -153,19 +150,16 @@
     <Compile Include="Product\UI\CalendarWindow.cs" />
     <Compile Include="Product\UI\ServerWindow.cs" />
     <Compile Include="Product\UI\ClueWindow.cs" />
-    <Compile Include="Product\UI\SpeechWindow.cs" />
     <Compile Include="Product\UI\PersonalWindow.cs" />
     <Compile Include="Product\UI\OpinionWindow.cs" />
     <Compile Include="Product\UI\FollowWindow.cs" />
     <Compile Include="Product\UI\RemoteWindow.cs" />
-    <Compile Include="Product\UI\TheoryWindow.cs" />
     <Compile Include="Product\UI\JidianWindow.cs" />
     <Compile Include="Product\UI\DisobeyWindow.cs" />
     <Compile Include="Product\UI\BeAttackedWindow.cs" />
     <Compile Include="Product\UI\WangYiWindow.cs" />
     <Compile Include="Product\UI\SnitchWindow.cs" />
     <Compile Include="Product\UI\LevelWindow.cs" />
-    <Compile Include="Product\UI\CodeWindow.cs" />
     <Compile Include="Product\UI\BSStockWindow.cs" />
     <Compile Include="Product\UI\CheckWindow.cs" />
     <Compile Include="Product\UI\ExamWindow.cs" />
@@ -243,9 +237,6 @@
     <Content Include="config\ClueWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="config\SpeechWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="config\PersonalWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -256,9 +247,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\RemoteWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\TheoryWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\JidianWindow.html">
@@ -280,9 +268,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\SkyWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\CodeWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\BSStockWindow.html">
