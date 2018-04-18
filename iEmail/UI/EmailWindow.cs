@@ -314,7 +314,10 @@ namespace OwLib
                         CFileA.Read(contactFile, ref content2);
                         String[] strs = content2.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                         strPhone = strs[0];
-                        strEmail = strs[1];
+                        if (strs.Length > 1)
+                        {
+                            strEmail = strs[1];
+                        }
                         row.AddCell("colP12", new GridStringCell(strPhone));
                         row.AddCell("colP13", new GridStringCell(strEmail));
                     }
