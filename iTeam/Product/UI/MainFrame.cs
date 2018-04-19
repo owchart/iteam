@@ -444,7 +444,6 @@ namespace OwLib
             type4List.Add(new UserAppsTable("SM", "抗命记录"));
             type4List.Add(new UserAppsTable("SS", "被攻击记录"));
             type4List.Add(new UserAppsTable("STM", "妄议记录"));
-            type3List.Add(new UserAppsTable("TC", "即时计划"));
             type4List.Add(new UserAppsTable("TCC", "打小报告"));
             type4List.Add(new UserAppsTable("TH", "反间谍活动"));
             type1List.Add(new UserAppsTable("UA", "水平级别"));
