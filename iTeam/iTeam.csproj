@@ -123,7 +123,6 @@
     <Compile Include="Product\Service\CounterspyService.cs" />
     <Compile Include="Product\Service\LevelService.cs" />
     <Compile Include="Product\Service\BSStockService.cs" />
-    <Compile Include="Product\Service\CheckService.cs" />
     <Compile Include="Product\Service\ExamService.cs" />
     <Compile Include="Product\Service\OverWorkService.cs" />
     <Compile Include="Product\Service\BusinessCardService.cs" />
@@ -161,7 +160,6 @@
     <Compile Include="Product\UI\SnitchWindow.cs" />
     <Compile Include="Product\UI\LevelWindow.cs" />
     <Compile Include="Product\UI\BSStockWindow.cs" />
-    <Compile Include="Product\UI\CheckWindow.cs" />
     <Compile Include="Product\UI\ExamWindow.cs" />
     <Compile Include="Product\UI\OverWorkWindow.cs" />
     <Compile Include="Product\UI\BusinessCardWindow.cs" />
@@ -271,9 +269,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\BSStockWindow.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="config\CheckWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\ExamWindow.html">
