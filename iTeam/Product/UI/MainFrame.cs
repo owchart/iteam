@@ -170,11 +170,6 @@ namespace OwLib
                     BSStockWindow bsStockWindow = new BSStockWindow(Native);
                     bsStockWindow.ShowDialog();
                 }
-                else if (name == "CC")
-                {
-                    CheckWindow checkWindow = new CheckWindow(Native);
-                    checkWindow.ShowDialog();
-                }
                 else if (name == "RP")
                 {
                     ExamWindow reportWindow = new ExamWindow(Native);
@@ -448,7 +443,6 @@ namespace OwLib
             type4List.Add(new UserAppsTable("TH", "反间谍活动"));
             type1List.Add(new UserAppsTable("UA", "水平级别"));
             type3List.Add(new UserAppsTable("BS", "股票买卖"));
-            type1List.Add(new UserAppsTable("CC", "公开检查"));
             type1List.Add(new UserAppsTable("RP", "考一考"));
             type1List.Add(new UserAppsTable("OW", "加班记录"));
             type3List.Add(new UserAppsTable("BC", "名片"));

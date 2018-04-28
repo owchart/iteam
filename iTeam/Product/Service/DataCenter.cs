@@ -81,16 +81,6 @@ namespace OwLib
             get { return m_calendarService; }
         }
 
-        private static CheckService m_checkService;
-
-        /// <summary>
-        /// 获取个人检查服务
-        /// </summary>
-        public static CheckService CheckService
-        {
-            get { return DataCenter.m_checkService; }
-        }
-
         private static ClueService m_clueService;
 
         /// <summary>
@@ -376,7 +366,6 @@ namespace OwLib
             m_bsStockService = new BSStockService();
             m_businessCardService = new BusinessCardService();
             m_calendarService = new CalendarService();
-            m_checkService = new CheckService();
             m_clueService = new ClueService();
             m_counterspyService = new CounterspyService();
             m_dimensionService = new DimensionService();

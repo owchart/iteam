@@ -528,15 +528,15 @@ namespace OwLib
                                     memoryQuestion.m_answer = num;
                                     m_questions.Add(memoryQuestion);
                                 }
-                                if (m_questions.Count >= 6 && coding)
-                                {
-                                    QuestionInfo codingQuestion = new QuestionInfo();
-                                    codingQuestion.m_type = "极限";
-                                    codingQuestion.m_interval = 180;
-                                    codingQuestion.m_title = "以你最快的速度连续输出for(int i = 0; i < 100; i++)(前任select * from冠军是吴思杰，目前30次为合格)";
-                                    m_questions.Add(codingQuestion);
-                                    coding = false;
-                                }
+                                //if (m_questions.Count >= 6 && coding)
+                                //{
+                                //    QuestionInfo codingQuestion = new QuestionInfo();
+                                //    codingQuestion.m_type = "极限";
+                                //    codingQuestion.m_interval = 180;
+                                //    codingQuestion.m_title = "以你最快的速度连续输出for(int i = 0; i < 100; i++)(前任select * from冠军是吴思杰，目前30次为合格)";
+                                //    m_questions.Add(codingQuestion);
+                                //    coding = false;
+                                //}
                                 lastState = false;
                             }
                         }
@@ -581,6 +581,7 @@ namespace OwLib
                 else
                 {
                     m_txtAnswer.Text = "请口述";
+                    m_txtAnswer.Text = "";
                 }
                 m_currentTick = m_currentQuestion.m_interval;
                 if (m_currentQuestion.m_type == "口述")
@@ -681,7 +682,14 @@ namespace OwLib
                 m_lblTime.Text = "还剩" + m_totalTick.ToString("0.00") + "秒 已用时" + finishTime.ToString("0.00") + "秒";
                 m_questions.Remove(m_currentQuestion);
                 m_txtQuestion.Text = m_currentQuestion.m_title;
-                m_lblType.Text = "题型:" + m_currentQuestion.m_type + ",限时" + m_currentTick.ToString() + "秒";
+                if (m_currentQuestion.m_type == "口述")
+                {
+                    m_lblType.Text = "题型:打字,限时" + m_currentTick.ToString() + "秒";
+                }
+                else
+                {
+                    m_lblType.Text = "题型:" + m_currentQuestion.m_type + ",限时" + m_currentTick.ToString() + "秒";
+                }
             }
         }
 

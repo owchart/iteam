@@ -44,6 +44,9 @@
       <HintPath>bin\Debug\Microsoft.Office.Interop.Word.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="officeLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>

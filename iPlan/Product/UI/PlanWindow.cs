@@ -289,6 +289,8 @@ namespace OwLib
             LoadFile(xmlPath, null);
             m_gridPlan = GetGrid("gridPlan");
             RegisterEvents(Native.GetControls()[0]);
+            //CalendarWindow calendarWindow = new CalendarWindow(Native);
+            //calendarWindow.ShowDialog();
         }
 
         /// ×¢²áÊÂ¼þ
