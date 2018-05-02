@@ -43,9 +43,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "考一考(限时15分钟)";
             this.ResumeLayout(false);
-
         }
-
         #endregion
     }
 }

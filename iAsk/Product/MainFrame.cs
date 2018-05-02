@@ -309,7 +309,7 @@ namespace OwLib
                     m_lblTime.Text = "还剩" + m_currentTick.ToString("0.00") + "秒 已用时" + finishTime.ToString("0.00") + "秒";
                     if (finishTime > 60 * m_examMinute)
                     {
-                        Exit();
+                        Hand();
                     }
                 }
             }
@@ -719,7 +719,7 @@ namespace OwLib
         /// <summary>
         /// 退出程序方法
         /// </summary>
-        public override void Exit()
+        public void Hand()
         {
             Native.FindControl("divAsk").StopTimer(m_timerID);
             m_answers[m_currentQuestion.m_title] = m_txtAnswer.Text;
@@ -750,11 +750,10 @@ namespace OwLib
                 }
                 else if (examResult.StartsWith("butongguo"))
                 {
-                    MessageBox.Show("非常抱歉，机试成绩不合格，谢谢您的光临!");
+                    MessageBox.Show("非常抱歉，机试成绩不合格，谢谢参与!");
                     break;
                 }
             }
-            base.Exit();
         }
 
         /// <summary>
