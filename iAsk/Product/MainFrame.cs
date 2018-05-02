@@ -48,11 +48,6 @@ namespace OwLib
         private DateTime m_bulletTime = DateTime.Now;
 
         /// <summary>
-        /// 结果复选框
-        /// </summary>
-        private RadioButtonA m_cbResult;
-
-        /// <summary>
         /// 已做数量
         /// </summary>
         private int m_count = 0;
@@ -68,9 +63,19 @@ namespace OwLib
         public double m_currentTick;
 
         /// <summary>
+        /// 考试时间
+        /// </summary>
+        private int m_examMinute = 15;
+
+        /// <summary>
         /// 首次执行时间
         /// </summary>
         private DateTime m_firstTime = DateTime.Now;
+
+        /// <summary>
+        /// IP地址
+        /// </summary>
+        private String m_ip = "47.100.16.237";
 
         /// <summary>
         /// 是否比赛
@@ -121,11 +126,6 @@ namespace OwLib
         /// 阴影时间
         /// </summary>
         private DateTime m_shadowTime = DateTime.Now;
-
-        /// <summary>
-        /// 目前状态
-        /// </summary>
-        private List<int> m_status = new List<int>();
 
         /// <summary>
         /// 背景图
@@ -307,6 +307,10 @@ namespace OwLib
                     }
                     double finishTime = (double)((TimeSpan)(DateTime.Now - m_firstTime)).TotalMilliseconds / 1000;
                     m_lblTime.Text = "还剩" + m_currentTick.ToString("0.00") + "秒 已用时" + finishTime.ToString("0.00") + "秒";
+                    if (finishTime > 60 * m_examMinute)
+                    {
+                        Exit();
+                    }
                 }
             }
             if (m_mode == 5)
@@ -401,6 +405,10 @@ namespace OwLib
         /// </summary>
         public void ChangeQuestion()
         {
+            if (m_currentQuestion != null)
+            {
+                m_answers[m_currentQuestion.m_title] = m_txtAnswer.Text;
+            }
             if (m_currentQuestion != null && (m_currentQuestion.m_type == "记忆" || m_currentQuestion.m_type == "算数"))
             {
                 if (m_currentQuestion.m_answer != m_txtAnswer.Text)
@@ -414,10 +422,30 @@ namespace OwLib
             m_txtAnswer.ReadOnly = false;
             if (m_btnStart.Text == "开始")
             {
-                if (m_cbResult.Checked)
+                //加载问题
+                String file = DataCenter.GetAppPath() + "\\Exam.txt";
+                if (GetRadioButton("rbExamC").Checked)
                 {
-                    Thread thread = new Thread(new ThreadStart(CheckResult));
-                    thread.Start();
+                    file = DataCenter.GetAppPath() + "\\Exam_cplusplus.txt";
+                }
+                else if (GetRadioButton("rbExamJava").Checked)
+                {
+                    file = DataCenter.GetAppPath() + "\\Exam_Java.txt";
+                }
+                String content = "";
+                CFileA.Read(file, ref content);
+                String[] strs = content.Split(new String[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                int strsSize = strs.Length;
+                for (int i = 0; i < strsSize; i++)
+                {
+                    String str = strs[i];
+                    QuestionInfo question = new QuestionInfo();
+                    int idx = str.IndexOf(",");
+                    question.m_type = str.Substring(0, idx);
+                    int nIdx = str.IndexOf(",", idx + 1);
+                    question.m_interval = Convert.ToInt32(str.Substring(idx + 1, nIdx - idx - 1));
+                    question.m_title = str.Substring(nIdx + 1);
+                    m_oldQuestions.Add(question);
                 }
                 m_bulletTime = DateTime.Now;
                 for (int i = 0; i < 10; i++)
@@ -474,7 +502,6 @@ namespace OwLib
                 }
                 m_firstTime = DateTime.Now;
                 bool lastState = true;
-                bool coding = true;
                 if (m_isMatch)
                 {
                     for (int i = 0; i < 100; i++)
@@ -495,10 +522,6 @@ namespace OwLib
                         {
                             if (question.m_type == "打字")
                             {
-                                if (m_mode == 0 && m_questions.Count == 0)
-                                {
-                                    question.m_interval = 500;
-                                }
                                 m_questions.Add(question);
                                 m_oldQuestions.Remove(question);
                                 int random = m_rd.Next(0, 5);
@@ -694,29 +717,44 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 检查结果
+        /// 退出程序方法
         /// </summary>
-        private void CheckResult()
+        public override void Exit()
         {
+            Native.FindControl("divAsk").StopTimer(m_timerID);
+            m_answers[m_currentQuestion.m_title] = m_txtAnswer.Text;
+            String file = DataCenter.GetAppPath() + "\\Result.txt";
+            StringBuilder sb = new StringBuilder();
+            int index = 1;
+            foreach (String question in m_answers.Keys)
+            {
+                sb.AppendLine(index.ToString() + "." + question);
+                sb.AppendLine(m_answers[question]);
+                index++;
+            }
+            CFileA.Write(file, sb.ToString());
+            String examName = "";
+            CFileA.Read(DataCenter.GetAppPath() + "\\WriteYourName.txt", ref examName);
+            String url = "http://" + m_ip + ":10009/sendresult?name=" + examName;
+            HttpPostService postService = new HttpPostService();
+            postService.Post(url, sb.ToString());
             while (true)
             {
-                if (m_currentQuestion != null)
+                MessageBox.Show("考试时间到,请等待考试结果!", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                url = "http://" + m_ip + ":10009/getresult?name=" + examName;
+                String examResult = HttpGetService.Get(url);
+                if (examResult.StartsWith("tongguo"))
                 {
-                    String url = "http://47.100.16.237:10009/list";
-                    String result = HttpGetService.Get(url);
-                    String[] strs = result.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-                    int strsSize = strs.Length;
-                    lock (m_status)
-                    {
-                        m_status.Clear();
-                        for (int i = 0; i < strsSize; i++)
-                        {
-                            m_status.Add(CStr.ConvertStrToInt(strs[i]));
-                        }
-                    }
-                    Thread.Sleep(1000);
+                    MessageBox.Show("机试成绩合格，等待进一步面谈!");
+                    break;
+                }
+                else if (examResult.StartsWith("butongguo"))
+                {
+                    MessageBox.Show("非常抱歉，机试成绩不合格，谢谢您的光临!");
+                    break;
                 }
             }
+            base.Exit();
         }
 
         /// <summary>
@@ -761,6 +799,11 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 秒表ID
+        /// </summary>
+        private int m_timerID = ControlA.GetNewTimerID();
+
+        /// <summary>
         /// 加载XML
         /// </summary>
         /// <param name="xmlPath">XML路径</param>
@@ -771,7 +814,7 @@ namespace OwLib
             ControlA control = Native.GetControls()[0];
             RegisterEvents(control);
             control.RegisterEvent(new ControlTimerEvent(CallTimerEvent), EVENTID.TIMER);
-            control.StartTimer(ControlA.GetNewTimerID(), 10);
+            control.StartTimer(m_timerID, 10);
             control.RegisterEvent(new ControlPaintEvent(PaintDiv), EVENTID.PAINT);
             m_barrageDiv = new BarrageDiv();
             m_barrageDiv.Dock = DockStyleA.Fill;
@@ -788,27 +831,7 @@ namespace OwLib
             m_btnStart = GetButton("btnStart");
             m_lblType = GetLabel("lblType");
             m_lblMode = GetLabel("lblMode");
-            m_cbResult = GetRadioButton("cbResult");
-            m_cbResult.ButtonBackColor = COLOR.ARGB(0, 0, 255);
-            m_cbResult.ButtonBorderColor = COLOR.ARGB(0, 0, 255);
             (m_btnStart as RuningButton).MainFrame = this;
-            //加载问题
-            String file = DataCenter.GetAppPath() + "\\Exam.txt";
-            String content = "";
-            CFileA.Read(file, ref content);
-            String[] strs = content.Split(new String[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            int strsSize = strs.Length;
-            for (int i = 0; i < strsSize; i++)
-            {
-                String str = strs[i];
-                QuestionInfo question = new QuestionInfo();
-                int idx = str.IndexOf(",");
-                question.m_type = str.Substring(0, idx);
-                int nIdx = str.IndexOf(",", idx + 1);
-                question.m_interval = Convert.ToInt32(str.Substring(idx + 1, nIdx - idx - 1));
-                question.m_title = str.Substring(nIdx + 1);
-                m_oldQuestions.Add(question);
-            }
         }
 
         /// <summary>
@@ -867,49 +890,6 @@ namespace OwLib
                 tRect.right = tRect.left + tSize.cx;
                 tRect.bottom = tRect.top + tSize.cy;
                 paint.DrawText(strLine, COLOR.ARGB(200, 255, 255, 255), tFont, tRect);
-            }
-            lock (m_status)
-            {
-                if (m_status.Count > 0)
-                {
-                    int statusSize = m_status.Count;
-                    int left = 30, top = height - 40;
-                    double rate = 0;
-                    for (int i = 0; i < statusSize; i++)
-                    {
-                        int status = m_status[i];
-                        RECT eRect = new RECT(left, top, left + 30, top + 30);
-                        long color = COLOR.ARGB(255, 0, 0);
-                        if (status == 1)
-                        {
-                            color = COLOR.ARGB(255, 255, 0);
-                            rate += 5;
-                        }
-                        else if (status == 2)
-                        {
-                            color = COLOR.ARGB(0, 255, 0);
-                            rate += 10;
-                        }
-                        paint.FillEllipse(color, eRect);
-                        RECT bRect = new RECT(left, top, left + 31, top + 31);
-                        paint.DrawEllipse(COLOR.ARGB(100, 100, 100), 1, 0, bRect);
-                        if (status == 0)
-                        {
-                            paint.DrawText("错", COLOR.ARGB(255, 255, 255), new FONT("微软雅黑", 20, false, false, false), new RECT(left + 2, top + 2, 0, 0));
-                        }
-                        else if (status == 1)
-                        {
-                            paint.DrawText("半", COLOR.ARGB(0, 0, 0), new FONT("微软雅黑", 20, false, false, false), new RECT(left + 2, top + 2, 0, 0));
-                        }
-                        else if (status == 2)
-                        {
-                            paint.DrawText("对", COLOR.ARGB(255, 0, 255), new FONT("微软雅黑", 20, false, false, false), new RECT(left + 2, top + 2, 0, 0));
-                        }
-                        left += 36;
-                    }
-                    String allRate = (100 * rate / (statusSize * 10)).ToString("0");
-                    paint.DrawText(allRate + "%", COLOR.ARGB(255, 255, 255), new FONT("微软雅黑", 26, false, false, false), new RECT(left, top, 0, 0));
-                }
             }
         }
 

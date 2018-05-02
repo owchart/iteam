@@ -72,6 +72,7 @@
     <Compile Include="Product\DataCenter.cs" />
     <Compile Include="Product\GridAwardCell.cs" />
     <Compile Include="Product\HttpGetService.cs" />
+    <Compile Include="Product\HttpPostService.cs" />
     <Compile Include="Product\MainFrame.cs" />
     <Compile Include="Product\RuningButton.cs" />
     <Compile Include="Product\Sky.cs" />
@@ -184,6 +185,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="oldwhite_old.ico" />
+    <Content Include="Exam_cplusplus.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WriteYourName.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

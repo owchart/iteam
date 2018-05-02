@@ -41,8 +41,6 @@ namespace node
     /// </summary>
     public class NodeService
     {
-        private List<int> m_results = new List<int>();
-
         /// <summary>
         /// 接受请求
         /// </summary>
@@ -50,31 +48,33 @@ namespace node
         private void ReadData(object param)
         {
             Socket socket = (Socket)param;
+            int newSocketID = (int)socket.Handle;
             try
             {
-                byte[] buffer = new byte[1024];
-                socket.Receive(buffer);
+                byte[] buffer = new byte[102400];
+                int len = socket.Receive(buffer);
                 MemoryStream memoryStream = new MemoryStream(buffer);
                 StreamReader reader = new StreamReader(memoryStream);
                 HttpData data = new HttpData();
                 String requestHeader;
                 int contentLength = 0;
-                String parameters = "";
+                string parameters = "";
                 while ((requestHeader = reader.ReadLine()) != null && !String.IsNullOrEmpty(requestHeader))
                 {
-                    if (requestHeader.IndexOf("GET") == 0)
+                    String lowerHeader = requestHeader.ToLower();
+                    if (lowerHeader.IndexOf("get") == 0)
                     {
-                        int end = requestHeader.IndexOf("HTTP/");
+                        int end = lowerHeader.IndexOf("http/");
                         data.m_method = "GET";
                         parameters = requestHeader.Substring(5, end - 6);
                     }
-                    else if (requestHeader.IndexOf("POST") == 0)
+                    else if (lowerHeader.IndexOf("post") == 0)
                     {
-                        int end = requestHeader.IndexOf("HTTP/");
+                        int end = lowerHeader.IndexOf("http/");
                         data.m_method = "POST";
                         parameters = requestHeader.Substring(5, end - 6);
                     }
-                    else if (requestHeader.IndexOf("Accept: ") == 0)
+                    else if (lowerHeader.IndexOf("accept: ") == 0)
                     {
                         try
                         {
@@ -82,20 +82,61 @@ namespace node
                         }
                         catch { }
                     }
-                    else if (requestHeader.IndexOf("Host:") == 0)
+                    else if (lowerHeader.IndexOf("content-type:") == 0)
+                    {
+                        data.m_contentType = requestHeader.Substring(14);
+                    }
+                    else if (lowerHeader.IndexOf("host:") == 0)
                     {
                         data.m_url = requestHeader.Substring(requestHeader.IndexOf(':') + 2);
                     }
-                    else if (requestHeader.IndexOf("Content-Length") == 0)
+                    else if (lowerHeader.IndexOf("content-length") == 0)
                     {
-                        int begin = requestHeader.IndexOf("Content-Length:") + "Content-Length:".Length;
+                        int begin = lowerHeader.IndexOf("content-length:") + "content-length:".Length;
                         String postParamterLength = requestHeader.Substring(begin).Trim();
                         contentLength = Convert.ToInt32(postParamterLength);
                     }
                 }
                 if (contentLength > 0)
-                reader.Close();
-                memoryStream.Dispose();
+                {
+                    int idx = 0, ide = 0;
+                    data.m_body = new byte[contentLength];
+                    while (idx < contentLength)
+                    {
+                        int recvData = reader.Read();
+                        if (recvData != -1)
+                        {
+                            if (recvData != 0)
+                            {
+                                ide++;
+                            }
+                            idx++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    reader.Close();
+                    memoryStream.Dispose();
+                    if (ide == 0)
+                    {
+                        socket.Receive(data.m_body);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < contentLength; i++)
+                        {
+                            data.m_body[i] = buffer[len - contentLength + i];
+                        }
+                    }
+                    data.m_contentLength = contentLength;
+                }
+                else
+                {
+                    reader.Close();
+                    memoryStream.Dispose();
+                }
                 if (data.m_method.Length == 0)
                 {
                     return;
@@ -118,39 +159,22 @@ namespace node
                     data.m_url += "/" + parameters;
                 }
                 //在这里处理请求
-                if (data.m_method == "GET")
+                if (data.m_method == "POST")
                 {
-                    if (data.m_url.IndexOf("clear") != -1)
+                    if (data.m_url.IndexOf("sendresult") != -1)
                     {
-                        m_results.Clear();
+                        String name = data.m_parameters["name"];
+                        File.WriteAllText(Application.StartupPath + "\\" + name + ".txt", Encoding.Default.GetString(data.m_body), Encoding.Default);
                         data.m_resStr = "1";
                     }
-                    else if (data.m_url.IndexOf("list") != -1)
+                }
+                else if (data.m_method == "GET")
+                {
+                    if (data.m_url.IndexOf("getresult") != -1)
                     {
-                        String text = "";
-                        int resultsSize = m_results.Count;
-                        for (int i = 0; i < resultsSize; i++)
-                        {
-                            text += m_results[i].ToString();
-                            if (i != resultsSize - 1)
-                            {
-                                text += ",";
-                            }
-                        }
-                        data.m_resStr = text;
-                    }
-                    else if (data.m_url.IndexOf("answer") != -1)
-                    {
-                        m_results.Add(Convert.ToInt32(data.m_parameters["result"]));
-                        data.m_resStr = "1";
-                    }
-                    else if (data.m_url.IndexOf("award") != -1)
-                    {
-                        data.m_resStr = File.ReadAllText(Application.StartupPath + "\\Awards.txt", Encoding.Default);
-                    }
-                    else if (data.m_url.IndexOf("rank") != -1)
-                    {
-                        data.m_resStr = data.m_parameters["callback"] + "('" + File.ReadAllText(Application.StartupPath + "\\Rank.txt", Encoding.UTF8) + "')";
+                        String name = data.m_parameters["name"];
+                        String file = File.ReadAllText(Application.StartupPath + "\\" + name + ".txt", Encoding.Default); 
+                        data.m_resStr = file;
                     }
                 }
                 int resContentLength = 0;
