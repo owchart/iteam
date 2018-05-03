@@ -108,6 +108,11 @@ namespace OwLib
         private LabelA m_lblType;
 
         /// <summary>
+        /// 是否结束
+        /// </summary>
+        private bool m_isOver;
+
+        /// <summary>
         /// 老问题
         /// </summary>
         private List<QuestionInfo> m_oldQuestions = new List<QuestionInfo>();
@@ -202,6 +207,10 @@ namespace OwLib
         /// <param name="timerID">秒表ID</param>
         private void CallTimerEvent(object sender, int timerID)
         {
+            if (m_isOver)
+            {
+                return;
+            }
             if (m_sky != null)
             {
                 if (m_currentQuestion != null && m_mode >= 5 && m_currentQuestion.m_type != "极限")
@@ -309,7 +318,25 @@ namespace OwLib
                     m_lblTime.Text = "还剩" + m_currentTick.ToString("0.00") + "秒 已用时" + finishTime.ToString("0.00") + "秒";
                     if (finishTime > 60 * m_examMinute)
                     {
-                        Hand();
+                        m_answers[m_currentQuestion.m_title] = m_txtAnswer.Text;
+                        String file = DataCenter.GetAppPath() + "\\Result.txt";
+                        StringBuilder sb = new StringBuilder();
+                        int index = 1;
+                        foreach (String question in m_answers.Keys)
+                        {
+                            sb.AppendLine(index.ToString() + "." + question);
+                            sb.AppendLine(m_answers[question]);
+                            index++;
+                        }
+                        CFileA.Write(file, sb.ToString());
+                        String examName = "";
+                        CFileA.Read(DataCenter.GetAppPath() + "\\WriteYourName.txt", ref examName);
+                        String url = "http://" + m_ip + ":10009/sendresult?name=" + examName;
+                        HttpPostService postService = new HttpPostService();
+                        postService.Post(url, sb.ToString());
+                        m_txtAnswer.Text = "考试时间到,请等待考试结果!";
+                        Native.Invalidate();
+                        m_isOver = true;
                     }
                 }
             }
@@ -422,6 +449,8 @@ namespace OwLib
             m_txtAnswer.ReadOnly = false;
             if (m_btnStart.Text == "开始")
             {
+                Thread thread = new Thread(new ThreadStart(CheckResult));
+                thread.Start();
                 //加载问题
                 String file = DataCenter.GetAppPath() + "\\Exam.txt";
                 if (GetRadioButton("rbExamC").Checked)
@@ -719,40 +748,36 @@ namespace OwLib
         /// <summary>
         /// 退出程序方法
         /// </summary>
-        public void Hand()
+        public void CheckResult()
         {
-            Native.FindControl("divAsk").StopTimer(m_timerID);
-            m_answers[m_currentQuestion.m_title] = m_txtAnswer.Text;
-            String file = DataCenter.GetAppPath() + "\\Result.txt";
-            StringBuilder sb = new StringBuilder();
-            int index = 1;
-            foreach (String question in m_answers.Keys)
-            {
-                sb.AppendLine(index.ToString() + "." + question);
-                sb.AppendLine(m_answers[question]);
-                index++;
-            }
-            CFileA.Write(file, sb.ToString());
             String examName = "";
             CFileA.Read(DataCenter.GetAppPath() + "\\WriteYourName.txt", ref examName);
-            String url = "http://" + m_ip + ":10009/sendresult?name=" + examName;
-            HttpPostService postService = new HttpPostService();
-            postService.Post(url, sb.ToString());
             while (true)
             {
-                MessageBox.Show("考试时间到,请等待考试结果!", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                url = "http://" + m_ip + ":10009/getresult?name=" + examName;
-                String examResult = HttpGetService.Get(url);
-                if (examResult.StartsWith("tongguo"))
+                if (m_isOver)
                 {
-                    MessageBox.Show("机试成绩合格，等待进一步面谈!");
-                    break;
+                    String url = "http://" + m_ip + ":10009/getresult?name=" + examName;
+                    String examResult = HttpGetService.Get(url);
+                    if (examResult.StartsWith("tongguo"))
+                    {
+                        m_txtAnswer.Text = "机试成绩合格，等待进一步面谈!";
+                        for (int i = 0; i < 5; i++)
+                        {
+                            AddBarrage("机试成绩合格，等待进一步面谈!", 0, 4 + i);
+                        }
+                        break;
+                    }
+                    else if (examResult.StartsWith("butongguo"))
+                    {
+                        m_txtAnswer.Text = "非常抱歉，机试成绩不合格，谢谢参与!";
+                        for (int i = 0; i < 5; i++)
+                        {
+                            AddBarrage("非常抱歉，机试成绩不合格，谢谢参与!", 0, 4 + i);
+                        }
+                        break;
+                    }
                 }
-                else if (examResult.StartsWith("butongguo"))
-                {
-                    MessageBox.Show("非常抱歉，机试成绩不合格，谢谢参与!");
-                    break;
-                }
+                Thread.Sleep(1000);
             }
         }
 
