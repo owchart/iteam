@@ -219,7 +219,7 @@ namespace OwLib
                 {
                     GridRow deleteRow = selectedRows[0];
                     String pID = deleteRow.GetCell("colP1").GetString();
-                    DataCenter.MasterService.Delete(pID);
+                    DataCenter.LevelService.Delete(pID);
                     m_gridLevels.RemoveRow(deleteRow);
                     m_gridLevels.Update();
                     m_gridLevels.Invalidate();

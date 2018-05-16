@@ -175,15 +175,15 @@ namespace OwLib
                     ExamWindow reportWindow = new ExamWindow(Native);
                     reportWindow.ShowDialog();
                 }
-                else if (name == "OW")
-                {
-                    OverWorkWindow overWorkWindow = new OverWorkWindow(Native);
-                    overWorkWindow.ShowDialog();
-                }
                 else if (name == "BC")
                 {
                     BusinessCardWindow businessCardWindow = new BusinessCardWindow(Native);
                     businessCardWindow.ShowDialog();
+                }
+                else if (name == "OW")
+                {
+                    DialogWindow dialogWindow = new DialogWindow(Native);
+                    dialogWindow.ShowDialog();
                 }
             }
         }
@@ -444,8 +444,8 @@ namespace OwLib
             type1List.Add(new UserAppsTable("UA", "水平级别"));
             type3List.Add(new UserAppsTable("BS", "股票买卖"));
             type1List.Add(new UserAppsTable("RP", "考一考"));
-            type1List.Add(new UserAppsTable("OW", "加班记录"));
             type3List.Add(new UserAppsTable("BC", "名片"));
+            type2List.Add(new UserAppsTable("OW", "对话"));
             GetApps(type1List, type2List, type3List, type4List);
             RegisterEvents(control);
         }

@@ -124,8 +124,8 @@
     <Compile Include="Product\Service\LevelService.cs" />
     <Compile Include="Product\Service\BSStockService.cs" />
     <Compile Include="Product\Service\ExamService.cs" />
-    <Compile Include="Product\Service\OverWorkService.cs" />
     <Compile Include="Product\Service\BusinessCardService.cs" />
+    <Compile Include="Product\Service\DialogService.cs" />
     <Compile Include="Product\UI\BarrageDiv.cs" />
     <Compile Include="Product\UI\DimensionWindow.cs" />
     <Compile Include="Product\UI\CDraw.cs" />
@@ -161,8 +161,8 @@
     <Compile Include="Product\UI\LevelWindow.cs" />
     <Compile Include="Product\UI\BSStockWindow.cs" />
     <Compile Include="Product\UI\ExamWindow.cs" />
-    <Compile Include="Product\UI\OverWorkWindow.cs" />
     <Compile Include="Product\UI\BusinessCardWindow.cs" />
+    <Compile Include="Product\UI\DialogWindow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="LoginForm.resx">
@@ -274,10 +274,10 @@
     <Content Include="config\ExamWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="config\OverWorkWindow.html">
+    <Content Include="config\BusinessCardWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="config\BusinessCardWindow.html">
+    <Content Include="config\DialogWindow.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="oldwhite.ico" />

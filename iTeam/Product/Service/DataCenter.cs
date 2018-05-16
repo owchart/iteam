@@ -101,6 +101,16 @@ namespace OwLib
             get { return m_counterspyService; }
         }
 
+        private static DialogService m_dialogService;
+
+        /// <summary>
+        /// 获取对话服务
+        /// </summary>
+        public static DialogService DialogService
+        {
+            get { return DataCenter.m_dialogService; }
+        }
+
         private static DimensionService m_dimensionService;
 
         /// <summary>
@@ -210,16 +220,6 @@ namespace OwLib
         public static OpinionService OpinionService
         {
             get { return m_opinionService; }
-        }
-
-        private static OverWorkService m_overWorkService;
-
-        /// <summary>
-        /// 获取加班记录服务
-        /// </summary>
-        public static OverWorkService OverWorkService
-        {
-            get { return m_overWorkService; }
         }
 
         private static PersonalService m_personalService;
@@ -368,6 +368,7 @@ namespace OwLib
             m_calendarService = new CalendarService();
             m_clueService = new ClueService();
             m_counterspyService = new CounterspyService();
+            m_dialogService = new DialogService();
             m_dimensionService = new DimensionService();
             m_disobeyService = new DisobeyService();
             m_exportService = new ExportService();
@@ -377,7 +378,6 @@ namespace OwLib
             m_levelService = new LevelService();
             m_masterService = new MasterService();
             m_opinionService = new OpinionService();
-            m_overWorkService = new OverWorkService();
             m_personalService = new PersonalService();
             m_projectService = new ProjectService();
             m_remoteService = new RemoteService();
