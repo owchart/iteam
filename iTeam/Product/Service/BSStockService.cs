@@ -22,11 +22,6 @@ namespace OwLib
     public class BSStockInfo : BaseInfo
     {
         /// <summary>
-        /// 买入价
-        /// </summary>
-        public String m_buyPrice = "";
-
-        /// <summary>
         /// 代码
         /// </summary>
         public String m_code = "";
@@ -40,16 +35,6 @@ namespace OwLib
         /// 利润
         /// </summary>
         public String m_profit = "";
-
-        /// <summary>
-        /// 数量
-        /// </summary>
-        public String m_qty = "1";
-
-        /// <summary>
-        /// 卖出价
-        /// </summary>
-        public String m_sellPrice = "";
     }
 
     /// <summary>

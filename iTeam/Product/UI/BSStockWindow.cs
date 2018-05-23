@@ -71,11 +71,8 @@ namespace OwLib
                 {
                     findRow.GetCell("colP2").SetString(bsStock.m_code);
                     findRow.GetCell("colP3").SetString(bsStock.m_name);
-                    findRow.GetCell("colP4").SetString(bsStock.m_buyPrice);
-                    findRow.GetCell("colP5").SetString(bsStock.m_sellPrice);
-                    findRow.GetCell("colP6").SetString(bsStock.m_qty);
-                    findRow.GetCell("colP7").SetString(bsStock.m_profit);
-                    findRow.GetCell("colP8").SetString(bsStock.m_createDate);
+                    findRow.GetCell("colP4").SetString(bsStock.m_profit);
+                    findRow.GetCell("colP5").SetString(bsStock.m_createDate);
                     return;
                 }
             }
@@ -84,11 +81,8 @@ namespace OwLib
             row.AddCell("colP1", new GridStringCell(bsStock.m_ID));
             row.AddCell("colP2", new GridStringCell(bsStock.m_code));
             row.AddCell("colP3", new GridStringCell(bsStock.m_name));
-            row.AddCell("colP4", new GridStringCell(bsStock.m_buyPrice));
-            row.AddCell("colP5", new GridStringCell(bsStock.m_sellPrice));
-            row.AddCell("colP6", new GridStringCell(bsStock.m_qty));
-            row.AddCell("colP7", new GridStringCell(bsStock.m_profit));
-            row.AddCell("colP8", new GridStringCell(bsStock.m_createDate));
+            row.AddCell("colP4", new GridStringCell(bsStock.m_profit));
+            row.AddCell("colP5", new GridStringCell(bsStock.m_createDate));
             List<GridCell> cells = row.GetCells();
             int cellsSize = cells.Count;
             for (int j = 1; j < cellsSize; j++)
@@ -192,21 +186,9 @@ namespace OwLib
                 }
                 else if (colName == "colP4")
                 {
-                    bsStock.m_buyPrice = cellValue;
-                }
-                else if (colName == "colP5")
-                {
-                    bsStock.m_sellPrice = cellValue;
-                }
-                else if (colName == "colP6")
-                {
-                    bsStock.m_qty = cellValue;
-                }
-                else if (colName == "colP7")
-                {
                     bsStock.m_profit = cellValue;
                 }
-                else if (colName == "colP8")
+                else if (colName == "colP5")
                 {
                     bsStock.m_createDate = cellValue;
                 }

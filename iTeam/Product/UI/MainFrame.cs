@@ -445,7 +445,7 @@ namespace OwLib
             type3List.Add(new UserAppsTable("BS", "股票买卖"));
             type1List.Add(new UserAppsTable("RP", "考一考"));
             type3List.Add(new UserAppsTable("BC", "名片"));
-            type2List.Add(new UserAppsTable("OW", "对话"));
+            type3List.Add(new UserAppsTable("OW", "门诊记录"));
             GetApps(type1List, type2List, type3List, type4List);
             RegisterEvents(control);
         }
