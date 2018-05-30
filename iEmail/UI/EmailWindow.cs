@@ -17,6 +17,7 @@ using System.Threading;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using node.gs;
+using System.Drawing;
 
 namespace OwLib
 {
