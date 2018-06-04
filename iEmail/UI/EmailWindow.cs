@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using node.gs;
 using System.Drawing;
+using System.IO;
 
 namespace OwLib
 {
@@ -750,6 +751,17 @@ namespace OwLib
             }
             List<String> files = new List<String>();
             CFileA.GetFiles(dir, files);
+            int filesSize = files.Count;
+            for (int i = 0; i < filesSize; i++)
+            {
+                FileInfo fileInfo = new FileInfo(files[i]);
+                if (((TimeSpan)(DateTime.Now - fileInfo.LastWriteTime)).TotalDays > 30)
+                {
+                    files.RemoveAt(i);
+                    i--;
+                    filesSize--;
+                }
+            }
             files.Sort();
             BindGrid(files.ToArray(), false);
             String conditionFilePath = DataCenter.GetAppPath() + "\\condition.dat";
