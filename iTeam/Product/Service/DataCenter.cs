@@ -41,16 +41,6 @@ namespace OwLib
             get { return m_awardService; }
         }
 
-        private static BeAttackedService m_beAttackedService;
-
-        /// <summary>
-        /// 获取被攻击服务
-        /// </summary>
-        public static BeAttackedService BeAttackedService
-        {
-            get { return m_beAttackedService; }
-        }
-
         private static BSStockService m_bsStockService;
 
         /// <summary>
@@ -91,16 +81,6 @@ namespace OwLib
             get { return m_clueService; }
         }
 
-        private static CounterspyService m_counterspyService;
-
-        /// <summary>
-        /// 获取反间谍活动服务
-        /// </summary>
-        public static CounterspyService CounterspyService
-        {
-            get { return m_counterspyService; }
-        }
-
         private static DialogService m_dialogService;
 
         /// <summary>
@@ -119,16 +99,6 @@ namespace OwLib
         public static DimensionService DimensionService
         {
             get { return m_dimensionService; }
-        }
-
-        private static DisobeyService m_disobeyService;
-
-        /// <summary>
-        /// 获取抗命记录服务
-        /// </summary>
-        public static DisobeyService DisobeyService
-        {
-            get { return m_disobeyService; }
         }
 
         private static ExamService m_examService;
@@ -272,16 +242,6 @@ namespace OwLib
             get { return m_serverService; }
         }
 
-        private static SnitchService m_snitchService;
-
-        /// <summary>
-        /// 获取打小报告服务
-        /// </summary>
-        public static SnitchService SnitchService
-        {
-            get { return m_snitchService; }
-        }
-
         private static StaffService m_staffService;
 
         /// <summary>
@@ -310,16 +270,6 @@ namespace OwLib
         public static int UserID
         {
             get { return m_userID; }
-        }
-
-        private static WangYiService m_wangYiService;
-
-        /// <summary>
-        /// 妄议服务
-        /// </summary>
-        public static WangYiService WangYiService
-        {
-            get { return m_wangYiService; }
         }
 
         /// <summary>
@@ -362,15 +312,12 @@ namespace OwLib
         {
             m_staffService = new StaffService();
             m_awardService = new AwardService();
-            m_beAttackedService = new BeAttackedService();
             m_bsStockService = new BSStockService();
             m_businessCardService = new BusinessCardService();
             m_calendarService = new CalendarService();
             m_clueService = new ClueService();
-            m_counterspyService = new CounterspyService();
             m_dialogService = new DialogService();
             m_dimensionService = new DimensionService();
-            m_disobeyService = new DisobeyService();
             m_exportService = new ExportService();
             m_followService = new FollowService();
             m_gitService = new GitService();
@@ -384,8 +331,6 @@ namespace OwLib
             m_examService = new ExamService();
             m_securityService = new SecurityService();
             m_serverService = new ServerService();
-            m_snitchService = new SnitchService();
-            m_wangYiService = new WangYiService();
             SecurityService.Start();
         }
         #endregion

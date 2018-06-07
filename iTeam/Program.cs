@@ -8,7 +8,6 @@ using OwLib;
 using System.Runtime.InteropServices;
 using System.Text;
 using iTeam;
-using OpenPop.Pop3;
 
 namespace OwLib
 {

@@ -3,7 +3,7 @@
   <head>
   </head>
   <body>
-    <div size="794,615" location="0,0" dock="Fill">
+    <div name="divAsk" size="794,615" location="0,0" dock="Fill">
       <input type="button" name="btnAnswer" bordercolor="50,50,50" backimage="answer.png" forecolor="255,80,80" location="15,190" size="50,45" font="微软雅黑,30" />
       <input type="usercontrol" cid="itextbox" name="txtQuestion" text="欢迎来到坤仪考一考" location="78,20" size="556,121" readonly="True" multiline="True" wordwrap="True" font="微软雅黑,24" lineheight="40" />
       <input type="button" name="btnQuestion" bordercolor="50,50,50" backimage="question.png" forecolor="80,255,80" location="15,22" size="50,45" font="微软雅黑,30" />
@@ -25,7 +25,9 @@
       </div>
       <label name="lblType" forecolor="0,0,0" text="题型:" location="81,148" size="54,30" font="微软雅黑,20" />
       <label name="Label4" forecolor="0,0,0" text="难度:" location="34,539" size="54,30" font="微软雅黑,20" />
-      <input type="radio" name="cbResult" text="" location="344,544" size="27,20" tabstop="False" />
+      <input type="radio" name="rbExamJava" text="Java面试" location="37,589" size="100,20" checked="True" />
+      <input type="radio" name="rbExamC" text="C++面试" location="121,589" size="100,20" />
+      <input type="radio" name="rbExam" text="内部考试" location="206,589" size="100,20" />
     </div>
   </body>
 </html>

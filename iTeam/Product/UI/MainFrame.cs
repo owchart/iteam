@@ -120,21 +120,6 @@ namespace OwLib
                     JidianWindow jidianWindow = new JidianWindow(Native);
                     jidianWindow.ShowDialog();
                 }
-                else if (name == "SM")
-                {
-                    DisobeyWindow disobeyWindow = new DisobeyWindow(Native);
-                    disobeyWindow.ShowDialog();
-                }
-                else if (name == "SS")
-                {
-                    BeAttackedWindow beAttackedWindow = new BeAttackedWindow(Native);
-                    beAttackedWindow.ShowDialog();
-                }
-                else if (name == "STM")
-                {
-                    WangYiWindow wangYiWindow = new WangYiWindow(Native);
-                    wangYiWindow.ShowDialog();
-                }
                 else if (name == "TC")
                 {
                     Process process = new Process();
@@ -143,16 +128,6 @@ namespace OwLib
                     startInfo.Arguments = "-plan";
                     process.StartInfo = startInfo;
                     process.Start();
-                }
-                else if (name == "TCC")
-                {
-                    SnitchWindow snitchWindow = new SnitchWindow(Native);
-                    snitchWindow.ShowDialog();
-                }
-                else if (name == "TH")
-                {
-                    CounterspyWindow counterspyWindow = new CounterspyWindow(Native);
-                    counterspyWindow.ShowDialog();
                 }
                 else if (name == "UA")
                 {
@@ -436,11 +411,6 @@ namespace OwLib
             type1List.Add(new UserAppsTable("OI", "重点关注"));
             type2List.Add(new UserAppsTable("PH", "远程服务"));
             type2List.Add(new UserAppsTable("RI", "代码统计"));
-            type4List.Add(new UserAppsTable("SM", "抗命记录"));
-            type4List.Add(new UserAppsTable("SS", "被攻击记录"));
-            type4List.Add(new UserAppsTable("STM", "妄议记录"));
-            type4List.Add(new UserAppsTable("TCC", "打小报告"));
-            type4List.Add(new UserAppsTable("TH", "反间谍活动"));
             type1List.Add(new UserAppsTable("UA", "水平级别"));
             type3List.Add(new UserAppsTable("BS", "股票买卖"));
             type1List.Add(new UserAppsTable("RP", "考一考"));
