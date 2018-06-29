@@ -281,6 +281,14 @@ namespace OwLib
                         int imgIndex2 = content.IndexOf("\">", imgIndex);
                         String imageUrl = content.Substring(imgIndex, imgIndex2 - imgIndex);
                         imageName = imageUrl.Substring(imageUrl.LastIndexOf("/") + 1);
+                        if (imageUrl.IndexOf("\" target=\"_blank") != -1)
+                        {
+                            imageUrl = imageUrl.Replace("\" target=\"_blank", "");
+                        }
+                        if (imageName.IndexOf("\" target=\"_blank") != -1)
+                        {
+                            imageName = imageName.Replace("\" target=\"_blank", "");
+                        }
                         imageFilePath = imageDir + "\\" + imageName;
                         if (!CFileA.IsFileExist(imageFilePath))
                         {
@@ -294,7 +302,7 @@ namespace OwLib
                     GridControlCell imageCell = new GridControlCell();
                     imageCell.Control = new ControlA();
                     imageCell.Control.Native = Native;
-                    imageCell.Control.BackImage = imageName;
+                    //imageCell.Control.BackImage = imageName;
                     row.AddCell("colP0", imageCell);
                     row.AddCell("colP1", new GridStringCell(dt.ToString("yyyy-MM-dd HH:mm:ss")));
                     row.AddCell("colP2", new GridStringCell(name));
@@ -374,6 +382,17 @@ namespace OwLib
                     row.AddCell("colP15", new GridStringCell("挑选"));
                     row.AddCell("colP16", new GridStringCell(file));
                     row.AddCell("colP17", new GridStringCell(content));
+                    //if (sex == "女" && imageName != null && imageName.Length > 0)
+                    //{
+                    //    String key = name + " " + strPhone + ".jpg";
+                    //    try
+                    //    {
+                    //        File.Copy(imageDir + "\\" + imageName, Application.StartupPath + "\\select\\" + key, true);
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //    }
+                    //}
                 }
             }
             FilterGrid();
@@ -755,7 +774,7 @@ namespace OwLib
             for (int i = 0; i < filesSize; i++)
             {
                 FileInfo fileInfo = new FileInfo(files[i]);
-                if (((TimeSpan)(DateTime.Now - fileInfo.LastWriteTime)).TotalDays > 30)
+                if (((TimeSpan)(DateTime.Now - fileInfo.LastWriteTime)).TotalDays > 100)
                 {
                     files.RemoveAt(i);
                     i--;
