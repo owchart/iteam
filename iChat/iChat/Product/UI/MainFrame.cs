@@ -412,15 +412,20 @@ namespace OwLib
                     String text = newStr.Substring(4);
                     Form form = new Form();
                     form.Text = "HOW";
+                    form.MaximizeBox = false;
+                    form.MinimizeBox = false;
+                    form.FormBorderStyle = FormBorderStyle.None;
+                    form.BackColor = Color.Black;
                     form.WindowState = FormWindowState.Maximized;
-                    form.TransparencyKey = SystemColors.Control;
+                    form.TransparencyKey = Color.Black;
                     form.TopMost = true;
                     Label label = new Label();
                     label.ForeColor = Color.Red;
                     label.Text = text;
-                    label.Font = new Font("宋体", 70, FontStyle.Bold);
+                    label.Font = new Font("宋体", 100, FontStyle.Bold);
                     label.Dock = DockStyle.Fill;
                     label.TextAlign = ContentAlignment.MiddleCenter;
+                    label.MouseDown += new MouseEventHandler(form_MouseDown);
                     form.Controls.Add(label);
                     form.Show();
                 }
@@ -437,6 +442,17 @@ namespace OwLib
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 窗体点击方法
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void form_MouseDown(object sender, MouseEventArgs e)
+        {
+            Form form = (sender as Label).Parent as Form;
+            form.Close();
         }
 
         [DllImport("user32.dll")]

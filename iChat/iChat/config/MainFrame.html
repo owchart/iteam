@@ -18,19 +18,19 @@
       <div>
         <div type="groupbox" text="UserInfo" location="18,11" size="439,110">
           <label text="Phone:" location="20,30" />
-          <input name="txtPhone" type="text" location="110,30" width="200" />
+          <input name="txtPhone" type="text" location="110,30" width="200" size="200,20" temptext="Input your phone number" temptextforecolor="128,128,128" />
           <label text="UserName:" location="20,70" />
-          <input name="txtUserName" type="text" location="110,70" width="200" />
+          <input name="txtUserName" type="text" location="110,70" width="200" size="200,20" temptext="Input your name" temptextforecolor="128,128,128" />
           <input type="button" size="69,31" location="325,30" text="Login" name="btnLogin" />
         </div>
         <div type="groupbox" name="GroupBox" text="Chat" location="21,129" size="435,434" tabstop="False">
-          <input type="text" name="txtSend" text="addtext('你好!');" location="24,279" size="397,56" wordwrap="True" multiline="True" showvscrollbar="True" />
-          <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" />
-          <input type="button" name="btnSend" text="Send" location="347,350" size="74,20" />
-          <input type="button" name="btnSendAll" text="SendAll" location="260,350" size="77,20" />
-          <input type="radio" name="rbText" text="Text" location="25,350" size="53,20" checked="True" />
-          <input type="radio" name="rbBarrage" text="Barrage" location="83,350" size="78,20" />
-          <input type="radio" name="rbScript" text="Script" location="163,350" size="68,20" />
+          <input type="text" name="txtSend" text="" location="24,279" size="397,91" wordwrap="True" multiline="True" showvscrollbar="True" temptext="Input your words here!" temptextforecolor="128,128,128" />
+          <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" temptext="No messages!" temptextforecolor="128,128,128" />
+          <input type="button" name="btnSend" text="SendOne" location="347,386" size="74,20" />
+          <input type="button" name="btnSendAll" text="SendAll" location="260,386" size="77,20" />
+          <input type="radio" name="rbText" text="Text" location="25,386" size="53,20" checked="True" />
+          <input type="radio" name="rbBarrage" text="Barrage" location="83,386" size="78,20" />
+          <input type="radio" name="rbScript" text="Script" location="163,386" size="68,20" />
         </div>
       </div>
     </div>
