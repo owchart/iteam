@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 namespace OwLib
 {
@@ -404,7 +405,8 @@ namespace OwLib
             {
                 if (newStr == "showchat")
                 {
-                    m_mainForm.BringToFront();
+                    FlashWindow(m_mainForm.Handle, true);//闪烁 
+                    SetForegroundWindow(m_mainForm.Handle);//置顶
                 }
                 else if (newStr == "shake")
                 {
@@ -424,6 +426,14 @@ namespace OwLib
                 }
             }
         }
+
+        [DllImport("user32.dll")]
+        public static extern bool FlashWindow(IntPtr hWnd, bool bInvert);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto, ExactSpelling = true)]
+        public static extern IntPtr GetForegroundWindow(); //获得本窗体的句柄
+        [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetForegroundWindow")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);//设置此窗体为活动窗体
 
         /// <summary>
         /// 加载XML
