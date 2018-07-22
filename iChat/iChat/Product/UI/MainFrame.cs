@@ -18,6 +18,7 @@ using System.Threading;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace OwLib
 {
@@ -82,32 +83,6 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 选中改变事件
-        /// </summary>
-        /// <param name="sender">调用者</param>
-        private void CheckedChangedEvent(object sender)
-        {
-            RadioButtonA radioButton = sender as RadioButtonA;
-            if (radioButton.Checked)
-            {
-                TextBoxA txtSend = GetTextBox("txtSend");
-                if (radioButton.Name == "rbText")
-                {
-                    txtSend.Text = "addtext('你好');";
-                }
-                else if (radioButton.Name == "rbBarrage")
-                {
-                    txtSend.Text = "addbarrage('你好');";
-                }
-                else if (radioButton.Name == "rbScript")
-                {
-                    txtSend.Text = "win.execute('www.baidu.com');";
-                }
-                Native.Invalidate();
-            }
-        }
-
-        /// <summary>
         /// 点击事件
         /// </summary>
         /// <param name="sender">调用者</param>
@@ -128,6 +103,16 @@ namespace OwLib
                     {
                         MessageBox.Show("Please input the content you want send!", "Attention");
                     }
+                    RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
+                    RadioButtonA rbText = GetRadioButton("rbText");
+                    if (rbBarrage.Checked)
+                    {
+                        text = "addbarrage('" + text + "');";
+                    }
+                    else if (rbText.Checked)
+                    {
+                        text = "addtext('" + text + "');";
+                    }
                     ChatData chatData = new ChatData();
                     chatData.m_content = text;
                     chatData.m_sender = DataCenter.UserName;
@@ -138,16 +123,16 @@ namespace OwLib
                             gs.SendAll(chatData);
                         }
                     }
-                    if (GetRadioButton("rbBarrage").Checked)
+                    if (rbBarrage.Checked)
                     {
                         CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
                         indicator.Clear();
                         indicator.Dispose();
                     }
-                    else if (GetRadioButton("rbText").Checked)
+                    else if (rbText.Checked)
                     {
                         TextBoxA txtReceive = GetTextBox("txtReceive");
-                        txtReceive.Text += "i say:\r\n" + text.Replace("addtext('", "").Replace("');", "") + "\r\n";
+                        txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
                         txtReceive.Invalidate();
                         if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
                         {
@@ -163,6 +148,16 @@ namespace OwLib
                     if (text == null || text.Trim().Length == 0)
                     {
                         MessageBox.Show("Please input the content you want send!", "Attention");
+                    }
+                    RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
+                    RadioButtonA rbText = GetRadioButton("rbText");
+                    if (rbBarrage.Checked)
+                    {
+                        text = "addbarrage('" + text + "');";
+                    }
+                    else if (rbText.Checked)
+                    {
+                        text = "addtext('" + text + "');";
                     }
                     List<GridRow> selectedRows = m_gridHosts.SelectedRows;
                     int selectedRowsSize = selectedRows.Count;
@@ -233,16 +228,16 @@ namespace OwLib
                         {
                             chatService.Send(chatData);
                         }
-                        if (GetRadioButton("rbBarrage").Checked)
+                        if (rbBarrage.Checked)
                         {
                             CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
                             indicator.Clear();
                             indicator.Dispose();
                         }
-                        else if (GetRadioButton("rbText").Checked)
+                        else if (rbText.Checked)
                         {
                             TextBoxA txtReceive = GetTextBox("txtReceive");
-                            txtReceive.Text += "i say:\r\n" + text.Replace("addtext('", "").Replace("');", "") + "\r\n";
+                            txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
                             txtReceive.Invalidate();
                             if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
                             {
@@ -405,12 +400,29 @@ namespace OwLib
             {
                 if (newStr == "showchat")
                 {
-                    FlashWindow(m_mainForm.Handle, true);//闪烁 
-                    SetForegroundWindow(m_mainForm.Handle);//置顶
+                    FlashWindow(m_mainForm.Handle, true);
+                    SetForegroundWindow(m_mainForm.Handle);
                 }
                 else if (newStr == "shake")
                 {
                     m_mainForm.Play();
+                }
+                else if (newStr.StartsWith("how:"))
+                {
+                    String text = newStr.Substring(4);
+                    Form form = new Form();
+                    form.Text = "HOW";
+                    form.WindowState = FormWindowState.Maximized;
+                    form.TransparencyKey = SystemColors.Control;
+                    form.TopMost = true;
+                    Label label = new Label();
+                    label.ForeColor = Color.Red;
+                    label.Text = text;
+                    label.Font = new Font("宋体", 70, FontStyle.Bold);
+                    label.Dock = DockStyle.Fill;
+                    label.TextAlign = ContentAlignment.MiddleCenter;
+                    form.Controls.Add(label);
+                    form.Show();
                 }
                 else
                 {
@@ -495,19 +507,13 @@ namespace OwLib
         private void RegisterEvents(ControlA control)
         {
             ControlMouseEvent clickButtonEvent = new ControlMouseEvent(ClickEvent);
-            ControlEvent checkedChangedEvent = new ControlEvent(CheckedChangedEvent);
             List<ControlA> controls = control.GetControls();
             int controlsSize = controls.Count;
             for (int i = 0; i < controlsSize; i++)
             {
                 ControlA subControl = controls[i];
-                RadioButtonA radioButton = subControl as RadioButtonA;
                 ButtonA button = subControl as ButtonA;
-                if (radioButton != null)
-                {
-                    button.RegisterEvent(checkedChangedEvent, EVENTID.CHECKEDCHANGED);
-                }
-                else if (button != null)
+                if (button != null)
                 {
                     button.RegisterEvent(clickButtonEvent, EVENTID.CLICK);
                 }

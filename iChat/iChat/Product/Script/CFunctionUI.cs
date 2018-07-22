@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace OwLib
 {
@@ -51,7 +52,7 @@ namespace OwLib
         /// <summary>
         /// 方法
         /// </summary>
-        private static String FUNCTIONS = "GETPROPERTY,SETPROPERTY,GETSENDER,ALERT,INVALIDATE,SHOWWINDOW,CLOSEWINDOW,STARTTIMER,STOPTIMER,GETMOUSEBUTTON,GETMOUSEPOINT,GETCLICKS,GETKEY,GETCOOKIE,SETCOOKIE,SHOWRIGHTMENU,ADDBARRAGE,UPDATE,ADDTEXT,SHOWCHAT,SHAKE";
+        private static String FUNCTIONS = "GETPROPERTY,SETPROPERTY,GETSENDER,ALERT,INVALIDATE,SHOWWINDOW,CLOSEWINDOW,STARTTIMER,STOPTIMER,GETMOUSEBUTTON,GETMOUSEPOINT,GETCLICKS,GETKEY,GETCOOKIE,SETCOOKIE,SHOWRIGHTMENU,ADDBARRAGE,UPDATE,ADDTEXT,SHOWCHAT,SHAKE,SHUTDOWN,HOW";
 
         /// <summary>
         /// 前缀
@@ -114,6 +115,10 @@ namespace OwLib
                     return SHOWCHAT(var);
                 case STARTINDEX + 20:
                     return SHAKE(var);
+                case STARTINDEX + 21:
+                    return SHUTDOWN(var);
+                case STARTINDEX + 22:
+                    return HOW(var);
                 default:
                     return 0;
             }
@@ -319,6 +324,23 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 怎么样了
+        /// </summary>
+        /// <param name="var">变量</param>
+        /// <returns>状态</returns>
+        private double HOW(CVariable var)
+        {
+            String text = "";
+            int len = var.m_parameters.Length;
+            for (int i = 0; i < len; i++)
+            {
+                text += m_indicator.GetText(var.m_parameters[i]);
+            }
+            (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke("how:" + text);
+            return 0;
+        }
+
+        /// <summary>
         /// 刷新界面
         /// </summary>
         /// <param name="var">变量</param>
@@ -409,6 +431,17 @@ namespace OwLib
         private double SHAKE(CVariable var)
         {
             (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke("shake");
+            return 0;
+        }
+
+        /// <summary>
+        /// 关闭电脑
+        /// </summary>
+        /// <param name="var">变量</param>
+        /// <returns>状态</returns>
+        private double SHUTDOWN(CVariable var)
+        {
+            Process.Start("shutdown.exe", "-s");
             return 0;
         }
 
