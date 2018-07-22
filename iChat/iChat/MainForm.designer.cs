@@ -44,7 +44,7 @@ namespace OwLib
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "蛋蛋";
+            this.Text = "蛋蛋要和钉钉一起用";
             this.ResumeLayout(false);
 
         }
