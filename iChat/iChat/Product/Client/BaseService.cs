@@ -247,7 +247,7 @@ namespace OwLib
         /// <param name="port">端口</param>
         public static int Connect(String ip, int port)
         {
-            int socketID = ConnectToServer(0, 0, ip, port, "", 0, "", "", "", 6);
+            int socketID = ConnectToServer(0, 0, ip, port, "", 0, "", "", "", 3);
             return socketID;
         }
 

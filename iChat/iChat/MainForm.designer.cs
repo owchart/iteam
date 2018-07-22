@@ -40,11 +40,11 @@ namespace OwLib
             // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(595, 293);
+            this.ClientSize = new System.Drawing.Size(722, 573);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "iChat";
+            this.Text = "µ°µ°";
             this.ResumeLayout(false);
 
         }

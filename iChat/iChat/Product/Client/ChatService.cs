@@ -23,6 +23,8 @@ namespace OwLib
     public class ChatData
     {
         #region Æë´ºÓÑ 2016/6/9
+        public String m_aesKey = "";
+
         /// <summary>
         /// ÄÚÈÝ
         /// </summary>
@@ -196,6 +198,7 @@ namespace OwLib
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
+            chatData.m_aesKey = br.ReadString();
             chatData.m_tokens = br.ReadString();
             chatData.m_sender = br.ReadString();
             chatData.m_receiver = br.ReadString();
@@ -276,7 +279,7 @@ namespace OwLib
                                 String newServer = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
                                 List<ChatHostInfo> hostInfos = new List<ChatHostInfo>();
                                 UserCookie cookie = new UserCookie();
-                                if (DataCenter.UserCookieService.GetCookie("FULLSERVERS", ref cookie) > 0)
+                                if (DataCenter.UserCookieService.GetCookie("FULLSERVERS2", ref cookie) > 0)
                                 {
                                     hostInfos = JsonConvert.DeserializeObject<List<ChatHostInfo>>(cookie.m_value);
                                 }
@@ -295,7 +298,7 @@ namespace OwLib
                                 if (!contains)
                                 {
                                     hostInfos.Add(hostInfo);
-                                    cookie.m_key = "FULLSERVERS";
+                                    cookie.m_key = "FULLSERVERS2";
                                     cookie.m_value = JsonConvert.SerializeObject(hostInfos);
                                     DataCenter.UserCookieService.AddCookie(cookie);
                                 }
@@ -370,6 +373,7 @@ namespace OwLib
         public int Send(int functionID, int requestID, ChatData chatData)
         {
             Binary bw = new Binary();
+            bw.WriteString(chatData.m_aesKey);
             bw.WriteString(chatData.m_tokens);
             bw.WriteString(chatData.m_sender);
             bw.WriteString(chatData.m_receiver);

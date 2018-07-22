@@ -44,7 +44,7 @@ namespace OwLib
         /// <summary>
         /// ·½·¨
         /// </summary>
-        private static String FUNCTIONS = "BEEP,EXECUTE,MOUSEEVENT,MOUSECLICK,SETTEXT,SENDKEY,GETVALUE,";
+        private static String FUNCTIONS = "BEEP,EXECUTE,MOUSEEVENT,MOUSECLICK,SETTEXT,SENDKEY,GETVALUE";
 
         /// <summary>
         /// Ç°×º

@@ -144,6 +144,35 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 窗体震动
+        /// </summary>
+        public void Play()
+        {
+            int leftWidth = this.Left; //指定窗体左边值
+            int topWidth = this.Top; //指定窗体上边值 
+            for (int i = 0; i < 20; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    this.Left = this.Left + 10;
+                }
+                else //否则 
+                {
+                    this.Left = this.Left - 10;
+                }
+                if (i % 2 == 0)
+                {
+                    this.Top = this.Top + 10;
+                }
+                else//否则 
+                {
+                    this.Top = this.Top - 10;
+                }
+                System.Threading.Thread.Sleep(30);//震动频率 
+            }
+        }
+
+        /// <summary>
         /// 设置标题
         /// </summary>
         /// <param name="text">标题</param>
@@ -159,7 +188,7 @@ namespace OwLib
         /// <param name="e">参数</param>
         public void SetTitle(object sender, EventArgs e)
         {
-            Text = "iChat" + " 主服务器为" + m_title;
+            Text = "蛋蛋" + " 主服务器为" + m_title;
         }
 
         /// <summary>

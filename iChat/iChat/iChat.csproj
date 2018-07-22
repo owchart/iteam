@@ -74,6 +74,7 @@
     <Compile Include="Product\Script\GaiaScript.cs" />
     <Compile Include="Product\Server\BaseService.cs" />
     <Compile Include="Product\Server\ChatService.cs" />
+    <Compile Include="Product\Service\AESHelper.cs" />
     <Compile Include="Product\Service\DataCenter.cs" />
     <Compile Include="Product\Service\UserCookieService.cs" />
     <Compile Include="Product\UI\BarrageDiv.cs" />

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace OwLib
 {
@@ -50,7 +51,7 @@ namespace OwLib
         /// <summary>
         /// 方法
         /// </summary>
-        private static String FUNCTIONS = "GETPROPERTY,SETPROPERTY,GETSENDER,ALERT,INVALIDATE,SHOWWINDOW,CLOSEWINDOW,STARTTIMER,STOPTIMER,GETMOUSEBUTTON,GETMOUSEPOINT,GETCLICKS,GETKEY,GETCOOKIE,SETCOOKIE,SHOWRIGHTMENU,ADDBARRAGE,UPDATE";
+        private static String FUNCTIONS = "GETPROPERTY,SETPROPERTY,GETSENDER,ALERT,INVALIDATE,SHOWWINDOW,CLOSEWINDOW,STARTTIMER,STOPTIMER,GETMOUSEBUTTON,GETMOUSEPOINT,GETCLICKS,GETKEY,GETCOOKIE,SETCOOKIE,SHOWRIGHTMENU,ADDBARRAGE,UPDATE,ADDTEXT,SHOWCHAT,SHAKE";
 
         /// <summary>
         /// 前缀
@@ -107,6 +108,12 @@ namespace OwLib
                     return ADDBARRAGE(var);
                 case STARTINDEX + 17:
                     return UPDATE(var);
+                case STARTINDEX + 18:
+                    return ADDTEXT(var);
+                case STARTINDEX + 19:
+                    return SHOWCHAT(var);
+                case STARTINDEX + 20:
+                    return SHAKE(var);
                 default:
                     return 0;
             }
@@ -148,6 +155,29 @@ namespace OwLib
             barrage.Mode = 0;
             barrageDiv.AddBarrage(barrage);
             return 1;
+        }
+
+        /// <summary>
+        /// 添加文本
+        /// </summary>
+        /// <param name="var">变量</param>
+        /// <returns>状态</returns>
+        private double ADDTEXT(CVariable var)
+        {
+            String text = "";
+            int len = var.m_parameters.Length;
+            for (int i = 0; i < len; i++)
+            {
+                text += m_indicator.GetText(var.m_parameters[i]);
+            }
+            ChatData chatData = null;
+            if (m_indicator.Tag != null)
+            {
+                chatData = m_indicator.Tag as ChatData;
+            }
+            String newText = chatData.m_sender + " say:\r\n" + text + "\r\n";
+            (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke(newText);
+            return 0;
         }
 
         /// <summary>
@@ -357,6 +387,28 @@ namespace OwLib
             {
                 windowXmlEx.Close();
             }
+            return 0;
+        }
+
+        /// <summary>
+        /// 显示聊天
+        /// </summary>
+        /// <param name="var">变量</param>
+        /// <returns>状态</returns>
+        private double SHOWCHAT(CVariable var)
+        {
+            (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke("showchat");
+            return 0;
+        }
+
+        /// <summary>
+        /// 显示聊天
+        /// </summary>
+        /// <param name="var">变量</param>
+        /// <returns>状态</returns>
+        private double SHAKE(CVariable var)
+        {
+            (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke("shake");
             return 0;
         }
 

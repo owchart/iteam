@@ -37,10 +37,6 @@ namespace OwLib
         /// </summary>
         private GridA m_gridHosts;
 
-        /// <summary>
-        /// 主图层
-        /// </summary>
-        private DivA m_mainDiv;
 
         private BarrageDiv m_barrageDiv;
 
@@ -51,6 +47,17 @@ namespace OwLib
         {
             get { return m_barrageDiv; }
             set { m_barrageDiv = value; }
+        }
+
+        private DivA m_mainDiv;
+
+        /// <summary>
+        /// 获取或设置主图层
+        /// </summary>
+        public DivA MainDiv
+        {
+            get { return m_mainDiv; }
+            set { m_mainDiv = value; }
         }
 
         private MainForm m_mainForm;
@@ -71,6 +78,32 @@ namespace OwLib
         public void ChatMessageCallBack(CMessage message)
         {
             m_mainDiv.BeginInvoke(message);
+        }
+
+        /// <summary>
+        /// 选中改变事件
+        /// </summary>
+        /// <param name="sender">调用者</param>
+        private void CheckedChangedEvent(object sender)
+        {
+            RadioButtonA radioButton = sender as RadioButtonA;
+            if (radioButton.Checked)
+            {
+                TextBoxA txtSend = GetTextBox("txtSend");
+                if (radioButton.Name == "rbText")
+                {
+                    txtSend.Text = "addtext('你好');";
+                }
+                else if (radioButton.Name == "rbBarrage")
+                {
+                    txtSend.Text = "addbarrage('你好');";
+                }
+                else if (radioButton.Name == "rbScript")
+                {
+                    txtSend.Text = "win.execute('www.baidu.com');";
+                }
+                Native.Invalidate();
+            }
         }
 
         /// <summary>
@@ -96,6 +129,7 @@ namespace OwLib
                     }
                     ChatData chatData = new ChatData();
                     chatData.m_content = text;
+                    chatData.m_sender = DataCenter.UserName;
                     foreach (ChatService gs in DataCenter.ClientChatServices.Values)
                     {
                         if (gs.ToServer && gs.Connected)
@@ -103,9 +137,24 @@ namespace OwLib
                             gs.SendAll(chatData);
                         }
                     }
-                    CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
-                    indicator.Clear();
-                    indicator.Dispose();
+                    if (GetRadioButton("rbBarrage").Checked)
+                    {
+                        CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                        indicator.Clear();
+                        indicator.Dispose();
+                    }
+                    else if (GetRadioButton("rbText").Checked)
+                    {
+                        TextBoxA txtReceive = GetTextBox("txtReceive");
+                        txtReceive.Text += "i say:\r\n" + text.Replace("addtext('", "").Replace("');", "") + "\r\n";
+                        txtReceive.Invalidate();
+                        if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
+                        {
+                            txtReceive.VScrollBar.ScrollToEnd();
+                            txtReceive.Update();
+                            txtReceive.Invalidate();
+                        }
+                    }
                 }
                 else if (name == "btnSend")
                 {
@@ -116,11 +165,13 @@ namespace OwLib
                     }
                     List<GridRow> selectedRows = m_gridHosts.SelectedRows;
                     int selectedRowsSize = selectedRows.Count;
+                    bool sendAll = false;
                     if (selectedRowsSize > 0)
                     {
                         GridRow firstSelectedRow = selectedRows[0];
                         String ip = selectedRows[0].GetCell("colP1").GetString();
                         int port = selectedRows[0].GetCell("colP2").GetInt();
+                        String userID = selectedRows[0].GetCell("colP3").GetString();
                         ChatService chatService = null;
                         String key = ip + ":" + CStr.ConvertIntToStr(port);
                         if (DataCenter.ClientChatServices.ContainsKey(key))
@@ -134,6 +185,10 @@ namespace OwLib
                                     chatService.Connected = true;
                                     chatService.SocketID = socketID;
                                     chatService.Enter();
+                                }
+                                else
+                                {
+                                    sendAll = true;
                                 }
                             }
                         }
@@ -154,13 +209,47 @@ namespace OwLib
                                 DataCenter.ClientChatServices[key] = chatService;
                                 BaseService.AddService(chatService);
                             }
+                            else
+                            {
+                                sendAll = true;
+                            }
                         }
                         ChatData chatData = new ChatData();
                         chatData.m_content = text;
-                        chatService.Send(chatData);
-                        CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
-                        indicator.Clear();
-                        indicator.Dispose();
+                        chatData.m_sender = DataCenter.UserName;
+                        if (sendAll)
+                        {
+                            chatData.m_receiver = userID;
+                            foreach (ChatService gs in DataCenter.ClientChatServices.Values)
+                            {
+                                if (gs.ToServer && gs.Connected)
+                                {
+                                    gs.SendAll(chatData);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            chatService.Send(chatData);
+                        }
+                        if (GetRadioButton("rbBarrage").Checked)
+                        {
+                            CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                            indicator.Clear();
+                            indicator.Dispose();
+                        }
+                        else if (GetRadioButton("rbText").Checked)
+                        {
+                            TextBoxA txtReceive = GetTextBox("txtReceive");
+                            txtReceive.Text += "i say:\r\n" + text.Replace("addtext('", "").Replace("');", "") + "\r\n";
+                            txtReceive.Invalidate();
+                            if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
+                            {
+                                txtReceive.VScrollBar.ScrollToEnd();
+                                txtReceive.Update();
+                                txtReceive.Invalidate();
+                            }
+                        }
                     }
                 }
                 else if (name == "btnLogin")
@@ -183,7 +272,10 @@ namespace OwLib
                     cookie.m_key = "USERINFO";
                     cookie.m_value = phone + "," + userName;
                     DataCenter.UserCookieService.AddCookie(cookie);
-                    GetButton("btnLogin").Enabled = false;
+                    ButtonA btnLogin = GetButton("btnLogin");
+                    btnLogin.Enabled = false;
+                    btnLogin.Text = "Logined";
+                    btnLogin.Invalidate();
                     Thread thread = new Thread(new ThreadStart(StartConnect));
                     thread.Start();
 
@@ -214,85 +306,121 @@ namespace OwLib
         public void Invoke(object sender, object args)
         {
             CMessage message = args as CMessage;
-            if (message.m_serviceID == ChatService.SERVICEID_CHAT)
+            if (message != null)
             {
-                if (message.m_functionID == ChatService.FUNCTIONID_SENDALL)
+                if (message.m_serviceID == ChatService.SERVICEID_CHAT)
                 {
-                    ChatData chatData = new ChatData();
-                    ChatService.GetChatData(chatData, message.m_body, message.m_bodyLength);
-                    CIndicator indicator = CFunctionEx.CreateIndicator("", chatData.m_content, this);
-                    indicator.Clear();
-                    indicator.Dispose();
-                }
-                else if (message.m_functionID == ChatService.FUNCTIONID_GETHOSTS)
-                {
-                    List<ChatHostInfo> datas = new List<ChatHostInfo>();
-                    int type = 0;
-                    ChatService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
-                    m_gridHosts.BeginUpdate();
-                    if (type != 2)
+                    if (message.m_functionID == ChatService.FUNCTIONID_SENDALL)
                     {
-                        int datasSize = datas.Count;
-                        for (int i = 0; i < datasSize; i++)
+                        ChatData chatData = new ChatData();
+                        ChatService.GetChatData(chatData, message.m_body, message.m_bodyLength);
+                        CIndicator indicator = CFunctionEx.CreateIndicator2("", chatData, this);
+                        indicator.Clear();
+                        indicator.Dispose();
+                    }
+                    else if (message.m_functionID == ChatService.FUNCTIONID_GETHOSTS)
+                    {
+                        List<ChatHostInfo> datas = new List<ChatHostInfo>();
+                        int type = 0;
+                        ChatService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
+                        m_gridHosts.BeginUpdate();
+                        if (type != 2)
                         {
-                            ChatHostInfo hostInfo = datas[i];
+                            int datasSize = datas.Count;
+                            for (int i = 0; i < datasSize; i++)
+                            {
+                                ChatHostInfo hostInfo = datas[i];
+                                List<GridRow> rows = m_gridHosts.m_rows;
+                                int rowsSize = rows.Count;
+                                bool containsRow = false;
+                                for (int j = 0; j < rowsSize; j++)
+                                {
+                                    GridRow oldRow = rows[j];
+                                    if (oldRow.GetCell("colP1").GetString() == hostInfo.m_ip && oldRow.GetCell("colP2").GetInt() == hostInfo.m_serverPort)
+                                    {
+                                        containsRow = true;
+                                    }
+                                }
+                                if (!containsRow)
+                                {
+                                    GridRow row = new GridRow();
+                                    m_gridHosts.AddRow(row);
+                                    row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
+                                    row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
+                                    if (hostInfo.m_type == 1)
+                                    {
+                                        String userID = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
+                                        row.AddCell("colP3", new GridStringCell(userID));
+                                        row.AddCell("colP4", new GridStringCell(userID));
+                                    }
+                                    else
+                                    {
+                                        row.AddCell("colP3", new GridStringCell(hostInfo.m_userID));
+                                        row.AddCell("colP4", new GridStringCell(hostInfo.m_userName));
+                                    }
+                                    row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "Server" : "Client"));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Dictionary<String, String> removeHosts = new Dictionary<String, String>();
+                            foreach (ChatHostInfo hostInfo in datas)
+                            {
+                                removeHosts[hostInfo.ToString()] = "";
+                            }
                             List<GridRow> rows = m_gridHosts.m_rows;
                             int rowsSize = rows.Count;
-                            bool containsRow = false;
-                            for (int j = 0; j < rowsSize; j++)
+                            if (rowsSize > 0)
                             {
-                                GridRow oldRow = rows[j];
-                                if (oldRow.GetCell("colP1").GetString() == hostInfo.m_ip && oldRow.GetCell("colP2").GetInt() == hostInfo.m_serverPort)
+                                for (int i = 0; i < rowsSize; i++)
                                 {
-                                    containsRow = true;
+                                    GridRow row = rows[i];
+                                    String key = row.GetCell("colP1").GetString() + ":" + row.GetCell("colP2").GetString();
+                                    if (removeHosts.ContainsKey(key))
+                                    {
+                                        m_gridHosts.RemoveRow(row);
+                                        i--;
+                                        rowsSize--;
+                                    }
                                 }
                             }
-                            if (!containsRow)
-                            {
-                                GridRow row = new GridRow();
-                                m_gridHosts.AddRow(row);
-                                row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
-                                row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
-                                row.AddCell("colP3", new GridStringCell(hostInfo.m_userID));
-                                row.AddCell("colP4", new GridStringCell(hostInfo.m_userName));
-                                row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "Server" : "Client"));
-                            }
                         }
+                        m_gridHosts.EndUpdate();
+                        m_gridHosts.Invalidate();
                     }
-                    else
+                    else if (message.m_functionID == ChatService.FUNCTIONID_SEND)
                     {
-                        Dictionary<String, String> removeHosts = new Dictionary<String, String>();
-                        foreach (ChatHostInfo hostInfo in datas)
-                        {
-                            removeHosts[hostInfo.ToString()] = "";
-                        }
-                        List<GridRow> rows = m_gridHosts.m_rows;
-                        int rowsSize = rows.Count;
-                        if (rowsSize > 0)
-                        {
-                            for (int i = 0; i < rowsSize; i++)
-                            {
-                                GridRow row = rows[i];
-                                String key = row.GetCell("colP1").GetString() + ":" + row.GetCell("colP2").GetString();
-                                if (removeHosts.ContainsKey(key))
-                                {
-                                    m_gridHosts.RemoveRow(row);
-                                    i--;
-                                    rowsSize--;
-                                }
-                            }
-                        }
+                        ChatData chatData = new ChatData();
+                        ChatService.GetChatData(chatData, message.m_body, message.m_bodyLength);
+                        CIndicator indicator = CFunctionEx.CreateIndicator2("", chatData, this);
+                        indicator.Clear();
+                        indicator.Dispose();
                     }
-                    m_gridHosts.EndUpdate();
-                    m_gridHosts.Invalidate();
                 }
-                else if (message.m_functionID == ChatService.FUNCTIONID_SEND)
+            }
+            String newStr = args as String;
+            if (newStr != null)
+            {
+                if (newStr == "showchat")
                 {
-                    ChatData chatData = new ChatData();
-                    ChatService.GetChatData(chatData, message.m_body, message.m_bodyLength);
-                    CIndicator indicator = CFunctionEx.CreateIndicator("", chatData.m_content, this);
-                    indicator.Clear();
-                    indicator.Dispose();
+                    m_mainForm.BringToFront();
+                }
+                else if (newStr == "shake")
+                {
+                    m_mainForm.Play();
+                }
+                else
+                {
+                    TextBoxA txtReceive = GetTextBox("txtReceive");
+                    txtReceive.Text += newStr;
+                    txtReceive.Invalidate();
+                    if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
+                    {
+                        txtReceive.VScrollBar.ScrollToEnd();
+                        txtReceive.Update();
+                        txtReceive.Invalidate();
+                    }
                 }
             }
         }
@@ -317,12 +445,23 @@ namespace OwLib
             Native.AddControl(m_barrageDiv);
             m_gridHosts = GetGrid("gridHosts");
             RegisterEvents(m_mainDiv);
-            UserCookie cookie = new UserCookie();
-            if (DataCenter.UserCookieService.GetCookie("USERINFO", ref cookie) > 0)
+            //全节点服务器
+            if (DataCenter.IsFull)
             {
-                String[] strs = cookie.m_value.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-                GetTextBox("txtPhone").Text = strs[0];
-                GetTextBox("txtUserName").Text = strs[1];
+                DataCenter.UserID = DataCenter.HostInfo.m_localHost + ":" + CStr.ConvertIntToStr(DataCenter.HostInfo.m_localPort);
+                DataCenter.UserName = DataCenter.UserID;
+                Thread thread = new Thread(new ThreadStart(StartConnect));
+                thread.Start();
+            }
+            else
+            {
+                UserCookie cookie = new UserCookie();
+                if (DataCenter.UserCookieService.GetCookie("USERINFO", ref cookie) > 0)
+                {
+                    String[] strs = cookie.m_value.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                    GetTextBox("txtPhone").Text = strs[0];
+                    GetTextBox("txtUserName").Text = strs[1];
+                }
             }
         }
 
@@ -346,13 +485,19 @@ namespace OwLib
         private void RegisterEvents(ControlA control)
         {
             ControlMouseEvent clickButtonEvent = new ControlMouseEvent(ClickEvent);
+            ControlEvent checkedChangedEvent = new ControlEvent(CheckedChangedEvent);
             List<ControlA> controls = control.GetControls();
             int controlsSize = controls.Count;
             for (int i = 0; i < controlsSize; i++)
             {
                 ControlA subControl = controls[i];
+                RadioButtonA radioButton = subControl as RadioButtonA;
                 ButtonA button = subControl as ButtonA;
-                if (button != null)
+                if (radioButton != null)
+                {
+                    button.RegisterEvent(checkedChangedEvent, EVENTID.CHECKEDCHANGED);
+                }
+                else if (button != null)
                 {
                     button.RegisterEvent(clickButtonEvent, EVENTID.CLICK);
                 }
@@ -367,7 +512,7 @@ namespace OwLib
         {
             List<ChatHostInfo> hostInfos = new List<ChatHostInfo>();
             UserCookie cookie = new UserCookie();
-            if (DataCenter.UserCookieService.GetCookie("FULLSERVERS", ref cookie) > 0)
+            if (DataCenter.UserCookieService.GetCookie("FULLSERVERS2", ref cookie) > 0)
             {
                 hostInfos = JsonConvert.DeserializeObject<List<ChatHostInfo>>(cookie.m_value);
             }

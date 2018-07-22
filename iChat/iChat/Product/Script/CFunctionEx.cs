@@ -104,5 +104,36 @@ namespace OwLib
             indicator.OnCalculate(0);
             return indicator;
         }
+
+        /// <summary>
+        /// 创建指标
+        /// </summary>
+        /// <param name="id">编号</param>
+        /// <param name="script">脚本</param>
+        /// <param name="xml">XML</param>
+        /// <returns>指标</returns>
+        public static CIndicator CreateIndicator2(String id, ChatData chatData, UIXml xml)
+        {
+            CIndicator indicator = xml.Native.CreateIndicator();
+            indicator.Name = id;
+            CTable table = xml.Native.CreateTable();
+            indicator.DataSource = table;
+            indicator.Tag = chatData;
+            CFunctionBase.AddFunctions(indicator);
+            CFunctionUI.AddFunctions(indicator, xml);
+            CFunctionWin.AddFunctions(indicator);
+            int index = STARTINDEX;
+            String[] functions = FUNCTIONS.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            int functionsSize = functions.Length;
+            for (int i = 0; i < functionsSize; i++)
+            {
+                indicator.AddFunction(new CFunctionEx(indicator, index + i, functions[i], xml));
+            }
+            indicator.Script = chatData.m_content;
+            table.AddColumn(0);
+            table.Set(0, 0, 0);
+            indicator.OnCalculate(0);
+            return indicator;
+        }
     }
 }

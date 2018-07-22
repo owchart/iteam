@@ -24,6 +24,8 @@ namespace OwLibSV
     public class ChatData
     {
         #region Æë´ºÓÑ 2016/6/9
+        public String m_aesKey = "";
+
         /// <summary>
         /// ÄÚÈÝ
         /// </summary>
@@ -305,6 +307,7 @@ namespace OwLibSV
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
+            chatData.m_aesKey = br.ReadString();
             chatData.m_tokens = br.ReadString();
             chatData.m_sender = br.ReadString();
             chatData.m_receiver = br.ReadString();
@@ -420,7 +423,8 @@ namespace OwLibSV
                     tokens += key;
                 }
             }
-            bw.WriteString(chatData.m_tokens);
+            bw.WriteString(chatData.m_aesKey);
+            bw.WriteString(tokens);
             bw.WriteString(chatData.m_sender);
             bw.WriteString(chatData.m_receiver);
             bw.WriteString(chatData.m_content);
@@ -449,7 +453,7 @@ namespace OwLibSV
                     if (rtnSocketID != socketID)
                     {
                         message.m_socketID = socketID;
-                        if (chatData.m_receiver.Length > 0)
+                        if (m_socketIDs[socketID].m_type == 0 && chatData.m_receiver.Length > 0)
                         {
                             if (chatData.m_receiver.IndexOf(m_socketIDs[socketID].m_userID) == -1)
                             {
