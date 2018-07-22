@@ -21,12 +21,12 @@ using Newtonsoft.Json;
 namespace OwLib
 {
     /// <summary>
-    /// 管理系统
+    /// 系统
     /// </summary>
     public class MainFrame : UIXmlEx, IDisposable
     {
         /// <summary>
-        /// 创建行情系统
+        /// 创建系统
         /// </summary>
         public MainFrame()
         {
@@ -68,7 +68,7 @@ namespace OwLib
         /// 区块链数据回调
         /// </summary>
         /// <param name="message">消息</param>
-        public void GintechMessageCallBack(CMessage message)
+        public void ChatMessageCallBack(CMessage message)
         {
             m_mainDiv.BeginInvoke(message);
         }
@@ -92,15 +92,15 @@ namespace OwLib
                     String text = GetTextBox("txtSend").Text;
                     if (text == null || text.Trim().Length == 0)
                     {
-                        MessageBox.Show("请输入要发送的内容!", "提示");
+                        MessageBox.Show("Please input the content you want send!", "Attention");
                     }
-                    GintechData gintechData = new GintechData();
-                    gintechData.m_text = text;
-                    foreach (GintechService gs in DataCenter.ClientGintechServices.Values)
+                    ChatData chatData = new ChatData();
+                    chatData.m_content = text;
+                    foreach (ChatService gs in DataCenter.ClientChatServices.Values)
                     {
                         if (gs.ToServer && gs.Connected)
                         {
-                            gs.SendAll(gintechData);
+                            gs.SendAll(chatData);
                         }
                     }
                     CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
@@ -112,7 +112,7 @@ namespace OwLib
                     String text = GetTextBox("txtSend").Text;
                     if (text == null || text.Trim().Length == 0)
                     {
-                        MessageBox.Show("请输入要发送的内容!", "提示");
+                        MessageBox.Show("Please input the content you want send!", "Attention");
                     }
                     List<GridRow> selectedRows = m_gridHosts.SelectedRows;
                     int selectedRowsSize = selectedRows.Count;
@@ -121,19 +121,19 @@ namespace OwLib
                         GridRow firstSelectedRow = selectedRows[0];
                         String ip = selectedRows[0].GetCell("colP1").GetString();
                         int port = selectedRows[0].GetCell("colP2").GetInt();
-                        GintechService gintechService = null;
+                        ChatService chatService = null;
                         String key = ip + ":" + CStr.ConvertIntToStr(port);
-                        if (DataCenter.ClientGintechServices.ContainsKey(key))
+                        if (DataCenter.ClientChatServices.ContainsKey(key))
                         {
-                            gintechService = DataCenter.ClientGintechServices[key];
-                            if (!gintechService.Connected)
+                            chatService = DataCenter.ClientChatServices[key];
+                            if (!chatService.Connected)
                             {
                                 int socketID = OwLib.BaseService.Connect(ip, port);
                                 if (socketID != -1)
                                 {
-                                    gintechService.Connected = true;
-                                    gintechService.SocketID = socketID;
-                                    gintechService.Enter();
+                                    chatService.Connected = true;
+                                    chatService.SocketID = socketID;
+                                    chatService.Enter();
                                 }
                             }
                         }
@@ -142,26 +142,51 @@ namespace OwLib
                             int socketID = BaseService.Connect(ip, port);
                             if (socketID != -1)
                             {
-                                gintechService = new GintechService();
-                                gintechService.SocketID = socketID;
-                                int type = selectedRows[0].GetCell("colP3").GetInt();
+                                chatService = new ChatService();
+                                chatService.SocketID = socketID;
+                                int type = selectedRows[0].GetCell("colP5").GetInt();
                                 if (type == 1)
                                 {
-                                    gintechService.ServerIP = ip;
-                                    gintechService.ServerPort = port;
-                                    gintechService.ToServer = type == 1;
+                                    chatService.ServerIP = ip;
+                                    chatService.ServerPort = port;
+                                    chatService.ToServer = type == 1;
                                 }
-                                DataCenter.ClientGintechServices[key] = gintechService;
-                                BaseService.AddService(gintechService);
+                                DataCenter.ClientChatServices[key] = chatService;
+                                BaseService.AddService(chatService);
                             }
                         }
-                        GintechData gintechData = new GintechData();
-                        gintechData.m_text = text;
-                        gintechService.Send(gintechData);
+                        ChatData chatData = new ChatData();
+                        chatData.m_content = text;
+                        chatService.Send(chatData);
                         CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
                         indicator.Clear();
                         indicator.Dispose();
                     }
+                }
+                else if (name == "btnLogin")
+                {
+                    String phone = GetTextBox("txtPhone").Text.Trim();
+                    String userName = GetTextBox("txtUserName").Text.Trim();
+                    if (phone.Length == 0)
+                    {
+                        MessageBox.Show("Please input your phone!", "Attention");
+                        return;
+                    }
+                    if (userName.Length == 0)
+                    {
+                        MessageBox.Show("Please input your name!", "Attention");
+                        return;
+                    }
+                    DataCenter.UserID = phone;
+                    DataCenter.UserName = userName;
+                    UserCookie cookie = new UserCookie();
+                    cookie.m_key = "USERINFO";
+                    cookie.m_value = phone + "," + userName;
+                    DataCenter.UserCookieService.AddCookie(cookie);
+                    GetButton("btnLogin").Enabled = false;
+                    Thread thread = new Thread(new ThreadStart(StartConnect));
+                    thread.Start();
+
                 }
             }
         }
@@ -189,34 +214,28 @@ namespace OwLib
         public void Invoke(object sender, object args)
         {
             CMessage message = args as CMessage;
-            if (message.m_serviceID == GintechService.SERVICEID_GINTECH)
+            if (message.m_serviceID == ChatService.SERVICEID_CHAT)
             {
-                if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_SENDALL)
+                if (message.m_functionID == ChatService.FUNCTIONID_SENDALL)
                 {
-                    List<GintechData> datas = new List<GintechData>();
-                    List<String> ips = new List<String>();
-                    GintechService.GetGintechDatas(datas, ips, message.m_body, message.m_bodyLength);
-                    int datasSize = datas.Count;
-                    for (int i = 0; i < datasSize; i++)
-                    {
-                        GintechData data = datas[i];
-                        CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
-                        indicator.Clear();
-                        indicator.Dispose();
-                    }
+                    ChatData chatData = new ChatData();
+                    ChatService.GetChatData(chatData, message.m_body, message.m_bodyLength);
+                    CIndicator indicator = CFunctionEx.CreateIndicator("", chatData.m_content, this);
+                    indicator.Clear();
+                    indicator.Dispose();
                 }
-                else if (message.m_functionID == GintechService.FUNCTIONID_GETHOSTS)
+                else if (message.m_functionID == ChatService.FUNCTIONID_GETHOSTS)
                 {
-                    List<GintechHostInfo> datas = new List<GintechHostInfo>();
+                    List<ChatHostInfo> datas = new List<ChatHostInfo>();
                     int type = 0;
-                    GintechService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
+                    ChatService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
                     m_gridHosts.BeginUpdate();
                     if (type != 2)
                     {
                         int datasSize = datas.Count;
                         for (int i = 0; i < datasSize; i++)
                         {
-                            GintechHostInfo hostInfo = datas[i];
+                            ChatHostInfo hostInfo = datas[i];
                             List<GridRow> rows = m_gridHosts.m_rows;
                             int rowsSize = rows.Count;
                             bool containsRow = false;
@@ -234,14 +253,16 @@ namespace OwLib
                                 m_gridHosts.AddRow(row);
                                 row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
                                 row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
-                                row.AddCell("colP3", new GridStringCell(hostInfo.m_type == 1 ? "服务端" : "客户端"));
+                                row.AddCell("colP3", new GridStringCell(hostInfo.m_userID));
+                                row.AddCell("colP4", new GridStringCell(hostInfo.m_userName));
+                                row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "Server" : "Client"));
                             }
                         }
                     }
                     else
                     {
                         Dictionary<String, String> removeHosts = new Dictionary<String, String>();
-                        foreach (GintechHostInfo hostInfo in datas)
+                        foreach (ChatHostInfo hostInfo in datas)
                         {
                             removeHosts[hostInfo.ToString()] = "";
                         }
@@ -265,19 +286,13 @@ namespace OwLib
                     m_gridHosts.EndUpdate();
                     m_gridHosts.Invalidate();
                 }
-                else if (message.m_functionID == GintechService.FUNCTIONID_GINTECH_SEND)
+                else if (message.m_functionID == ChatService.FUNCTIONID_SEND)
                 {
-                    List<GintechData> datas = new List<GintechData>();
-                    List<String> ips = new List<String>();
-                    GintechService.GetGintechDatas(datas, ips, message.m_body, message.m_bodyLength);
-                    int datasSize = datas.Count;
-                    for (int i = 0; i < datasSize; i++)
-                    {
-                        GintechData data = datas[i];
-                        CIndicator indicator = CFunctionEx.CreateIndicator("", data.m_text, this);
-                        indicator.Clear();
-                        indicator.Dispose();
-                    }
+                    ChatData chatData = new ChatData();
+                    ChatService.GetChatData(chatData, message.m_body, message.m_bodyLength);
+                    CIndicator indicator = CFunctionEx.CreateIndicator("", chatData.m_content, this);
+                    indicator.Clear();
+                    indicator.Dispose();
                 }
             }
         }
@@ -295,15 +310,20 @@ namespace OwLib
             ControlPaintEvent paintLayoutEvent = new ControlPaintEvent(PaintLayoutDiv);
             m_mainDiv.RegisterEvent(paintLayoutEvent, EVENTID.PAINT);
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
-            DataCenter.ServerGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+            DataCenter.ServerChatService.RegisterListener(DataCenter.ChatRequestID, new ListenerMessageCallBack(ChatMessageCallBack));
             m_barrageDiv = new BarrageDiv();
             m_barrageDiv.Dock = DockStyleA.Fill;
             m_barrageDiv.TopMost = true;
             Native.AddControl(m_barrageDiv);
             m_gridHosts = GetGrid("gridHosts");
             RegisterEvents(m_mainDiv);
-            Thread thread = new Thread(new ThreadStart(StartConnect));
-            thread.Start();
+            UserCookie cookie = new UserCookie();
+            if (DataCenter.UserCookieService.GetCookie("USERINFO", ref cookie) > 0)
+            {
+                String[] strs = cookie.m_value.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                GetTextBox("txtPhone").Text = strs[0];
+                GetTextBox("txtUserName").Text = strs[1];
+            }
         }
 
         /// <summary>
@@ -345,26 +365,26 @@ namespace OwLib
         /// </summary>
         public void StartConnect()
         {
-            List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
+            List<ChatHostInfo> hostInfos = new List<ChatHostInfo>();
             UserCookie cookie = new UserCookie();
             if (DataCenter.UserCookieService.GetCookie("FULLSERVERS", ref cookie) > 0)
             {
-                hostInfos = JsonConvert.DeserializeObject<List<GintechHostInfo>>(cookie.m_value);
+                hostInfos = JsonConvert.DeserializeObject<List<ChatHostInfo>>(cookie.m_value);
             }
             else
             {
-                if (DataCenter.Config.m_defaultHost.Length > 0)
+                if (DataCenter.HostInfo.m_defaultHost.Length > 0)
                 {
-                    GintechHostInfo defaultHostInfo = new GintechHostInfo();
-                    defaultHostInfo.m_ip = DataCenter.Config.m_defaultHost;
-                    defaultHostInfo.m_serverPort = DataCenter.Config.m_defaultPort;
+                    ChatHostInfo defaultHostInfo = new ChatHostInfo();
+                    defaultHostInfo.m_ip = DataCenter.HostInfo.m_defaultHost;
+                    defaultHostInfo.m_serverPort = DataCenter.HostInfo.m_defaultPort;
                     hostInfos.Add(defaultHostInfo);
                 }
             }
             int hostInfosSize = hostInfos.Count;
             if (DataCenter.IsFull && hostInfosSize == 0)
             {
-                GintechHostInfo defaultHostInfo = new GintechHostInfo();
+                ChatHostInfo defaultHostInfo = new ChatHostInfo();
                 defaultHostInfo.m_ip = "127.0.0.1";
                 defaultHostInfo.m_serverPort = 16666;
                 hostInfos.Add(defaultHostInfo);
@@ -374,11 +394,10 @@ namespace OwLib
                 Random rd = new Random();
                 while (true)
                 {
-                    GintechHostInfo hostInfo = hostInfos[rd.Next(0, hostInfosSize)];
+                    ChatHostInfo hostInfo = hostInfos[rd.Next(0, hostInfosSize)];
                     int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
                     if (socketID != -1)
                     {
-
                         String key = hostInfo.ToString();
                         if (m_mainForm != null)
                         {
@@ -386,17 +405,17 @@ namespace OwLib
                             m_mainForm.BeginInvoke(new EventHandler(m_mainForm.SetTitle));
                         }
                         Console.WriteLine(hostInfo.m_ip);
-                        OwLib.GintechService clientGintechService = new OwLib.GintechService();
-                        DataCenter.ClientGintechServices[key] = clientGintechService;
-                        OwLib.BaseService.AddService(clientGintechService);
-                        clientGintechService.ToServer = true;
-                        clientGintechService.Connected = true;
+                        OwLib.ChatService clientChatService = new OwLib.ChatService();
+                        DataCenter.ClientChatServices[key] = clientChatService;
+                        OwLib.BaseService.AddService(clientChatService);
+                        clientChatService.ToServer = true;
+                        clientChatService.Connected = true;
                         if (!DataCenter.IsFull)
                         {
-                            clientGintechService.RegisterListener(DataCenter.GintechRequestID, new ListenerMessageCallBack(GintechMessageCallBack));
+                            clientChatService.RegisterListener(DataCenter.ChatRequestID, new ListenerMessageCallBack(ChatMessageCallBack));
                         }
-                        clientGintechService.SocketID = socketID;
-                        clientGintechService.Enter();
+                        clientChatService.SocketID = socketID;
+                        clientChatService.Enter();
                         return;
                     }
                 }

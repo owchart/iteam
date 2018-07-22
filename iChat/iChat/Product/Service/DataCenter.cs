@@ -31,32 +31,32 @@ namespace OwLib
     public class DataCenter
     {
         #region Lord 2016/3/10
-        private static Dictionary<String, OwLib.GintechService> m_clientGintechServices = new Dictionary<String, OwLib.GintechService>();
+        /// <summary>
+        /// 区块链通用请求ID
+        /// </summary>
+        public static int ChatRequestID
+        {
+            get { return 9999; }
+        }
+
+        private static Dictionary<String, OwLib.ChatService> m_clientChatServices = new Dictionary<String, OwLib.ChatService>();
 
         /// <summary>
         /// 获取客户端的区块链服务
         /// </summary>
-        public static Dictionary<String, OwLib.GintechService> ClientGintechServices
+        public static Dictionary<String, OwLib.ChatService> ClientChatServices
         {
-            get { return DataCenter.m_clientGintechServices; }
+            get { return DataCenter.m_clientChatServices; }
         }
 
-        private static Config m_config = new Config();
+        private static HostInfo m_hostInfo = new HostInfo();
 
         /// <summary>
         /// 获取配置信息
         /// </summary>
-        public static Config Config
+        public static HostInfo HostInfo
         {
-            get { return DataCenter.m_config; }
-        }
-
-        /// <summary>
-        /// 区块链通用请求ID
-        /// </summary>
-        public static int GintechRequestID
-        {
-            get { return 9999; }
+            get { return DataCenter.m_hostInfo; }
         }
 
         private static bool m_isFull;
@@ -80,14 +80,14 @@ namespace OwLib
             set { DataCenter.m_mainUI = value; }
         }
 
-        private static OwLibSV.GintechService m_serverGintechService = new OwLibSV.GintechService();
+        private static OwLibSV.ChatService m_serverChatService = new OwLibSV.ChatService();
 
         /// <summary>
         /// 获取服务端的区块链服务
         /// </summary>
-        public static OwLibSV.GintechService ServerGintechService
+        public static OwLibSV.ChatService ServerChatService
         {
-            get { return DataCenter.m_serverGintechService; }
+            get { return DataCenter.m_serverChatService; }
         }
 
         private static UserCookieService m_userCookieService;
@@ -101,14 +101,26 @@ namespace OwLib
         }
 
 
-        private static int m_userID = -1;
+        private static String m_userID = "";
 
         /// <summary>
-        /// 获取用户ID
+        /// 获取或设置用户ID
         /// </summary>
-        public static int UserID
+        public static String UserID
         {
             get { return m_userID; }
+            set { m_userID = value; }
+        }
+
+        private static String m_userName = "";
+
+        /// <summary>
+        /// 获取或设置用户名
+        /// </summary>
+        public static String UserName
+        {
+            get { return m_userName; }
+            set { m_userName = value; }
         }
 
         /// <summary>
@@ -137,7 +149,7 @@ namespace OwLib
         {
             //读取配置
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(DataCenter.GetAppPath() + "\\config.xml");
+            xmlDoc.Load(DataCenter.GetAppPath() + "\\hostinfo.xml");
             XmlNode root = xmlDoc.DocumentElement;
             foreach (XmlNode node in root.ChildNodes)
             {
@@ -145,45 +157,45 @@ namespace OwLib
                 String value = node.InnerText;
                 if (name == "clearcache")
                 {
-                    m_config.m_clearCache = value == "1";
+                    m_hostInfo.m_clearCache = value == "1";
                 }
                 else if (name == "defaulthost")
                 {
                     if (value.Length > 0)
                     {
                         String[] strs = value.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                        m_config.m_defaultHost = strs[0];
-                        m_config.m_defaultPort = CStr.ConvertStrToInt(strs[1]);
+                        m_hostInfo.m_defaultHost = strs[0];
+                        m_hostInfo.m_defaultPort = CStr.ConvertStrToInt(strs[1]);
                     }
                 }
                 else if (name == "isfull")
                 {
-                    m_config.m_isFull = value == "1";
+                    m_hostInfo.m_isFull = value == "1";
                 }
                 else if (name == "localhost")
                 {
                     if (value.Length > 0)
                     {
                         String[] strs = value.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                        m_config.m_localHost = strs[0];
-                        m_config.m_localPort = CStr.ConvertStrToInt(strs[1]);
+                        m_hostInfo.m_localHost = strs[0];
+                        m_hostInfo.m_localPort = CStr.ConvertStrToInt(strs[1]);
                     }
                 }
             }
-            if (m_config.m_clearCache)
+            if (m_hostInfo.m_clearCache)
             {
                 CFileA.RemoveFile(DataCenter.GetAppPath() + "\\usercookies.db");
             }
             m_userCookieService = new UserCookieService();
             Random rd = new Random();
-            m_isFull = m_config.m_isFull;
+            m_isFull = m_hostInfo.m_isFull;
             String[] servers = new String[] { };
             if (!m_isFull)
             {
-                m_serverGintechService.Port = rd.Next(10000, 20000);
+                m_serverChatService.Port = rd.Next(10000, 20000);
             }
-            OwLibSV.BaseService.AddService(m_serverGintechService);
-            OwLibSV.BaseService.StartServer(0, m_serverGintechService.Port);
+            OwLibSV.BaseService.AddService(m_serverChatService);
+            OwLibSV.BaseService.StartServer(0, m_serverChatService.Port);
         }
         #endregion
     }
@@ -191,7 +203,7 @@ namespace OwLib
     /// <summary>
     /// 服务器配置
     /// </summary>
-    public class Config
+    public class HostInfo
     {
         /// <summary>
         /// 是否清除缓存

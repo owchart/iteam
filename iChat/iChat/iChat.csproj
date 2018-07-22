@@ -63,7 +63,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Product\Client\BaseService.cs" />
-    <Compile Include="Product\Client\GintechService.cs" />
+    <Compile Include="Product\Client\ChatService.cs" />
     <Compile Include="Product\Client\HttpGetService.cs" />
     <Compile Include="Product\Client\HttpPostService.cs" />
     <Compile Include="Product\Script\CFunctionBase.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="Product\Script\CFunctionWin.cs" />
     <Compile Include="Product\Script\GaiaScript.cs" />
     <Compile Include="Product\Server\BaseService.cs" />
-    <Compile Include="Product\Server\GintechService.cs" />
+    <Compile Include="Product\Server\ChatService.cs" />
     <Compile Include="Product\Service\DataCenter.cs" />
     <Compile Include="Product\Service\UserCookieService.cs" />
     <Compile Include="Product\UI\BarrageDiv.cs" />

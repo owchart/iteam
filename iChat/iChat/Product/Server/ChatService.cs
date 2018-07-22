@@ -1,6 +1,6 @@
 /*****************************************************************************\
 *                                                                             *
-* GintechService.cs -  Gintech service functions, types, and definitions.          *
+* ChatService.cs -  Chat service functions, types, and definitions.          *
 *                                                                             *
 *               Version 1.00 ★                                               *
 *                                                                             *
@@ -21,20 +21,35 @@ namespace OwLibSV
     /// <summary>
     /// 区块链数据
     /// </summary>
-    public class GintechData
+    public class ChatData
     {
         #region 齐春友 2016/6/9
         /// <summary>
         /// 内容
         /// </summary>
-        public String m_text = "";
+        public String m_content = "";
+
+        /// <summary>
+        /// 接收用户
+        /// </summary>
+        public String m_receiver = "";
+
+        /// <summary>
+        /// 发送者
+        /// </summary>
+        public String m_sender = "";
+
+        /// <summary>
+        /// 标识
+        /// </summary>
+        public String m_tokens = "";
         #endregion
     }
 
     /// <summary>
     /// 主机信息
     /// </summary>
-    public class GintechHostInfo
+    public class ChatHostInfo
     {
         /// <summary>
         /// IP地址
@@ -52,6 +67,16 @@ namespace OwLibSV
         public int m_type;
 
         /// <summary>
+        /// 用户ID
+        /// </summary>
+        public String m_userID = "";
+
+        /// <summary>
+        /// 用户名
+        /// </summary>
+        public String m_userName = "";
+
+        /// <summary>
         /// 转换为String
         /// </summary>
         /// <returns></returns>
@@ -64,21 +89,21 @@ namespace OwLibSV
     /// <summary>
     /// 区块链服务
     /// </summary>
-    public class GintechService:BaseService
+    public class ChatService:BaseService
     {
         #region 齐春友 2016/06/03
         /// <summary>
         /// 创建区块链服务
         /// </summary>
-        public GintechService()
+        public ChatService()
         {
-            ServiceID = SERVICEID_GINTECH;
+            ServiceID = SERVICEID_CHAT;
         }
 
         /// <summary>
         /// 弹幕服务ID
         /// </summary>
-        private const int SERVICEID_GINTECH = 10000;
+        private const int SERVICEID_CHAT = 10000;
 
         /// <summary>
         /// 主机信息
@@ -88,27 +113,27 @@ namespace OwLibSV
         /// <summary>
         /// 广播区块链功能ID
         /// </summary>
-        public const int FUNCTIONID_GINTECH_SENDALL = 2;
+        public const int FUNCTIONID_SENDALL = 2;
 
         /// <summary>
         /// 发送消息
         /// </summary>
-        public const int FUNCTIONID_GINTECH_SEND = 4;
+        public const int FUNCTIONID_SEND = 4;
 
         /// <summary>
         /// 登入
         /// </summary>
-        public const int FUNCTIONID_GINTECH_ENTER = 6;
+        public const int FUNCTIONID_ENTER = 6;
 
         /// <summary>
         /// 服务端主机
         /// </summary>
-        private List<GintechHostInfo> m_serverHosts = new List<GintechHostInfo>();
+        private List<ChatHostInfo> m_serverHosts = new List<ChatHostInfo>();
 
         /// <summary>
         /// 会话列表
         /// </summary>
-        public Dictionary<int, GintechHostInfo> m_socketIDs = new Dictionary<int, GintechHostInfo>();
+        public Dictionary<int, ChatHostInfo> m_socketIDs = new Dictionary<int, ChatHostInfo>();
 
         private int m_port = 16666;
 
@@ -121,11 +146,21 @@ namespace OwLibSV
             set { m_port = value; }
         }
 
+        private String m_token = System.Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// 获取客户端唯一标识
+        /// </summary>
+        public String Token
+        {
+            get { return m_token; }
+        }
+
         /// <summary>
         /// 添加
         /// </summary>
         /// <param name="hostInfo">主机信息</param>
-        public void AddServerHosts(GintechHostInfo hostInfo)
+        public void AddServerHosts(ChatHostInfo hostInfo)
         {
             lock (m_serverHosts)
             {
@@ -133,7 +168,7 @@ namespace OwLibSV
                 bool contains = false;
                 for (int i = 0; i < serverHostsSize; i++)
                 {
-                    GintechHostInfo oldHostInfo = m_serverHosts[i];
+                    ChatHostInfo oldHostInfo = m_serverHosts[i];
                     if (oldHostInfo.m_ip == hostInfo.m_ip && oldHostInfo.m_serverPort == hostInfo.m_serverPort)
                     {
                         contains = true;
@@ -160,9 +195,11 @@ namespace OwLibSV
             String ip = "";
             int port = br.ReadInt();
             int type = br.ReadInt();
+            String userID = br.ReadString();
+            String userName = br.ReadString();
             br.Close();
             List<int> sendSocketIDs = new List<int>();
-            List<GintechHostInfo> hostInfos = new List<GintechHostInfo>();
+            List<ChatHostInfo> hostInfos = new List<ChatHostInfo>();
             lock (m_socketIDs)
             {
                 if (m_socketIDs.ContainsKey(rtnSocketID))
@@ -170,12 +207,14 @@ namespace OwLibSV
                     ip = m_socketIDs[rtnSocketID].m_ip;
                     m_socketIDs[rtnSocketID].m_serverPort = port;
                     m_socketIDs[rtnSocketID].m_type = type;
+                    m_socketIDs[rtnSocketID].m_userID = userID;
+                    m_socketIDs[rtnSocketID].m_userName = userName;
                     hostInfos.Add(m_socketIDs[message.m_socketID]);
                     foreach (int socketID in m_socketIDs.Keys)
                     {
                         if (socketID != rtnSocketID)
                         {
-                            GintechHostInfo gs = m_socketIDs[socketID];
+                            ChatHostInfo gs = m_socketIDs[socketID];
                             if (gs.m_type == 0)
                             {
                                 sendSocketIDs.Add(socketID);
@@ -196,7 +235,7 @@ namespace OwLibSV
             {
                 SendHostInfos(sendSocketIDs, 1, hostInfos);
             }
-            Dictionary<String, GintechHostInfo> allHostInfos = new Dictionary<string, GintechHostInfo>();
+            Dictionary<String, ChatHostInfo> allHostInfos = new Dictionary<string, ChatHostInfo>();
             lock(m_socketIDs)
             {
                 foreach (int sid in m_socketIDs.Keys)
@@ -208,25 +247,25 @@ namespace OwLibSV
                 }
             }
             //发送本地IP地址
-            if (DataCenter.Config.m_localHost.Length > 0)
+            if (DataCenter.HostInfo.m_localHost.Length > 0)
             {
-                GintechHostInfo localHostInfo = new GintechHostInfo();
-                localHostInfo.m_ip = DataCenter.Config.m_localHost;
-                localHostInfo.m_serverPort = DataCenter.Config.m_localPort;
+                ChatHostInfo localHostInfo = new ChatHostInfo();
+                localHostInfo.m_ip = DataCenter.HostInfo.m_localHost;
+                localHostInfo.m_serverPort = DataCenter.HostInfo.m_localPort;
                 localHostInfo.m_type = 1;
                 allHostInfos[localHostInfo.ToString()] = localHostInfo;
             }
             lock (m_serverHosts)
             {
-                foreach (GintechHostInfo serverHost in m_serverHosts)
+                foreach (ChatHostInfo serverHost in m_serverHosts)
                 {
                     allHostInfos[serverHost.ToString()] = serverHost;
                 }
             }
             List<int> rtnSocketIDs = new List<int>();
             rtnSocketIDs.Add(rtnSocketID);
-            List<GintechHostInfo> sendAllHosts = new List<GintechHostInfo>();
-            foreach (GintechHostInfo sendHost in allHostInfos.Values)
+            List<ChatHostInfo> sendAllHosts = new List<ChatHostInfo>();
+            foreach (ChatHostInfo sendHost in allHostInfos.Values)
             {
                 sendAllHosts.Add(sendHost);
             }
@@ -237,19 +276,19 @@ namespace OwLibSV
             sendSocketIDs.Clear();
             if (DataCenter.IsFull && type == 1)
             {
-                if (DataCenter.ClientGintechServices.Count == 0)
+                if (DataCenter.ClientChatServices.Count == 0)
                 {
                     int socketID = OwLib.BaseService.Connect(ip, port);
                     if (socketID != -1)
                     {
                         String key = ip + ":" + CStr.ConvertIntToStr(port);
-                        OwLib.GintechService clientGintechService = new OwLib.GintechService();
-                        DataCenter.ClientGintechServices[key] = clientGintechService;
-                        OwLib.BaseService.AddService(clientGintechService);
-                        clientGintechService.ToServer = true;
-                        clientGintechService.Connected = true;
-                        clientGintechService.SocketID = socketID;
-                        clientGintechService.Enter();
+                        OwLib.ChatService clientChatService = new OwLib.ChatService();
+                        DataCenter.ClientChatServices[key] = clientChatService;
+                        OwLib.BaseService.AddService(clientChatService);
+                        clientChatService.ToServer = true;
+                        clientChatService.Connected = true;
+                        clientChatService.SocketID = socketID;
+                        clientChatService.Enter();
                     }
                 }
             }
@@ -262,22 +301,14 @@ namespace OwLibSV
         /// <param name="loginInfos">弹幕信息</param>
         /// <param name="body">包体</param>
         /// <param name="bodyLength">包体长度</param>
-        public int GetGintechDatas(List<GintechData> datas, List<String> ips, byte[] body, int bodyLength)
+        public int GetChatData(ChatData chatData, byte[] body, int bodyLength)
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
-            int ipsSize = br.ReadInt();
-            for (int j = 0; j < ipsSize; j++)
-            {
-                ips.Add(br.ReadString());
-            }
-            int gintechSize = br.ReadInt();
-            for (int i = 0; i < gintechSize; i++)
-            {
-                GintechData data = new GintechData();
-                data.m_text = br.ReadString();
-                datas.Add(data);
-            }
+            chatData.m_tokens = br.ReadString();
+            chatData.m_sender = br.ReadString();
+            chatData.m_receiver = br.ReadString();
+            chatData.m_content = br.ReadString();
             br.Close();
             return 1;
         }
@@ -290,7 +321,7 @@ namespace OwLibSV
         public override void OnClientClose(int socketID, int localSID)
         {
             base.OnClientClose(socketID, localSID);
-            List<GintechHostInfo> removeHostInfos = new List<GintechHostInfo>();
+            List<ChatHostInfo> removeHostInfos = new List<ChatHostInfo>();
             List<int> sendSocketIDs = new List<int>();
             lock (m_socketIDs)
             {
@@ -336,7 +367,7 @@ namespace OwLibSV
             {
                 if (!m_socketIDs.ContainsKey(socketID))
                 {
-                    m_socketIDs[socketID] = new GintechHostInfo();
+                    m_socketIDs[socketID] = new ChatHostInfo();
                     String strIPPort = ip.Replace("accept:", "");
                     String[] strs = strIPPort.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
                     m_socketIDs[socketID].m_ip = strs[0];
@@ -353,13 +384,13 @@ namespace OwLibSV
             base.OnReceive(message);
             switch (message.m_functionID)
             {
-                case FUNCTIONID_GINTECH_SEND:
+                case FUNCTIONID_SEND:
                     SendMsg(message);
                     break;
-                case FUNCTIONID_GINTECH_SENDALL:
+                case FUNCTIONID_SENDALL:
                     SendAll(message);
                     break;
-                case FUNCTIONID_GINTECH_ENTER:
+                case FUNCTIONID_ENTER:
                     Enter(message);
                     break;
                 default:
@@ -373,35 +404,26 @@ namespace OwLibSV
         /// <param name="message">消息</param>
         /// <param name="loginInfos">登录信息列表</param>
         /// <returns>状态</returns>
-        public int Send(CMessage message, List<String> ips, List<GintechData> datas)
+        public int Send(CMessage message, ChatData chatData)
         {
+            String tokens = chatData.m_tokens;
             Binary bw = new Binary();
-            int gintechSize = datas.Count;
             if (DataCenter.IsFull)
             {
-                String key = DataCenter.Config.m_localHost + ":" + CStr.ConvertIntToStr(DataCenter.Config.m_localPort);
-                if (ips.Contains(key))
+                String key = Token;
+                if (tokens.IndexOf(key) != -1)
                 {
                     return 1;
                 }
                 else
                 {
-                    ips.Add(key);
+                    tokens += key;
                 }
             }
-            int ipsSize = ips.Count;
-            bw.WriteInt(ipsSize);
-            for (int j = 0; j < ipsSize; j++)
-            {
-                bw.WriteString(ips[j]);
-            }
-            bw.WriteInt(gintechSize);
-            for (int i = 0; i < gintechSize; i++)
-            {
-                GintechData data = datas[i];
-
-                bw.WriteString(data.m_text);
-            }
+            bw.WriteString(chatData.m_tokens);
+            bw.WriteString(chatData.m_sender);
+            bw.WriteString(chatData.m_receiver);
+            bw.WriteString(chatData.m_content);
             byte[] bytes = bw.GetBytes();
             message.m_body = bytes;
             message.m_bodyLength = bytes.Length;
@@ -418,23 +440,26 @@ namespace OwLibSV
         public int SendAll(CMessage message)
         {
             int rtnSocketID = message.m_socketID;
-            List<GintechData> datas = new List<GintechData>();
-            List<String> ips = new List<String>();
-            GetGintechDatas(datas, ips, message.m_body, message.m_bodyLength);
+            ChatData chatData = new ChatData();
+            GetChatData(chatData, message.m_body, message.m_bodyLength);
             lock (m_socketIDs)
             {
                 foreach (int socketID in m_socketIDs.Keys)
                 {
                     if (rtnSocketID != socketID)
                     {
-                        List<String> copyIPs = new List<String>();
-                        copyIPs.AddRange(ips.ToArray());
                         message.m_socketID = socketID;
-                        int ret = Send(message, copyIPs, datas);
+                        if (chatData.m_receiver.Length > 0)
+                        {
+                            if (chatData.m_receiver.IndexOf(m_socketIDs[socketID].m_userID) == -1)
+                            {
+                                continue;
+                            }
+                        }
+                        int ret = Send(message, chatData);
                     }
                 }
             }
-            datas.Clear();
             return 1;
         }
 
@@ -442,7 +467,7 @@ namespace OwLibSV
         /// 发送主机信息
         /// </summary>
         /// <returns></returns>
-        public int SendHostInfos(List<int> socketIDs, int type, List<GintechHostInfo> hostInfos)
+        public int SendHostInfos(List<int> socketIDs, int type, List<ChatHostInfo> hostInfos)
         {
             int hostInfosSize = hostInfos.Count;
             Binary bw = new Binary();
@@ -450,13 +475,15 @@ namespace OwLibSV
             bw.WriteInt(type);
             for (int i = 0; i < hostInfosSize; i++)
             {
-                GintechHostInfo hostInfo = hostInfos[i];
+                ChatHostInfo hostInfo = hostInfos[i];
                 bw.WriteString(hostInfo.m_ip);
                 bw.WriteInt(hostInfo.m_serverPort);
                 bw.WriteInt(hostInfo.m_type);
+                bw.WriteString(hostInfo.m_userID);
+                bw.WriteString(hostInfo.m_userName);
             }
             byte[] bytes = bw.GetBytes();
-            CMessage message = new CMessage(GroupID, ServiceID, FUNCTIONID_GETHOSTS, SessionID, DataCenter.GintechRequestID, 0, 0, CompressType, bytes.Length, bytes);
+            CMessage message = new CMessage(GroupID, ServiceID, FUNCTIONID_GETHOSTS, SessionID, DataCenter.ChatRequestID, 0, 0, CompressType, bytes.Length, bytes);
             foreach (int socketID in socketIDs)
             {
                 message.m_socketID = socketID;

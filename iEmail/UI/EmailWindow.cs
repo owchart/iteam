@@ -106,6 +106,7 @@ namespace OwLib
         /// </summary>
         public void BindGrid(String[] files, bool isNew)
         {
+            CFileA.RemoveFile("zhilian.txt");
             int filesSize = files.Length;
             m_gridEmail.BeginUpdate();
             String sendDir = DataCenter.GetAppPath() + "\\send";
@@ -382,9 +383,11 @@ namespace OwLib
                     row.AddCell("colP15", new GridStringCell("挑选"));
                     row.AddCell("colP16", new GridStringCell(file));
                     row.AddCell("colP17", new GridStringCell(content));
+                    CFileA.Append("zhilian.txt", name + " " + strPhone + " " + strEmail + "\r\n");
                     //if (sex == "女" && imageName != null && imageName.Length > 0)
                     //{
-                    //    String key = name + " " + strPhone + ".jpg";
+
+                    //    String key = name + " " + strPhone + " " + strEmail + ".jpg";
                     //    try
                     //    {
                     //        File.Copy(imageDir + "\\" + imageName, Application.StartupPath + "\\select\\" + key, true);

@@ -8,15 +8,26 @@
     <div type="splitlayout" name="divMain" layoutstyle="lefttoright" dock="fill" size="400,400" splitterposition="250,0,250,400">
       <table name="gridHosts">
         <tr>
-          <th name="colP1" text="IP" width="130" />
-          <th name="colP2" text="Port" width="60" />
-          <th name="colP3" text="Type" width="60" />
+          <th name="colP1" text="IP" width="130" visible="false"/>
+          <th name="colP2" text="Port" width="60"  visible="false"/>
+          <th name="colP3" text="UserID" width="100" />
+          <th name="colP4" text="UserName" width="100" />
+          <th name="colP5" text="Type" width="50" />
         </tr>
       </table>
       <div>
+
         <input type="text" name="txtSend" text="addbarrage('你好!');" location="15,12" size="300,164" wordwrap="True" multiline="True" showvscrollbar="True" />
-        <input type="button" name="btnSendAll" text="发送所有人" location="206,186" size="100,20" />
-        <input type="button" name="btnSend" text="点对点发送" location="104,186" size="100,20" />
+        <input type="button" name="btnSendAll" text="SendAll" location="206,186" size="100,20" />
+        <input type="button" name="btnSend" text="Send" location="104,186" size="100,20" />
+        
+       <div type="groupbox" text="UserInfo" location="20,20" size="500,110">
+       <label text="Phone:" location="20,30" />
+       <input name="txtPhone" type="text" location="110,30" width="200"/>
+       <label text="UserName:" location="20,70" />
+        <input name="txtUserName" type="text" location="110,70" width="200"/>
+        <input type="button" size="60,30" location="350,30" text="Login" name="btnLogin"/>
+       </div>
       </div>
     </div>
   </body>
