@@ -106,7 +106,7 @@ namespace OwLib
                     if (rbFile.Checked)
                     {
                         OpenFileDialog openFileDialog = new OpenFileDialog();
-                        if (openFileDialog.ShowDialog() == DialogResult.Yes)
+                        if (openFileDialog.ShowDialog() == DialogResult.OK)
                         {
                             text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
                             fileBytes = File.ReadAllBytes(openFileDialog.FileName);
@@ -172,7 +172,7 @@ namespace OwLib
                     if (rbFile.Checked)
                     {
                         OpenFileDialog openFileDialog = new OpenFileDialog();
-                        if (openFileDialog.ShowDialog() == DialogResult.Yes)
+                        if (openFileDialog.ShowDialog() == DialogResult.OK)
                         {
                             text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
                             fileBytes = File.ReadAllBytes(openFileDialog.FileName);

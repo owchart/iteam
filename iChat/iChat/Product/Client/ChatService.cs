@@ -216,8 +216,8 @@ namespace OwLib
             chatData.m_bodyLength = br.ReadInt();
             if (chatData.m_bodyLength > 0)
             {
-                byte[] bytes = new byte[chatData.m_bodyLength];
-                br.ReadBytes(bytes);
+                chatData.m_body = new byte[chatData.m_bodyLength];
+                br.ReadBytes(chatData.m_body);
             }
             br.Close();
             return 1;     

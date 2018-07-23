@@ -40,7 +40,7 @@ namespace OwLib
             // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(722, 573);
+            this.ClientSize = new System.Drawing.Size(722, 593);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

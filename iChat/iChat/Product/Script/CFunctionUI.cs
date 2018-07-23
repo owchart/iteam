@@ -433,7 +433,7 @@ namespace OwLib
             }
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.FileName = text;
-            if (saveFileDialog.ShowDialog() == DialogResult.Yes)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 File.WriteAllBytes(saveFileDialog.FileName, chatData.m_body);
             }
