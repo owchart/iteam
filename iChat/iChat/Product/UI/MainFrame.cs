@@ -19,6 +19,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Drawing;
+using System.IO;
 
 namespace OwLib
 {
@@ -38,7 +39,6 @@ namespace OwLib
         /// 主机列表
         /// </summary>
         private GridA m_gridHosts;
-
 
         private BarrageDiv m_barrageDiv;
 
@@ -98,13 +98,31 @@ namespace OwLib
                 String name = control.Name;
                 if (name == "btnSendAll")
                 {
-                    String text = GetTextBox("txtSend").Text;
-                    if (text == null || text.Trim().Length == 0)
-                    {
-                        MessageBox.Show("Please input the content you want send!", "Attention");
-                    }
+                    byte[] fileBytes = null;
                     RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
                     RadioButtonA rbText = GetRadioButton("rbText");
+                    RadioButtonA rbFile = GetRadioButton("rbFile");
+                    String text = GetTextBox("txtSend").Text;
+                    if (rbFile.Checked)
+                    {
+                        OpenFileDialog openFileDialog = new OpenFileDialog();
+                        if (openFileDialog.ShowDialog() == DialogResult.Yes)
+                        {
+                            text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
+                            fileBytes = File.ReadAllBytes(openFileDialog.FileName);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (text == null || text.Trim().Length == 0)
+                        {
+                            MessageBox.Show("Please input the content you want send!", "Attention");
+                        }
+                    }
                     if (rbBarrage.Checked)
                     {
                         text = "addbarrage('" + text + "');";
@@ -115,7 +133,12 @@ namespace OwLib
                     }
                     ChatData chatData = new ChatData();
                     chatData.m_content = text;
-                    chatData.m_sender = DataCenter.UserName;
+                    if (fileBytes != null)
+                    {
+                        chatData.m_body = fileBytes;
+                        chatData.m_bodyLength = fileBytes.Length;
+                    }
+                    chatData.m_from = DataCenter.UserName;
                     foreach (ChatService gs in DataCenter.ClientChatServices.Values)
                     {
                         if (gs.ToServer && gs.Connected)
@@ -129,28 +152,43 @@ namespace OwLib
                         indicator.Clear();
                         indicator.Dispose();
                     }
-                    else if (rbText.Checked)
+                    TextBoxA txtReceive = GetTextBox("txtReceive");
+                    txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
+                    txtReceive.Invalidate();
+                    if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
                     {
-                        TextBoxA txtReceive = GetTextBox("txtReceive");
-                        txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
+                        txtReceive.VScrollBar.ScrollToEnd();
+                        txtReceive.Update();
                         txtReceive.Invalidate();
-                        if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
-                        {
-                            txtReceive.VScrollBar.ScrollToEnd();
-                            txtReceive.Update();
-                            txtReceive.Invalidate();
-                        }
                     }
                 }
                 else if (name == "btnSend")
                 {
+                    byte[] fileBytes = null;
                     String text = GetTextBox("txtSend").Text;
-                    if (text == null || text.Trim().Length == 0)
-                    {
-                        MessageBox.Show("Please input the content you want send!", "Attention");
-                    }
                     RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
                     RadioButtonA rbText = GetRadioButton("rbText");
+                    RadioButtonA rbFile = GetRadioButton("rbFile");
+                    if (rbFile.Checked)
+                    {
+                        OpenFileDialog openFileDialog = new OpenFileDialog();
+                        if (openFileDialog.ShowDialog() == DialogResult.Yes)
+                        {
+                            text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
+                            fileBytes = File.ReadAllBytes(openFileDialog.FileName);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (text == null || text.Trim().Length == 0)
+                        {
+                            MessageBox.Show("Please input the content you want send!", "Attention");
+                        }
+                    }
                     if (rbBarrage.Checked)
                     {
                         text = "addbarrage('" + text + "');";
@@ -212,10 +250,15 @@ namespace OwLib
                         }
                         ChatData chatData = new ChatData();
                         chatData.m_content = text;
-                        chatData.m_sender = DataCenter.UserName;
+                        if (fileBytes != null)
+                        {
+                            chatData.m_body = fileBytes;
+                            chatData.m_bodyLength = fileBytes.Length;
+                        }
+                        chatData.m_from = DataCenter.UserName;
                         if (sendAll)
                         {
-                            chatData.m_receiver = userID;
+                            chatData.m_to = userID;
                             foreach (ChatService gs in DataCenter.ClientChatServices.Values)
                             {
                                 if (gs.ToServer && gs.Connected)
@@ -234,17 +277,14 @@ namespace OwLib
                             indicator.Clear();
                             indicator.Dispose();
                         }
-                        else if (rbText.Checked)
+                        TextBoxA txtReceive = GetTextBox("txtReceive");
+                        txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
+                        txtReceive.Invalidate();
+                        if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
                         {
-                            TextBoxA txtReceive = GetTextBox("txtReceive");
-                            txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
+                            txtReceive.VScrollBar.ScrollToEnd();
+                            txtReceive.Update();
                             txtReceive.Invalidate();
-                            if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
-                            {
-                                txtReceive.VScrollBar.ScrollToEnd();
-                                txtReceive.Update();
-                                txtReceive.Invalidate();
-                            }
                         }
                     }
                 }
@@ -345,9 +385,8 @@ namespace OwLib
                                     row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
                                     if (hostInfo.m_type == 1)
                                     {
-                                        String userID = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
-                                        row.AddCell("colP3", new GridStringCell(userID));
-                                        row.AddCell("colP4", new GridStringCell(userID));
+                                        row.AddCell("colP3", new GridStringCell("--"));
+                                        row.AddCell("colP4", new GridStringCell("--"));
                                     }
                                     else
                                     {

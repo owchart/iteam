@@ -23,7 +23,17 @@ namespace OwLib
     public class ChatData
     {
         #region 齐春友 2016/6/9
-        public String m_aesKey = "";
+        public String m_aes = "";
+
+        /// <summary>
+        /// 包体长度
+        /// </summary>
+        public int m_bodyLength;
+
+        /// <summary>
+        /// 包体
+        /// </summary>
+        public byte[] m_body;
 
         /// <summary>
         /// 内容
@@ -31,14 +41,14 @@ namespace OwLib
         public String m_content = "";
 
         /// <summary>
-        /// 接收用户
-        /// </summary>
-        public String m_receiver = "";
-
-        /// <summary>
         /// 发送者
         /// </summary>
-        public String m_sender = "";
+        public String m_from = "";
+
+        /// <summary>
+        /// 接收用户
+        /// </summary>
+        public String m_to = "";
 
         /// <summary>
         /// 标识
@@ -198,11 +208,17 @@ namespace OwLib
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
-            chatData.m_aesKey = br.ReadString();
+            chatData.m_aes = br.ReadString();
             chatData.m_tokens = br.ReadString();
-            chatData.m_sender = br.ReadString();
-            chatData.m_receiver = br.ReadString();
+            chatData.m_from = br.ReadString();
+            chatData.m_to = br.ReadString();
             chatData.m_content = br.ReadString();
+            chatData.m_bodyLength = br.ReadInt();
+            if (chatData.m_bodyLength > 0)
+            {
+                byte[] bytes = new byte[chatData.m_bodyLength];
+                br.ReadBytes(bytes);
+            }
             br.Close();
             return 1;     
         }
@@ -373,11 +389,16 @@ namespace OwLib
         public int Send(int functionID, int requestID, ChatData chatData)
         {
             Binary bw = new Binary();
-            bw.WriteString(chatData.m_aesKey);
+            bw.WriteString(chatData.m_aes);
             bw.WriteString(chatData.m_tokens);
-            bw.WriteString(chatData.m_sender);
-            bw.WriteString(chatData.m_receiver);
+            bw.WriteString(chatData.m_from);
+            bw.WriteString(chatData.m_to);
             bw.WriteString(chatData.m_content);
+            bw.WriteInt(chatData.m_bodyLength);
+            if (chatData.m_bodyLength > 0)
+            {
+                bw.WriteBytes(chatData.m_body);
+            }
             byte[] bytes = bw.GetBytes();
             int ret = Send(new CMessage(GroupID, ServiceID, functionID, SessionID, requestID, SocketID, 0, CompressType, bytes.Length, bytes));
             bw.Close();

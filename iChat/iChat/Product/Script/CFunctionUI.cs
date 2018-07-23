@@ -16,6 +16,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.IO;
 
 namespace OwLib
 {
@@ -52,7 +53,7 @@ namespace OwLib
         /// <summary>
         /// 方法
         /// </summary>
-        private static String FUNCTIONS = "GETPROPERTY,SETPROPERTY,GETSENDER,ALERT,INVALIDATE,SHOWWINDOW,CLOSEWINDOW,STARTTIMER,STOPTIMER,GETMOUSEBUTTON,GETMOUSEPOINT,GETCLICKS,GETKEY,GETCOOKIE,SETCOOKIE,SHOWRIGHTMENU,ADDBARRAGE,UPDATE,ADDTEXT,SHOWCHAT,SHAKE,SHUTDOWN,HOW";
+        private static String FUNCTIONS = "GETPROPERTY,SETPROPERTY,GETSENDER,ALERT,INVALIDATE,SHOWWINDOW,CLOSEWINDOW,STARTTIMER,STOPTIMER,GETMOUSEBUTTON,GETMOUSEPOINT,GETCLICKS,GETKEY,GETCOOKIE,SETCOOKIE,SHOWRIGHTMENU,ADDBARRAGE,UPDATE,ADDTEXT,SHOWCHAT,SHAKE,HOW,SENDFILE";
 
         /// <summary>
         /// 前缀
@@ -116,9 +117,9 @@ namespace OwLib
                 case STARTINDEX + 20:
                     return SHAKE(var);
                 case STARTINDEX + 21:
-                    return SHUTDOWN(var);
-                case STARTINDEX + 22:
                     return HOW(var);
+                case STARTINDEX + 22:
+                    return SENDFILE(var);
                 default:
                     return 0;
             }
@@ -180,7 +181,7 @@ namespace OwLib
             {
                 chatData = m_indicator.Tag as ChatData;
             }
-            String newText = chatData.m_sender + " say:\r\n" + text + "\r\n";
+            String newText = chatData.m_from + " say:\r\n" + text + "\r\n";
             (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke(newText);
             return 0;
         }
@@ -413,6 +414,33 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 发送文件
+        /// </summary>
+        /// <param name="var">变量</param>
+        /// <returns>状态</returns>
+        private double SENDFILE(CVariable var)
+        {
+            String text = "";
+            int len = var.m_parameters.Length;
+            for (int i = 0; i < len; i++)
+            {
+                text += m_indicator.GetText(var.m_parameters[i]);
+            }
+            ChatData chatData = null;
+            if (m_indicator.Tag != null)
+            {
+                chatData = m_indicator.Tag as ChatData;
+            }
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = text;
+            if (saveFileDialog.ShowDialog() == DialogResult.Yes)
+            {
+                File.WriteAllBytes(saveFileDialog.FileName, chatData.m_body);
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// 显示聊天
         /// </summary>
         /// <param name="var">变量</param>
@@ -431,17 +459,6 @@ namespace OwLib
         private double SHAKE(CVariable var)
         {
             (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke("shake");
-            return 0;
-        }
-
-        /// <summary>
-        /// 关闭电脑
-        /// </summary>
-        /// <param name="var">变量</param>
-        /// <returns>状态</returns>
-        private double SHUTDOWN(CVariable var)
-        {
-            Process.Start("shutdown.exe", "-s");
             return 0;
         }
 

@@ -24,7 +24,17 @@ namespace OwLibSV
     public class ChatData
     {
         #region 齐春友 2016/6/9
-        public String m_aesKey = "";
+        public String m_aes = "";
+
+        /// <summary>
+        /// 包体长度
+        /// </summary>
+        public int m_bodyLength;
+
+        /// <summary>
+        /// 包体
+        /// </summary>
+        public byte[] m_body;
 
         /// <summary>
         /// 内容
@@ -32,14 +42,14 @@ namespace OwLibSV
         public String m_content = "";
 
         /// <summary>
-        /// 接收用户
-        /// </summary>
-        public String m_receiver = "";
-
-        /// <summary>
         /// 发送者
         /// </summary>
-        public String m_sender = "";
+        public String m_from = "";
+
+        /// <summary>
+        /// 接收用户
+        /// </summary>
+        public String m_to = "";
 
         /// <summary>
         /// 标识
@@ -307,11 +317,17 @@ namespace OwLibSV
         {
             Binary br = new Binary();
             br.Write(body, bodyLength);
-            chatData.m_aesKey = br.ReadString();
+            chatData.m_aes = br.ReadString();
             chatData.m_tokens = br.ReadString();
-            chatData.m_sender = br.ReadString();
-            chatData.m_receiver = br.ReadString();
+            chatData.m_from = br.ReadString();
+            chatData.m_to = br.ReadString();
             chatData.m_content = br.ReadString();
+            chatData.m_bodyLength = br.ReadInt();
+            if (chatData.m_bodyLength > 0)
+            {
+                byte[] bytes = new byte[chatData.m_bodyLength];
+                br.ReadBytes(bytes);
+            }
             br.Close();
             return 1;
         }
@@ -423,11 +439,16 @@ namespace OwLibSV
                     tokens += key;
                 }
             }
-            bw.WriteString(chatData.m_aesKey);
+            bw.WriteString(chatData.m_aes);
             bw.WriteString(tokens);
-            bw.WriteString(chatData.m_sender);
-            bw.WriteString(chatData.m_receiver);
+            bw.WriteString(chatData.m_from);
+            bw.WriteString(chatData.m_to);
             bw.WriteString(chatData.m_content);
+            bw.WriteInt(chatData.m_bodyLength);
+            if (chatData.m_bodyLength > 0)
+            {
+                bw.WriteBytes(chatData.m_body);
+            }
             byte[] bytes = bw.GetBytes();
             message.m_body = bytes;
             message.m_bodyLength = bytes.Length;
@@ -453,9 +474,9 @@ namespace OwLibSV
                     if (rtnSocketID != socketID)
                     {
                         message.m_socketID = socketID;
-                        if (m_socketIDs[socketID].m_type == 0 && chatData.m_receiver.Length > 0)
+                        if (m_socketIDs[socketID].m_type == 0 && chatData.m_to.Length > 0)
                         {
-                            if (chatData.m_receiver.IndexOf(m_socketIDs[socketID].m_userID) == -1)
+                            if (chatData.m_to.IndexOf(m_socketIDs[socketID].m_userID) == -1)
                             {
                                 continue;
                             }
