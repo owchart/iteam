@@ -103,6 +103,7 @@ namespace OwLib
                     RadioButtonA rbText = GetRadioButton("rbText");
                     RadioButtonA rbFile = GetRadioButton("rbFile");
                     String text = GetTextBox("txtSend").Text;
+                    String sayText = text;
                     if (rbFile.Checked)
                     {
                         OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -110,6 +111,7 @@ namespace OwLib
                         {
                             text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
                             fileBytes = File.ReadAllBytes(openFileDialog.FileName);
+                            sayText = text;
                         }
                         else
                         {
@@ -153,7 +155,7 @@ namespace OwLib
                         indicator.Dispose();
                     }
                     TextBoxA txtReceive = GetTextBox("txtReceive");
-                    txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
+                    txtReceive.Text += "i say:\r\n" + sayText + "\r\n";
                     txtReceive.Invalidate();
                     if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
                     {
@@ -169,6 +171,7 @@ namespace OwLib
                     RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
                     RadioButtonA rbText = GetRadioButton("rbText");
                     RadioButtonA rbFile = GetRadioButton("rbFile");
+                    String sayText = text;
                     if (rbFile.Checked)
                     {
                         OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -176,6 +179,7 @@ namespace OwLib
                         {
                             text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
                             fileBytes = File.ReadAllBytes(openFileDialog.FileName);
+                            sayText = text;
                         }
                         else
                         {
@@ -278,7 +282,7 @@ namespace OwLib
                             indicator.Dispose();
                         }
                         TextBoxA txtReceive = GetTextBox("txtReceive");
-                        txtReceive.Text += "i say:\r\n" + GetTextBox("txtSend").Text + "\r\n";
+                        txtReceive.Text += "i say:\r\n" + sayText + "\r\n";
                         txtReceive.Invalidate();
                         if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
                         {
