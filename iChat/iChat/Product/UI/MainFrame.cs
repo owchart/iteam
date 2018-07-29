@@ -40,15 +40,15 @@ namespace OwLib
         /// </summary>
         private GridA m_gridHosts;
 
-        private BarrageDiv m_barrageDiv;
+        private BarrageForm m_barrageForm;
 
         /// <summary>
-        /// 获取或设置弹幕控件
+        /// 获取或设置弹幕窗体
         /// </summary>
-        public BarrageDiv BarrageDiv
+        public BarrageForm BarrageForm
         {
-            get { return m_barrageDiv; }
-            set { m_barrageDiv = value; }
+            get { return m_barrageForm; }
+            set { m_barrageForm = value; }
         }
 
         private DivA m_mainDiv;
@@ -206,89 +206,92 @@ namespace OwLib
                     bool sendAll = false;
                     if (selectedRowsSize > 0)
                     {
-                        GridRow firstSelectedRow = selectedRows[0];
-                        String ip = selectedRows[0].GetCell("colP1").GetString();
-                        int port = selectedRows[0].GetCell("colP2").GetInt();
-                        String userID = selectedRows[0].GetCell("colP3").GetString();
-                        ChatService chatService = null;
-                        String key = ip + ":" + CStr.ConvertIntToStr(port);
-                        if (DataCenter.ClientChatServices.ContainsKey(key))
+                        for (int i = 0; i < selectedRowsSize; i++)
                         {
-                            chatService = DataCenter.ClientChatServices[key];
-                            if (!chatService.Connected)
+                            GridRow firstSelectedRow = selectedRows[i];
+                            String ip = selectedRows[0].GetCell("colP1").GetString();
+                            int port = selectedRows[0].GetCell("colP2").GetInt();
+                            String userID = selectedRows[0].GetCell("colP3").GetString();
+                            ChatService chatService = null;
+                            String key = ip + ":" + CStr.ConvertIntToStr(port);
+                            if (DataCenter.ClientChatServices.ContainsKey(key))
                             {
-                                int socketID = OwLib.BaseService.Connect(ip, port);
+                                chatService = DataCenter.ClientChatServices[key];
+                                if (!chatService.Connected)
+                                {
+                                    int socketID = OwLib.BaseService.Connect(ip, port);
+                                    if (socketID != -1)
+                                    {
+                                        chatService.Connected = true;
+                                        chatService.SocketID = socketID;
+                                        chatService.Enter();
+                                    }
+                                    else
+                                    {
+                                        sendAll = true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                int socketID = BaseService.Connect(ip, port);
                                 if (socketID != -1)
                                 {
-                                    chatService.Connected = true;
+                                    chatService = new ChatService();
                                     chatService.SocketID = socketID;
-                                    chatService.Enter();
+                                    int type = selectedRows[0].GetCell("colP5").GetInt();
+                                    if (type == 1)
+                                    {
+                                        chatService.ServerIP = ip;
+                                        chatService.ServerPort = port;
+                                        chatService.ToServer = type == 1;
+                                    }
+                                    DataCenter.ClientChatServices[key] = chatService;
+                                    BaseService.AddService(chatService);
                                 }
                                 else
                                 {
                                     sendAll = true;
                                 }
                             }
-                        }
-                        else
-                        {
-                            int socketID = BaseService.Connect(ip, port);
-                            if (socketID != -1)
+                            ChatData chatData = new ChatData();
+                            chatData.m_content = text;
+                            if (fileBytes != null)
                             {
-                                chatService = new ChatService();
-                                chatService.SocketID = socketID;
-                                int type = selectedRows[0].GetCell("colP5").GetInt();
-                                if (type == 1)
+                                chatData.m_body = fileBytes;
+                                chatData.m_bodyLength = fileBytes.Length;
+                            }
+                            chatData.m_from = DataCenter.UserName;
+                            if (sendAll)
+                            {
+                                chatData.m_to = userID;
+                                foreach (ChatService gs in DataCenter.ClientChatServices.Values)
                                 {
-                                    chatService.ServerIP = ip;
-                                    chatService.ServerPort = port;
-                                    chatService.ToServer = type == 1;
+                                    if (gs.ToServer && gs.Connected)
+                                    {
+                                        gs.SendAll(chatData);
+                                    }
                                 }
-                                DataCenter.ClientChatServices[key] = chatService;
-                                BaseService.AddService(chatService);
                             }
                             else
                             {
-                                sendAll = true;
+                                chatService.Send(chatData);
                             }
-                        }
-                        ChatData chatData = new ChatData();
-                        chatData.m_content = text;
-                        if (fileBytes != null)
-                        {
-                            chatData.m_body = fileBytes;
-                            chatData.m_bodyLength = fileBytes.Length;
-                        }
-                        chatData.m_from = DataCenter.UserName;
-                        if (sendAll)
-                        {
-                            chatData.m_to = userID;
-                            foreach (ChatService gs in DataCenter.ClientChatServices.Values)
+                            if (rbBarrage.Checked)
                             {
-                                if (gs.ToServer && gs.Connected)
-                                {
-                                    gs.SendAll(chatData);
-                                }
+                                CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                                indicator.Clear();
+                                indicator.Dispose();
                             }
-                        }
-                        else
-                        {
-                            chatService.Send(chatData);
-                        }
-                        if (rbBarrage.Checked)
-                        {
-                            CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
-                            indicator.Clear();
-                            indicator.Dispose();
-                        }
-                        TextBoxA txtReceive = GetTextBox("txtReceive");
-                        txtReceive.Text += "i say:\r\n" + sayText + "\r\n";
-                        txtReceive.Invalidate();
-                        if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
-                        {
-                            txtReceive.VScrollBar.ScrollToEnd();
-                            txtReceive.Update();
+                            TextBoxA txtReceive = GetTextBox("txtReceive");
+                            txtReceive.Text += "i say:\r\n" + sayText + "\r\n";
                             txtReceive.Invalidate();
+                            if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
+                            {
+                                txtReceive.VScrollBar.ScrollToEnd();
+                                txtReceive.Update();
+                                txtReceive.Invalidate();
+                            }
                         }
                     }
                 }
@@ -453,24 +456,11 @@ namespace OwLib
                 else if (newStr.StartsWith("how:"))
                 {
                     String text = newStr.Substring(4);
-                    Form form = new Form();
-                    form.Text = "HOW";
-                    form.MaximizeBox = false;
-                    form.MinimizeBox = false;
-                    form.FormBorderStyle = FormBorderStyle.None;
-                    form.BackColor = Color.Black;
-                    form.WindowState = FormWindowState.Maximized;
-                    form.TransparencyKey = Color.Black;
-                    form.TopMost = true;
-                    Label label = new Label();
-                    label.ForeColor = Color.Red;
-                    label.Text = text;
-                    label.Font = new Font("宋体", 100, FontStyle.Bold);
-                    label.Dock = DockStyle.Fill;
-                    label.TextAlign = ContentAlignment.MiddleCenter;
-                    label.MouseDown += new MouseEventHandler(form_MouseDown);
-                    form.Controls.Add(label);
-                    form.Show();
+                    Barrage barrage = new Barrage();
+                    barrage.Font = new FONT("宋体", 100, true, false, false);
+                    barrage.Text = text;
+                    barrage.Mode = 1;
+                    m_barrageForm.BarrageDiv.AddBarrage(barrage);
                 }
                 else
                 {
@@ -520,10 +510,6 @@ namespace OwLib
             m_mainDiv.RegisterEvent(paintLayoutEvent, EVENTID.PAINT);
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
             DataCenter.ServerChatService.RegisterListener(DataCenter.ChatRequestID, new ListenerMessageCallBack(ChatMessageCallBack));
-            m_barrageDiv = new BarrageDiv();
-            m_barrageDiv.Dock = DockStyleA.Fill;
-            m_barrageDiv.TopMost = true;
-            Native.AddControl(m_barrageDiv);
             m_gridHosts = GetGrid("gridHosts");
             RegisterEvents(m_mainDiv);
             //全节点服务器

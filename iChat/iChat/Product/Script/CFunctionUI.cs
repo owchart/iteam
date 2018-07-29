@@ -155,7 +155,7 @@ namespace OwLib
             {
                 text += m_indicator.GetText(var.m_parameters[i]);
             }
-            BarrageDiv barrageDiv = (m_xml as MainFrame).BarrageDiv;
+            BarrageDiv barrageDiv = (m_xml as MainFrame).BarrageForm.BarrageDiv;
             Barrage barrage = new Barrage();
             barrage.Text = text;
             barrage.Mode = 0;

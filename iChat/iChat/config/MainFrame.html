@@ -6,7 +6,7 @@
   </head>
   <body>
     <div type="splitlayout" name="divMain" layoutstyle="lefttoright" dock="fill" size="400,400" splitterposition="250,0,250,400">
-      <table name="gridHosts">
+      <table name="gridHosts" multiselect="true">
         <tr>
           <th name="colP3" text="UserID" width="100" />
           <th name="colP4" text="UserName" width="100" />
@@ -26,7 +26,7 @@
         <div type="groupbox" name="GroupBox" text="Chat" location="21,129" size="435,456" tabstop="False">
           <input type="text" name="txtSend" text="" location="24,279" size="397,91" wordwrap="True" multiline="True" showvscrollbar="True" temptext="Input your words here!" temptextforecolor="128,128,128" />
           <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" temptext="No messages!" temptextforecolor="128,128,128" />
-          <input type="button" name="btnSend" text="SendOne" location="347,422" size="74,20" />
+          <input type="button" name="btnSend" text="SendSome" location="347,422" size="74,20" />
           <input type="button" name="btnSendAll" text="SendAll" location="264,422" size="77,20" />
           <input type="radio" name="rbText" text="Text" location="25,386" size="53,20" checked="True" />
           <input type="radio" name="rbBarrage" text="Barrage" location="83,386" size="78,20" />

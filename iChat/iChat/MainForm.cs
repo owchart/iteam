@@ -45,6 +45,7 @@ namespace OwLib
         /// </summary>
         private UIXmlEx m_xml;
 
+
         /// <summary>
         /// 获取客户端尺寸
         /// </summary>
@@ -94,6 +95,22 @@ namespace OwLib
             m_xml.Exit();
             Environment.Exit(0);
             base.OnFormClosing(e);
+        }
+
+        /// <summary>
+        /// 显示窗体方法
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if ((m_xml as MainFrame).BarrageForm == null)
+            {
+                BarrageForm barrageForm = new BarrageForm();
+                barrageForm.LoadXml();
+                barrageForm.Show();
+                (m_xml as MainFrame).BarrageForm = barrageForm;
+            }
         }
 
         /// <summary>

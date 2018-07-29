@@ -86,17 +86,6 @@ namespace OwLib
             set { m_speed = value; }
         }
 
-        private int m_tick = 200;
-
-        /// <summary>
-        /// 获取或设置倒计时读数
-        /// </summary>
-        public int Tick
-        {
-            get { return m_tick; }
-            set { m_tick = value; }
-        }
-
         private String m_text;
 
         /// <summary>
@@ -130,7 +119,7 @@ namespace OwLib
         /// </summary>
         public BarrageDiv()
         {
-            BackColor = COLOR.EMPTY;
+            BackColor = COLOR.ARGB(255, 255, 255);
         }
 
         /// <summary>
@@ -180,24 +169,12 @@ namespace OwLib
             {
                 barrage.Rect = new RECT(width, m_rd.Next(0, height), width, 0);
             }
-            else
-            {
-                int left = 0, top = 0;
-                if (width > 200)
-                {
-                    left = m_rd.Next(0, width - 200);
-                }
-                if (height > 200)
-                {
-                    top = m_rd.Next(0, height - 200);
-                }
-                barrage.Rect = new RECT(left, top, left, 0);
-            }
             lock (m_barrages)
             {
                 m_barrages.Add(barrage);
             }
             m_tick++;
+            Invalidate();
         }
 
         /// <summary>
@@ -236,12 +213,40 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 鼠标按下返回发
+        /// </summary>
+        /// <param name="mp">坐标</param>
+        /// <param name="button">按钮</param>
+        /// <param name="clicks">点击次数</param>
+        /// <param name="delta">滚轮值</param>
+        public override void OnMouseDown(POINT mp, MouseButtonsA button, int clicks, int delta)
+        {
+            base.OnMouseDown(mp, button, clicks, delta);
+            lock (m_barrages)
+            {
+                int barragesSize = m_barrages.Count;
+                for (int i = 0; i < barragesSize; i++)
+                {
+                    Barrage brg = m_barrages[i];
+                    if (brg.Mode == 1)
+                    {
+                        m_barrages.Remove(brg);
+                        barragesSize--;
+                        i--;
+                    }
+                }
+                Invalidate();
+            }
+        }
+
+        /// <summary>
         /// 重绘前景方法
         /// </summary>
         /// <param name="paint">绘图对象</param>
         /// <param name="clipRect">裁剪区域</param>
         public override void OnPaintBackground(CPaint paint, RECT clipRect)
         {
+            int width = Width, height = Height;
             base.OnPaintBackground(paint, clipRect);
             lock (m_barrages)
             {
@@ -253,18 +258,17 @@ namespace OwLib
                     RECT rect = brg.Rect;
                     String str = brg.Text;
                     SIZE size = paint.TextSize(str, font);
+                    int mode = brg.Mode;
+                    if (mode == 1)
+                    {
+                        rect.left = (width - size.cx) / 2;
+                        rect.top = (height - size.cy) / 2;
+
+                    }
                     rect.right = rect.left + size.cx;
                     rect.bottom = rect.top + size.cy;
                     brg.Rect = rect;
                     long color = brg.Color;
-                    int mode = brg.Mode;
-                    if (mode == 1)
-                    {
-                        int a = 0, r = 0, g = 0, b = 0;
-                        COLOR.ToARGB(null, color, ref a, ref r, ref g, ref b);
-                        a = a * brg.Tick / 400;
-                        color = COLOR.ARGB(a, r, g, b);
-                    }
                     paint.DrawText(str, color, font, rect);
                 }
             }
@@ -303,25 +307,6 @@ namespace OwLib
                                     brg.Calculate();
                                 }
                                 paint = true;
-                            }
-                            else if (mode == 1)
-                            {
-                                int tick = brg.Tick;
-                                tick--;
-                                if (tick <= 0)
-                                {
-                                    m_barrages.Remove(brg);
-                                    i--;
-                                    barragesSize--;
-                                }
-                                else
-                                {
-                                    brg.Tick = tick;
-                                }
-                                if (tick % 20 == 0)
-                                {
-                                    paint = true;
-                                }
                             }
                         }
                     }

@@ -98,6 +98,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="BarrageForm.resx">
+      <DependentUpon>BarrageForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
@@ -111,6 +115,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="BarrageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BarrageForm.designer.cs">
+      <DependentUpon>BarrageForm.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
