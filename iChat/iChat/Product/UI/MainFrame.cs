@@ -36,6 +36,11 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 聊天组
+        /// </summary>
+        private List<ChatGroup> m_chatGroups = new List<ChatGroup>();
+
+        /// <summary>
         /// 主机列表
         /// </summary>
         private GridA m_gridHosts;
@@ -338,7 +343,7 @@ namespace OwLib
         /// </summary>
         public override void Exit()
         {
-           
+
         }
 
         /// <summary>
@@ -530,6 +535,7 @@ namespace OwLib
                     GetTextBox("txtUserName").Text = strs[1];
                 }
             }
+            m_chatGroups = ChatGroup.ReadGroups();
         }
 
         /// <summary>
@@ -626,6 +632,75 @@ namespace OwLib
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// 聊天群组
+    /// </summary>
+    public class ChatGroup
+    {
+        private String m_displayName = "";
+
+        /// <summary>
+        /// 获取或设置显示名称
+        /// </summary>
+        public String DisplayName
+        {
+            get { return m_displayName; }
+            set { m_displayName = value; }
+        }
+
+        private String m_name = "";
+
+        /// <summary>
+        /// 获取或设置唯一名称
+        /// </summary>
+        public String Name
+        {
+            get { return m_name; }
+            set { m_name = value; }
+        }
+
+        private List<String> m_userIDs = new List<String>();
+
+        /// <summary>
+        /// 获取或设置用户ID
+        /// </summary>
+        public List<String> UserIDs
+        {
+            get { return m_userIDs; }
+            set { m_userIDs = value; }
+        }
+
+        /// <summary>
+        /// Json到组列表对象
+        /// </summary>
+        /// <param name="json">Json字符串</param>
+        /// <returns>组列表</returns>
+        public static List<ChatGroup> ReadGroups()
+        {
+            String file = DataCenter.GetAppPath() + "\\groups.txt";
+            String content = "";
+            if (CFileA.IsFileExist(file))
+            {
+                CFileA.Read(file, ref content);
+                return JsonConvert.DeserializeObject<List<ChatGroup>>(content);
+            }
+            else
+            {
+                return new List<ChatGroup>();
+            }   
+        }
+
+        /// <summary>
+        /// 保存组信息
+        /// </summary>
+        /// <param name="groups">组列表</param>
+        public static void SaveGroups(List<ChatGroup> groups)
+        {
+            String file = DataCenter.GetAppPath() + "\\groups.txt";
+            CFileA.Write(file, JsonConvert.SerializeObject(groups));
         }
     }
 }
