@@ -161,6 +161,20 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 鼠标按下事件
+        /// </summary>
+        /// <param name="e">参数</param>
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            MainFrame mainFrame = m_xml as MainFrame;
+            if (mainFrame.BarrageForm.BarrageDiv != null)
+            {
+                mainFrame.BarrageForm.BarrageDiv.ClearBarrages();
+            }
+        }
+
+        /// <summary>
         /// 窗体震动
         /// </summary>
         public void Play()
