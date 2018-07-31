@@ -213,15 +213,22 @@ namespace OwLib
         /// </summary>
         /// <param name="m"></param>
         protected override void WndProc(ref Message m)
-        {            
-            if (m_host != null)
+        {
+            try
             {
-                if (m_host.OnMessage(ref m) > 0)
+                if (m_host != null)
                 {
-                    return;
+                    if (m_host.OnMessage(ref m) > 0)
+                    {
+                        return;
+                    }
                 }
             }
-             base.WndProc(ref m);
+            catch (Exception ex)
+            {
+                Console.WriteLine("1");
+            }
+            base.WndProc(ref m);
         }
         #endregion
     }

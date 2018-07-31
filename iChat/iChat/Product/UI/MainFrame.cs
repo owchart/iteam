@@ -94,7 +94,20 @@ namespace OwLib
         private void BindGroups()
         {
             m_gridGroups.UseAnimation = true;
-            m_gridGroups.ClearRows();
+            List<GridRow> rows = m_gridGroups.m_rows;
+            int rowsSize = rows.Count;
+            for (int i = 0; i < rowsSize; i++)
+            {
+                GridRow row = rows[i];
+                if (row.EditButton != null)
+                {
+                    m_gridGroups.RemoveControl(row.EditButton);
+                    row.EditButton = null;
+                }
+                m_gridGroups.RemoveRow(row);
+                i--;
+                rowsSize--;
+            }
             m_gridGroups.Update();
             GridRow firstRow = new GridRow();
             m_gridGroups.AddRow(firstRow);
@@ -110,6 +123,14 @@ namespace OwLib
                 ChatGroup chatGroup = m_chatGroups[i];
                 GridRow cRow = new GridRow();
                 m_gridGroups.AddRow(cRow);
+                ButtonA deleteButton = new ButtonA();
+                deleteButton.Height = cRow.Height;
+                deleteButton.Name = "btnDelete";
+                deleteButton.Tag = chatGroup.Name;
+                deleteButton.BackColor = COLOR.ARGB(255, 0, 0);
+                deleteButton.Native = m_gridHosts.Native;
+                deleteButton.Text = "É¾³ý";
+                cRow.EditButton = deleteButton;
                 cRow.AllowEdit = true;
                 GridStringCell cCell1 = new GridStringCell(chatGroup.Name);
                 cRow.AddCell("colG1", cCell1);
@@ -127,14 +148,7 @@ namespace OwLib
                 }
                 GridStringCell cCell3 = new GridStringCell(strIDs);
                 cRow.AddCell("colG3", cCell3);
-                ButtonA deleteButton = new ButtonA();
-                deleteButton.Height = cRow.Height;
-                deleteButton.Name = "btnDelete";
-                deleteButton.Tag = chatGroup.Name;
-                deleteButton.BackColor = COLOR.ARGB(255, 0, 0);
-                deleteButton.Native = m_gridHosts.Native;
-                deleteButton.Text = "É¾³ý";
-                cRow.EditButton = deleteButton;
+   
                 ControlMouseEvent clickButtonEvent = new ControlMouseEvent(ClickEvent);
                 deleteButton.RegisterEvent(clickButtonEvent, EVENTID.CLICK);
             }
@@ -197,7 +211,7 @@ namespace OwLib
                 }
                 else if (name == "btnDelete")
                 {
-                    String groupName = (sender as Button).Tag.ToString();
+                    String groupName = (sender as ButtonA).Tag.ToString();
                     int chatGroupsSize = m_chatGroups.Count;
                     for (int i = 0; i < chatGroupsSize; i++)
                     {
@@ -367,7 +381,7 @@ namespace OwLib
                 {
                     String text = newStr.Substring(4);
                     Barrage barrage = new Barrage();
-                    barrage.Font = new FONT("ËÎÌå", 100, true, false, false);
+                    barrage.Font = new FONT("ËÎÌå", 150, true, false, false);
                     barrage.Text = text;
                     barrage.Mode = 1;
                     m_barrageForm.BarrageDiv.AddBarrage(barrage);
@@ -524,6 +538,7 @@ namespace OwLib
             RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
             RadioButtonA rbText = GetRadioButton("rbText");
             RadioButtonA rbFile = GetRadioButton("rbFile");
+            RadioButtonA rbAttention = GetRadioButton("rbAttention");
             String sayText = text;
             if (rbFile.Checked)
             {
@@ -554,6 +569,10 @@ namespace OwLib
             {
                 text = "addtext('" + text + "');";
             }
+            else if (rbAttention.Checked)
+            {
+                text = "how('" + text + "');";
+            }
             int rowsSize = rows.Count;
             bool sendAll = false;
             if (rowsSize > 0)
@@ -561,9 +580,9 @@ namespace OwLib
                 for (int i = 0; i < rowsSize; i++)
                 {
                     GridRow thisRow = rows[i];
-                    String ip = rows[0].GetCell("colP1").GetString();
-                    int port = rows[0].GetCell("colP2").GetInt();
-                    String userID = rows[0].GetCell("colP3").GetString();
+                    String ip = thisRow.GetCell("colP1").GetString();
+                    int port = thisRow.GetCell("colP2").GetInt();
+                    String userID = thisRow.GetCell("colP3").GetString();
                     ChatService chatService = null;
                     String key = ip + ":" + CStr.ConvertIntToStr(port);
                     if (DataCenter.ClientChatServices.ContainsKey(key))
@@ -657,6 +676,7 @@ namespace OwLib
             RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
             RadioButtonA rbText = GetRadioButton("rbText");
             RadioButtonA rbFile = GetRadioButton("rbFile");
+            RadioButtonA rbAttention = GetRadioButton("rbAttention");
             String text = GetTextBox("txtSend").Text;
             String sayText = text;
             if (rbFile.Checked)
@@ -687,6 +707,10 @@ namespace OwLib
             else if (rbText.Checked)
             {
                 text = "addtext('" + text + "');";
+            }
+            else if (rbAttention.Checked)
+            {
+                text = "how('" + text + "');";
             }
             ChatData chatData = new ChatData();
             chatData.m_content = text;

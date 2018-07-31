@@ -10,11 +10,11 @@
         <div name="divGroup">
           <input type="text" name="txtGroupName" location="11,12" size="139,20" />
           <input type="usercontrol" cid="ribbonbutton" name="btnSaveGroup" text="保存为群组" location="159,12" size="81,20" />
-          <table name="gridGroups" text="Grid" location="11,42" size="229,153">
+          <table name="gridGroups" text="Grid" location="11,42" size="229,153" autoellipsis="true">
             <tr>
                <th width="100" visible="false" name="colG1">群ID</th>
               <th width="100" name="colG2">群名</th>
-              <th width="200" name="colG3">人员</th>
+              <th width="100" name="colG3">人员</th>
             </tr>
           </table>
         </div>
@@ -45,7 +45,7 @@
           <input type="radio" name="rbBarrage" text="弹幕" location="178,386" size="59,20" />
           <input type="radio" name="rbScript" text="脚本" location="240,386" size="58,20" />
           <input type="radio" name="rbFile" text="文件" location="299,386" size="56,20" />
-          <input type="usercontrol" cid="ribbonbutton" name="Button" text="发送群消息" location="241,423" size="100,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSendGroup" text="发送群消息" location="241,423" size="100,20" />
           <input type="radio" name="rbAttention" text="提醒" location="361,386" size="59,20" />
         </div>
       </div>

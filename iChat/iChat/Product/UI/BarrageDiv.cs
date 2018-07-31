@@ -264,8 +264,11 @@ namespace OwLib
                     rect.bottom = rect.top + size.cy;
                     brg.Rect = rect;
                     long color = brg.Color;
-                    paint.FillRect(COLOR.ARGB(50, 50, 50), rect);
-                    paint.DrawRect(COLOR.ARGB(212, 158, 45), 1, 0, rect);
+                    if (brg.Mode == 0)
+                    {
+                        paint.FillRect(COLOR.ARGB(50, 50, 50), rect);
+                        paint.DrawRect(COLOR.ARGB(212, 158, 45), 1, 0, rect);
+                    }
                     paint.DrawText(str, color, font, rect);
                 }
             }
