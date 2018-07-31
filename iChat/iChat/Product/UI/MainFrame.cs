@@ -381,7 +381,7 @@ namespace OwLib
                 {
                     String text = newStr.Substring(4);
                     Barrage barrage = new Barrage();
-                    barrage.Font = new FONT("宋体", 120, true, false, false);
+                    barrage.Font = new FONT("宋体", 100, true, false, false);
                     barrage.Text = text;
                     barrage.Mode = 1;
                     m_barrageForm.BarrageDiv.AddBarrage(barrage);
@@ -455,7 +455,23 @@ namespace OwLib
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
             DataCenter.ServerChatService.RegisterListener(DataCenter.ChatRequestID, new ListenerMessageCallBack(ChatMessageCallBack));
             m_gridHosts = GetGrid("gridHosts");
+            m_gridHosts.GridLineColor = COLOR.CONTROLBORDER;
+            GridRowStyle rowStyle = new GridRowStyle();
+            rowStyle.HoveredBackColor = CDraw.PCOLORS_HOVEREDROWCOLOR;
+            rowStyle.SelectedBackColor = CDraw.PCOLORS_SELECTEDROWCOLOR;
+            rowStyle.SelectedForeColor = CDraw.PCOLORS_FORECOLOR4;
+            rowStyle.Font = new FONT("微软雅黑", 12, false, false, false);
+            m_gridHosts.RowStyle = rowStyle;
+            GridRowStyle alternateRowStyle = new GridRowStyle();
+            alternateRowStyle.BackColor = CDraw.PCOLORS_ALTERNATEROWCOLOR;
+            alternateRowStyle.HoveredBackColor = CDraw.PCOLORS_HOVEREDROWCOLOR;
+            alternateRowStyle.SelectedBackColor = CDraw.PCOLORS_SELECTEDROWCOLOR;
+            alternateRowStyle.SelectedForeColor = CDraw.PCOLORS_FORECOLOR4;
+            alternateRowStyle.Font = new FONT("微软雅黑", 12, false, false, false);
+            m_gridHosts.AlternateRowStyle = alternateRowStyle;
             m_gridGroups = GetGrid("gridGroups");
+            m_gridGroups.RowStyle = rowStyle;
+            m_gridGroups.AlternateRowStyle = alternateRowStyle;
             m_gridGroups.RegisterEvent(new GridCellMouseEvent(GridCellClick), EVENTID.GRIDCELLCLICK);
             RegisterEvents(m_mainDiv);
             //全节点服务器
