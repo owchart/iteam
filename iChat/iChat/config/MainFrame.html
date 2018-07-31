@@ -6,32 +6,47 @@
   </head>
   <body>
     <div type="splitlayout" name="divMain" layoutstyle="lefttoright" dock="fill" size="400,400" splitterposition="250,0,250,400">
-      <table name="gridHosts" multiselect="true">
-        <tr>
-          <th name="colP3" text="UserID" width="100" />
-          <th name="colP4" text="UserName" width="100" />
-          <th name="colP5" text="Type" width="50" />
-          <th name="colP1" text="IP" width="130" />
-          <th name="colP2" text="Port" width="60" />
-        </tr>
-      </table>
-      <div>
-        <div type="groupbox" text="UserInfo" location="18,11" size="439,110">
-          <label text="Phone:" location="20,30" />
-          <input name="txtPhone" type="text" location="110,30" width="200" size="200,20" temptext="Input your phone number" temptextforecolor="128,128,128" />
-          <label text="UserName:" location="20,70" />
-          <input name="txtUserName" type="text" location="110,70" width="200" size="200,20" temptext="Input your name" temptextforecolor="128,128,128" />
-          <input type="button" size="69,31" location="325,30" text="Login" name="btnLogin" />
+      <div type="splitlayout" layoutstyle="bottomtotop" size="400,400" splitterposition="0,200,400,200">
+        <div name="divGroup">
+          <input type="text" name="txtGroupName" location="11,12" size="139,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSaveGroup" text="保存为群组" location="159,12" size="81,20" />
+          <table name="gridGroups" text="Grid" location="11,42" size="229,153">
+            <tr>
+               <th width="100" visible="false" name="colG1">群ID</th>
+              <th width="100" name="colG2">群名</th>
+              <th width="200" name="colG3">人员</th>
+            </tr>
+          </table>
         </div>
-        <div type="groupbox" name="GroupBox" text="Chat" location="21,129" size="435,456" tabstop="False">
-          <input type="text" name="txtSend" text="" location="24,279" size="397,91" wordwrap="True" multiline="True" showvscrollbar="True" temptext="Input your words here!" temptextforecolor="128,128,128" />
-          <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" temptext="No messages!" temptextforecolor="128,128,128" />
-          <input type="button" name="btnSend" text="SendSome" location="347,422" size="74,20" />
-          <input type="button" name="btnSendAll" text="SendAll" location="264,422" size="77,20" />
-          <input type="radio" name="rbText" text="Text" location="25,386" size="53,20" checked="True" />
-          <input type="radio" name="rbBarrage" text="Barrage" location="83,386" size="78,20" />
-          <input type="radio" name="rbScript" text="Script" location="168,387" size="68,20" />
-          <input type="radio" name="rbFile" text="File" location="242,387" size="68,20" />
+        <table name="gridHosts" multiselect="true">
+          <tr>
+            <th name="colP3" text="用户ID" width="100" />
+            <th name="colP4" text="用户名" width="100" />
+            <th name="colP5" text="类型" width="50" />
+            <th name="colP1" text="地址" width="130" />
+            <th name="colP2" text="端口" width="60" />
+          </tr>
+        </table>
+      </div>
+      <div>
+        <div type="groupbox" text="用户信息" location="18,11" size="439,110">
+          <label text="手机号码:" location="20,30" size="63,17" />
+          <input name="txtPhone" type="text" location="110,30" width="200" size="200,20" temptext="请输入手机号码" temptextforecolor="128,128,128" />
+          <label text="用户名:" location="20,70" size="68,16" tabstop="False" />
+          <input name="txtUserName" type="text" location="110,70" width="200" size="200,20" temptext="用输入用户名" temptextforecolor="128,128,128" />
+          <input type="button" size="69,31" location="325,30" text="登陆" name="btnLogin" />
+        </div>
+        <div type="groupbox" name="GroupBox" text="聊天区" location="21,129" size="435,456" tabstop="False">
+          <input type="text" name="txtSend" text="" location="24,279" size="397,91" wordwrap="True" multiline="True" showvscrollbar="True" temptext="请在此输入聊天内容" temptextforecolor="128,128,128" />
+          <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" temptext="没有消息" temptextforecolor="128,128,128" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSend" text="发送消息" location="347,423" size="74,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSendAll" text="发送全体消息" location="136,423" size="98,20" />
+          <input type="radio" name="rbText" text="文字" location="115,386" size="59,20" checked="True" />
+          <input type="radio" name="rbBarrage" text="弹幕" location="178,386" size="59,20" />
+          <input type="radio" name="rbScript" text="脚本" location="240,386" size="58,20" />
+          <input type="radio" name="rbFile" text="文件" location="299,386" size="56,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="Button" text="发送群消息" location="241,423" size="100,20" />
+          <input type="radio" name="rbAttention" text="提醒" location="361,386" size="59,20" />
         </div>
       </div>
     </div>

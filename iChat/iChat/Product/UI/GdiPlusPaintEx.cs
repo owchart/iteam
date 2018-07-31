@@ -35,14 +35,7 @@ namespace OwLib
         /// <returns>Êä³öÑÕÉ«</returns>
         public override long GetColor(long dwPenColor)
         {
-            if (CDraw.m_drawType == 0)
-            {
-                return CDraw.GetWhiteColor(dwPenColor);
-            }
-            else
-            {
-                return CDraw.GetBlueColor(dwPenColor);
-            }
+            return CDraw.GetColor(dwPenColor);
         }
 
         /// <summary>

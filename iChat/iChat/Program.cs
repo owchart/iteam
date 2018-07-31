@@ -16,7 +16,6 @@ namespace iChat
             DataCenter.StartService();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            CDraw.m_drawType = 1;
             MainForm mainForm = new MainForm();
             mainForm.LoadXml("MainFrame");
             Application.Run(mainForm);

@@ -4,8 +4,8 @@
 *                                                                             *
 *               Version 1.00  ★★★                                          *
 *                                                                             *
-*               Copyright (c) 2016-2016, iTeam. All rights reserved.      *
-*               Created by Todd 2016/3/21.                                    *
+*               Copyright (c) 2016-2016, Piratecat. All rights reserved.      *
+*               Created by Lord 2016/3/21.                                    *
 *                                                                             *
 ******************************************************************************/
 
@@ -74,21 +74,6 @@ namespace OwLib
         public const long PCOLORS_BACKCOLOR9 = PCOLORS_USERCOLOR - 9;
 
         /// <summary>
-        /// 背景色10
-        /// </summary>
-        public const long PCOLORS_BACKCOLOR10 = PCOLORS_USERCOLOR - 10;
-
-        /// <summary>
-        /// 背景色11
-        /// </summary>
-        public const long PCOLORS_BACKCOLOR11 = PCOLORS_USERCOLOR - 11;
-
-        /// <summary>
-        /// 背景色12
-        /// </summary>
-        public const long PCOLORS_BACKCOLOR12 = PCOLORS_USERCOLOR - 12;
-
-        /// <summary>
         /// 前景色
         /// </summary>
         public const long PCOLORS_FORECOLOR = PCOLORS_USERCOLOR - 100;
@@ -132,16 +117,6 @@ namespace OwLib
         /// 下跌色
         /// </summary>
         public const long PCOLORS_DOWNCOLOR = PCOLORS_USERCOLOR - 302;
-
-        /// <summary>
-        /// 下跌色3
-        /// </summary>
-        public const long PCOLORS_DOWNCOLOR3 = PCOLORS_USERCOLOR - 303;
-
-        /// <summary>
-        /// 不涨不跌色
-        /// </summary>
-        public const long PCOLORS_MIDCOLOR = PCOLORS_USERCOLOR - 304;
 
         /// <summary>
         /// 选中行颜色
@@ -193,7 +168,10 @@ namespace OwLib
         /// </summary>
         public const long PCOLORS_WINDOWCONTENTBACKCOLOR = PCOLORS_USERCOLOR - 506;
 
-        public static int m_drawType = 0;
+        /// <summary>
+        /// 风格
+        /// </summary>
+        public static int m_style = 0;
 
         /// <summary>
         /// 绘制文字
@@ -204,12 +182,11 @@ namespace OwLib
         /// <param name="font">字体</param>
         /// <param name="x">横坐标</param>
         /// <param name="y">纵坐标</param>
-        public static SIZE DrawText(CPaint paint, String text, long dwPenColor, FONT font, int x, int y)
+        public static void DrawText(CPaint paint, String text, long dwPenColor, FONT font, int x, int y)
         {
             SIZE tSize = paint.TextSize(text, font);
             RECT tRect = new RECT(x, y, x + tSize.cx, y + tSize.cy);
             paint.DrawText(text, dwPenColor, font, tRect);
-            return tSize;
         }
 
         /// <summary>
@@ -258,11 +235,37 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 获取关闭按钮的图片
+        /// </summary>
+        /// <returns></returns>
+        public static String GetCloseButtonImage()
+        {
+            return "file='config\\images\\CloseButton.png'";
+        }
+
+        /// <summary>
+        /// 获取颜色
+        /// </summary>
+        /// <param name="color">颜色</param>
+        /// <returns>新的颜色</returns>
+        public static long GetColor(long color)
+        {
+            if (m_style == 0 || m_style == 3)
+            {
+                return GetWhiteColor(color);
+            }
+            else
+            {
+                return GetBlueColor(color);
+            }
+        }
+
+        /// <summary>
         /// 获取蓝色风格的颜色
         /// </summary>
         /// <param name="color">颜色</param>
         /// <returns>新的颜色</returns>
-        public static long GetBlueColor(long dwPenColor)
+        private static long GetBlueColor(long dwPenColor)
         {
             long color = dwPenColor;
             if (color < COLOR.EMPTY)
@@ -326,9 +329,13 @@ namespace OwLib
                 {
                     color = COLOR.ARGB(100, 255, 255, 255);
                 }
+                else if (color == PCOLORS_BACKCOLOR8)
+                {
+                    color = COLOR.ARGB(50, 105, 217);
+                }
                 else if (color == PCOLORS_BACKCOLOR9)
                 {
-                    color = COLOR.ARGB(9, 30, 42);
+                    color = COLOR.ARGB(75, 215, 99);
                 }
                 else if (color == PCOLORS_FORECOLOR)
                 {
@@ -341,6 +348,10 @@ namespace OwLib
                 else if (color == PCOLORS_FORECOLOR3)
                 {
                     color = COLOR.ARGB(100, 255, 255, 255);
+                }
+                else if (color == PCOLORS_FORECOLOR4)
+                {
+                    color = COLOR.ARGB(255, 255, 255);
                 }
                 else if (color == PCOLORS_LINECOLOR)
                 {
@@ -358,25 +369,21 @@ namespace OwLib
                 {
                     color = COLOR.ARGB(80, 255, 80);
                 }
-                else if (color == CDraw.PCOLORS_DOWNCOLOR3)
-                {
-                    color = COLOR.ARGB(100, 0, 255);
-                }
                 else if (color == CDraw.PCOLORS_LINECOLOR3)
                 {
                     color = COLOR.ARGB(5, 255, 255, 255);
                 }
                 else if (color == PCOLORS_SELECTEDROWCOLOR)
                 {
-                    color = COLOR.ARGB(100, 43, 138, 195);
+                    color = COLOR.ARGB(200, 43, 138, 195);
                 }
                 else if (color == PCOLORS_HOVEREDROWCOLOR)
                 {
-                    color = COLOR.ARGB(50, 43, 138, 195);
+                    color = COLOR.ARGB(50, 160, 200);
                 }
                 else if (color == PCOLORS_ALTERNATEROWCOLOR)
                 {
-                    color = COLOR.ARGB(50, 43, 138, 195);
+                    color = COLOR.ARGB(100, 43, 138, 195);
                 }
                 else if (color == CDraw.PCOLORS_WINDOWFORECOLOR)
                 {
@@ -388,11 +395,36 @@ namespace OwLib
                 }
                 else if (color == CDraw.PCOLORS_WINDOWBACKCOLOR2)
                 {
+                    color = COLOR.ARGB(100, 43, 138, 195);
+                }
+                else if (color == CDraw.PCOLORS_WINDOWBACKCOLOR3)
+                {
                     color = COLOR.ARGB(230, 43, 138, 195);
+                }
+                else if (color == CDraw.PCOLORS_WINDOWCROSSLINECOLOR)
+                {
+                    color = COLOR.ARGB(100, 100, 100);
+                }
+                else if (color == CDraw.PCOLORS_WINDOWCROSSLINECOLOR2)
+                {
+                    color = COLOR.ARGB(10, 255, 255, 255);
                 }
                 else if (color == CDraw.PCOLORS_WINDOWCONTENTBACKCOLOR)
                 {
                     color = COLOR.ARGB(235, 9, 30, 42);
+                }
+            }
+            if (m_style == 2 || m_style == 3)
+            {
+                int a = 0, r = 0, g = 0, b = 0;
+                COLOR.ToARGB(null, color, ref a, ref r, ref g, ref b);
+                if (m_style == 2)
+                {
+                    return COLOR.ARGB(a, (r + g + b) / 3, (r + g + b) / 3, (r + g + b) / 3);
+                }
+                else if (m_style == 3)
+                {
+                    return COLOR.ARGB(a, 255 - r, 255 - g, 255 - b);
                 }
             }
             return color;
@@ -403,7 +435,7 @@ namespace OwLib
         /// </summary>
         /// <param name="color">颜色</param>
         /// <returns>新的颜色</returns>
-        public static long GetWhiteColor(long dwPenColor)
+        private static long GetWhiteColor(long dwPenColor)
         {
             long color = dwPenColor;
             if (color < COLOR.EMPTY)
@@ -449,11 +481,11 @@ namespace OwLib
                 }
                 else if (color == PCOLORS_BACKCOLOR3)
                 {
-                    color = COLOR.ARGB(25, 200, 200, 200);
+                    color = COLOR.ARGB(25, 100, 100, 100);
                 }
                 else if (color == PCOLORS_BACKCOLOR4)
                 {
-                    color = COLOR.ARGB(25, 100, 100, 100);
+                    color = COLOR.ARGB(25, 0, 0, 0);
                 }
                 else if (color == PCOLORS_BACKCOLOR5)
                 {
@@ -474,18 +506,6 @@ namespace OwLib
                 else if (color == PCOLORS_BACKCOLOR9)
                 {
                     color = COLOR.ARGB(75, 215, 99);
-                }
-                else if (color == PCOLORS_BACKCOLOR10)
-                {
-                    color = COLOR.ARGB(186, 85, 211);
-                }
-                else if (color == PCOLORS_BACKCOLOR11)
-                {
-                    color = COLOR.ARGB(160, 82, 45);
-                }
-                else if (color == PCOLORS_BACKCOLOR12)
-                {
-                    color = COLOR.ARGB(255, 105, 180);
                 }
                 else if (color == PCOLORS_FORECOLOR)
                 {
@@ -519,10 +539,6 @@ namespace OwLib
                 {
                     color = COLOR.ARGB(80, 255, 80);
                 }
-                else if (color == CDraw.PCOLORS_DOWNCOLOR3)
-                {
-                    color = COLOR.ARGB(100, 0, 255);
-                }
                 else if (color == CDraw.PCOLORS_LINECOLOR3)
                 {
                     color = COLOR.ARGB(5, 255, 255, 255);
@@ -533,11 +549,11 @@ namespace OwLib
                 }
                 else if (color == PCOLORS_HOVEREDROWCOLOR)
                 {
-                    color = COLOR.ARGB(240, 240, 240);
+                    color = COLOR.ARGB(200, 240, 240, 240);
                 }
                 else if (color == PCOLORS_ALTERNATEROWCOLOR)
                 {
-                    color = COLOR.ARGB(245, 245, 245);
+                    color = COLOR.ARGB(200, 245, 245, 245);
                 }
                 else if (color == CDraw.PCOLORS_WINDOWFORECOLOR)
                 {
@@ -568,29 +584,20 @@ namespace OwLib
                     color = COLOR.ARGB(235, 255, 255, 255);
                 }
             }
-            return color;
-        }
-
-        /// <summary>
-        /// 根据价格获取颜色
-        /// </summary>
-        /// <param name="price">价格</param>
-        /// <param name="comparePrice">比较价格</param>
-        /// <returns>颜色</returns>
-        public static long GetPriceColor(double price, double comparePrice)
-        {
-            if (price != 0)
+            if (m_style == 2 || m_style == 3)
             {
-                if (price > comparePrice)
+                int a = 0, r = 0, g = 0, b = 0;
+                COLOR.ToARGB(null, color, ref a, ref r, ref g, ref b);
+                if (m_style == 2)
                 {
-                    return CDraw.PCOLORS_UPCOLOR;
+                    return COLOR.ARGB(a, (r + g + b) / 3, (r + g + b) / 3, (r + g + b) / 3);
                 }
-                else if (price < comparePrice)
+                else if (m_style == 3)
                 {
-                    return CDraw.PCOLORS_DOWNCOLOR;
+                    return COLOR.ARGB(a, 255 - r, 255 - g, 255 - b);
                 }
             }
-            return COLOR.ARGB(255, 255, 255);
+            return color;
         }
         #endregion
     }

@@ -42,7 +42,7 @@ namespace OwLib
             set { m_color = value; }
         }
 
-        private FONT m_font = new FONT("SimSun", 40, true, false, false);
+        private FONT m_font = new FONT("SimSun", 60, true, false, false);
 
         /// <summary>
         /// 获取或设置字体
@@ -119,7 +119,7 @@ namespace OwLib
         /// </summary>
         public BarrageDiv()
         {
-            BackColor = COLOR.ARGB(255, 255, 255);
+            BackColor = COLOR.ARGB(0, 0, 0);
         }
 
         /// <summary>
@@ -178,6 +178,28 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 清除弹幕
+        /// </summary>
+        public void ClearBarrages()
+        {
+            lock (m_barrages)
+            {
+                int barragesSize = m_barrages.Count;
+                for (int i = 0; i < barragesSize; i++)
+                {
+                    Barrage brg = m_barrages[i];
+                    if (brg.Mode == 1)
+                    {
+                        m_barrages.Remove(brg);
+                        barragesSize--;
+                        i--;
+                    }
+                }
+                Invalidate();
+            }
+        }
+
+        /// <summary>
         /// 是否包含坐标
         /// </summary>
         /// <param name="point">坐标</param>
@@ -213,33 +235,6 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 鼠标按下返回发
-        /// </summary>
-        /// <param name="mp">坐标</param>
-        /// <param name="button">按钮</param>
-        /// <param name="clicks">点击次数</param>
-        /// <param name="delta">滚轮值</param>
-        public override void OnMouseDown(POINT mp, MouseButtonsA button, int clicks, int delta)
-        {
-            base.OnMouseDown(mp, button, clicks, delta);
-            lock (m_barrages)
-            {
-                int barragesSize = m_barrages.Count;
-                for (int i = 0; i < barragesSize; i++)
-                {
-                    Barrage brg = m_barrages[i];
-                    if (brg.Mode == 1)
-                    {
-                        m_barrages.Remove(brg);
-                        barragesSize--;
-                        i--;
-                    }
-                }
-                Invalidate();
-            }
-        }
-
-        /// <summary>
         /// 重绘前景方法
         /// </summary>
         /// <param name="paint">绘图对象</param>
@@ -269,6 +264,8 @@ namespace OwLib
                     rect.bottom = rect.top + size.cy;
                     brg.Rect = rect;
                     long color = brg.Color;
+                    paint.FillRect(COLOR.ARGB(50, 50, 50), rect);
+                    paint.DrawRect(COLOR.ARGB(212, 158, 45), 1, 0, rect);
                     paint.DrawText(str, color, font, rect);
                 }
             }

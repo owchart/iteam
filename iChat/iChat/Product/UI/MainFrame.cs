@@ -41,6 +41,16 @@ namespace OwLib
         private List<ChatGroup> m_chatGroups = new List<ChatGroup>();
 
         /// <summary>
+        /// 当前的组名称
+        /// </summary>
+        private String m_currentGroupName = "";
+
+        /// <summary>
+        /// 组列表
+        /// </summary>
+        private GridA m_gridGroups;
+
+        /// <summary>
         /// 主机列表
         /// </summary>
         private GridA m_gridHosts;
@@ -79,6 +89,60 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 绑定所有的群组
+        /// </summary>
+        private void BindGroups()
+        {
+            m_gridGroups.UseAnimation = true;
+            m_gridGroups.ClearRows();
+            m_gridGroups.Update();
+            GridRow firstRow = new GridRow();
+            m_gridGroups.AddRow(firstRow);
+            GridStringCell cell1 = new GridStringCell("");
+            firstRow.AddCell("colG1", cell1);
+            GridStringCell cell2 = new GridStringCell("全部");
+            firstRow.AddCell("colG2", cell2);
+            GridStringCell cell3 = new GridStringCell("");
+            firstRow.AddCell("colG3", cell3);
+            int groupsSize = m_chatGroups.Count;
+            for (int i = 0; i < groupsSize; i++)
+            {
+                ChatGroup chatGroup = m_chatGroups[i];
+                GridRow cRow = new GridRow();
+                m_gridGroups.AddRow(cRow);
+                cRow.AllowEdit = true;
+                GridStringCell cCell1 = new GridStringCell(chatGroup.Name);
+                cRow.AddCell("colG1", cCell1);
+                GridStringCell cCell2 = new GridStringCell(chatGroup.DisplayName);
+                cRow.AddCell("colG2", cCell2);
+                String strIDs = "";
+                int userIDsSize = chatGroup.UserIDs.Count;
+                for (int j = 0; j < userIDsSize; j++)
+                {
+                    strIDs += chatGroup.UserIDs[j];
+                    if (j != userIDsSize - 1)
+                    {
+                        strIDs += ",";
+                    }
+                }
+                GridStringCell cCell3 = new GridStringCell(strIDs);
+                cRow.AddCell("colG3", cCell3);
+                ButtonA deleteButton = new ButtonA();
+                deleteButton.Height = cRow.Height;
+                deleteButton.Name = "btnDelete";
+                deleteButton.Tag = chatGroup.Name;
+                deleteButton.BackColor = COLOR.ARGB(255, 0, 0);
+                deleteButton.Native = m_gridHosts.Native;
+                deleteButton.Text = "删除";
+                cRow.EditButton = deleteButton;
+                ControlMouseEvent clickButtonEvent = new ControlMouseEvent(ClickEvent);
+                deleteButton.RegisterEvent(clickButtonEvent, EVENTID.CLICK);
+            }
+            m_gridGroups.Update();
+            m_gridGroups.Invalidate();
+        }
+
+        /// <summary>
         /// 区块链数据回调
         /// </summary>
         /// <param name="message">消息</param>
@@ -103,230 +167,55 @@ namespace OwLib
                 String name = control.Name;
                 if (name == "btnSendAll")
                 {
-                    byte[] fileBytes = null;
-                    RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
-                    RadioButtonA rbText = GetRadioButton("rbText");
-                    RadioButtonA rbFile = GetRadioButton("rbFile");
-                    String text = GetTextBox("txtSend").Text;
-                    String sayText = text;
-                    if (rbFile.Checked)
-                    {
-                        OpenFileDialog openFileDialog = new OpenFileDialog();
-                        if (openFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
-                            fileBytes = File.ReadAllBytes(openFileDialog.FileName);
-                            sayText = text;
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if (text == null || text.Trim().Length == 0)
-                        {
-                            MessageBox.Show("Please input the content you want send!", "Attention");
-                        }
-                    }
-                    if (rbBarrage.Checked)
-                    {
-                        text = "addbarrage('" + text + "');";
-                    }
-                    else if (rbText.Checked)
-                    {
-                        text = "addtext('" + text + "');";
-                    }
-                    ChatData chatData = new ChatData();
-                    chatData.m_content = text;
-                    if (fileBytes != null)
-                    {
-                        chatData.m_body = fileBytes;
-                        chatData.m_bodyLength = fileBytes.Length;
-                    }
-                    chatData.m_from = DataCenter.UserName;
-                    foreach (ChatService gs in DataCenter.ClientChatServices.Values)
-                    {
-                        if (gs.ToServer && gs.Connected)
-                        {
-                            gs.SendAll(chatData);
-                        }
-                    }
-                    if (rbBarrage.Checked)
-                    {
-                        CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
-                        indicator.Clear();
-                        indicator.Dispose();
-                    }
-                    TextBoxA txtReceive = GetTextBox("txtReceive");
-                    txtReceive.Text += "i say:\r\n" + sayText + "\r\n";
-                    txtReceive.Invalidate();
-                    if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
-                    {
-                        txtReceive.VScrollBar.ScrollToEnd();
-                        txtReceive.Update();
-                        txtReceive.Invalidate();
-                    }
+                    SendAll();
                 }
                 else if (name == "btnSend")
                 {
-                    byte[] fileBytes = null;
-                    String text = GetTextBox("txtSend").Text;
-                    RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
-                    RadioButtonA rbText = GetRadioButton("rbText");
-                    RadioButtonA rbFile = GetRadioButton("rbFile");
-                    String sayText = text;
-                    if (rbFile.Checked)
-                    {
-                        OpenFileDialog openFileDialog = new OpenFileDialog();
-                        if (openFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
-                            fileBytes = File.ReadAllBytes(openFileDialog.FileName);
-                            sayText = text;
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if (text == null || text.Trim().Length == 0)
-                        {
-                            MessageBox.Show("Please input the content you want send!", "Attention");
-                        }
-                    }
-                    if (rbBarrage.Checked)
-                    {
-                        text = "addbarrage('" + text + "');";
-                    }
-                    else if (rbText.Checked)
-                    {
-                        text = "addtext('" + text + "');";
-                    }
                     List<GridRow> selectedRows = m_gridHosts.SelectedRows;
-                    int selectedRowsSize = selectedRows.Count;
-                    bool sendAll = false;
-                    if (selectedRowsSize > 0)
+                    Send(selectedRows);
+                }
+                else if (name == "btnSendGroup")
+                {
+                    List<GridRow> sendRows = new List<GridRow>();
+                    foreach (GridRow row in m_gridHosts.m_rows)
                     {
-                        for (int i = 0; i < selectedRowsSize; i++)
+                        if (row.Visible)
                         {
-                            GridRow firstSelectedRow = selectedRows[i];
-                            String ip = selectedRows[0].GetCell("colP1").GetString();
-                            int port = selectedRows[0].GetCell("colP2").GetInt();
-                            String userID = selectedRows[0].GetCell("colP3").GetString();
-                            ChatService chatService = null;
-                            String key = ip + ":" + CStr.ConvertIntToStr(port);
-                            if (DataCenter.ClientChatServices.ContainsKey(key))
-                            {
-                                chatService = DataCenter.ClientChatServices[key];
-                                if (!chatService.Connected)
-                                {
-                                    int socketID = OwLib.BaseService.Connect(ip, port);
-                                    if (socketID != -1)
-                                    {
-                                        chatService.Connected = true;
-                                        chatService.SocketID = socketID;
-                                        chatService.Enter();
-                                    }
-                                    else
-                                    {
-                                        sendAll = true;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                int socketID = BaseService.Connect(ip, port);
-                                if (socketID != -1)
-                                {
-                                    chatService = new ChatService();
-                                    chatService.SocketID = socketID;
-                                    int type = selectedRows[0].GetCell("colP5").GetInt();
-                                    if (type == 1)
-                                    {
-                                        chatService.ServerIP = ip;
-                                        chatService.ServerPort = port;
-                                        chatService.ToServer = type == 1;
-                                    }
-                                    DataCenter.ClientChatServices[key] = chatService;
-                                    BaseService.AddService(chatService);
-                                }
-                                else
-                                {
-                                    sendAll = true;
-                                }
-                            }
-                            ChatData chatData = new ChatData();
-                            chatData.m_content = text;
-                            if (fileBytes != null)
-                            {
-                                chatData.m_body = fileBytes;
-                                chatData.m_bodyLength = fileBytes.Length;
-                            }
-                            chatData.m_from = DataCenter.UserName;
-                            if (sendAll)
-                            {
-                                chatData.m_to = userID;
-                                foreach (ChatService gs in DataCenter.ClientChatServices.Values)
-                                {
-                                    if (gs.ToServer && gs.Connected)
-                                    {
-                                        gs.SendAll(chatData);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                chatService.Send(chatData);
-                            }
-                            if (rbBarrage.Checked)
-                            {
-                                CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
-                                indicator.Clear();
-                                indicator.Dispose();
-                            }
-                            TextBoxA txtReceive = GetTextBox("txtReceive");
-                            txtReceive.Text += "i say:\r\n" + sayText + "\r\n";
-                            txtReceive.Invalidate();
-                            if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
-                            {
-                                txtReceive.VScrollBar.ScrollToEnd();
-                                txtReceive.Update();
-                                txtReceive.Invalidate();
-                            }
+                            sendRows.Add(row);
                         }
                     }
+                    Send(sendRows);
+                    sendRows.Clear();
                 }
                 else if (name == "btnLogin")
                 {
-                    String phone = GetTextBox("txtPhone").Text.Trim();
-                    String userName = GetTextBox("txtUserName").Text.Trim();
-                    if (phone.Length == 0)
+                    Login();
+                }
+                else if (name == "btnSaveGroup")
+                {
+                    SaveGroup();
+                }
+                else if (name == "btnDelete")
+                {
+                    String groupName = (sender as Button).Tag.ToString();
+                    int chatGroupsSize = m_chatGroups.Count;
+                    for (int i = 0; i < chatGroupsSize; i++)
                     {
-                        MessageBox.Show("Please input your phone!", "Attention");
-                        return;
+                        ChatGroup chatGroup = m_chatGroups[i];
+                        if (chatGroup.Name == groupName)
+                        {
+                            m_chatGroups.Remove(chatGroup);
+                            i--;
+                            chatGroupsSize--;
+                        }
                     }
-                    if (userName.Length == 0)
+                    if (m_currentGroupName == groupName)
                     {
-                        MessageBox.Show("Please input your name!", "Attention");
-                        return;
+                        m_currentGroupName = "";
                     }
-                    DataCenter.UserID = phone;
-                    DataCenter.UserName = userName;
-                    UserCookie cookie = new UserCookie();
-                    cookie.m_key = "USERINFO";
-                    cookie.m_value = phone + "," + userName;
-                    DataCenter.UserCookieService.AddCookie(cookie);
-                    ButtonA btnLogin = GetButton("btnLogin");
-                    btnLogin.Enabled = false;
-                    btnLogin.Text = "Logined";
-                    btnLogin.Invalidate();
-                    Thread thread = new Thread(new ThreadStart(StartConnect));
-                    thread.Start();
-
+                    ChatGroup.SaveGroups(m_chatGroups);
+                    BindGroups();
+                    SetHostGridRowVisible();
                 }
             }
         }
@@ -344,6 +233,24 @@ namespace OwLib
         public override void Exit()
         {
 
+        }
+
+        /// <summary>
+        /// 表格单元格点击事件
+        /// </summary>
+        /// <param name="sender">调用者</param>
+        /// <param name="cell">单元格</param>
+        /// <param name="mp">坐标</param>
+        /// <param name="buttons">按钮</param>
+        /// <param name="clicks">点击次数</param>
+        /// <param name="delta">滚轮值</param>
+        private void GridCellClick(object sender, GridCell cell, POINT mp, MouseButtonsA button, int clicks, int delta)
+        {
+            if (clicks == 2)
+            {
+                m_currentGroupName = cell.Row.GetCell("colG1").GetString();
+                SetHostGridRowVisible();
+            }
         }
 
         /// <summary>
@@ -371,7 +278,6 @@ namespace OwLib
                         List<ChatHostInfo> datas = new List<ChatHostInfo>();
                         int type = 0;
                         ChatService.GetHostInfos(datas, ref type, message.m_body, message.m_bodyLength);
-                        m_gridHosts.BeginUpdate();
                         if (type != 2)
                         {
                             int datasSize = datas.Count;
@@ -405,7 +311,7 @@ namespace OwLib
                                         row.AddCell("colP3", new GridStringCell(hostInfo.m_userID));
                                         row.AddCell("colP4", new GridStringCell(hostInfo.m_userName));
                                     }
-                                    row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "Server" : "Client"));
+                                    row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "服务器" : "客户端"));
                                 }
                             }
                         }
@@ -433,8 +339,7 @@ namespace OwLib
                                 }
                             }
                         }
-                        m_gridHosts.EndUpdate();
-                        m_gridHosts.Invalidate();
+                        SetHostGridRowVisible();
                     }
                     else if (message.m_functionID == ChatService.FUNCTIONID_SEND)
                     {
@@ -483,14 +388,34 @@ namespace OwLib
         }
 
         /// <summary>
-        /// 窗体点击方法
+        /// 登陆
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void form_MouseDown(object sender, MouseEventArgs e)
+        private void Login()
         {
-            Form form = (sender as Label).Parent as Form;
-            form.Close();
+            String phone = GetTextBox("txtPhone").Text.Trim();
+            String userName = GetTextBox("txtUserName").Text.Trim();
+            if (phone.Length == 0)
+            {
+                MessageBox.Show("请输入手机号码!", "提示");
+                return;
+            }
+            if (userName.Length == 0)
+            {
+                MessageBox.Show("请输入姓名!", "提示");
+                return;
+            }
+            DataCenter.UserID = phone;
+            DataCenter.UserName = userName;
+            UserCookie cookie = new UserCookie();
+            cookie.m_key = "USERINFO";
+            cookie.m_value = phone + "," + userName;
+            DataCenter.UserCookieService.AddCookie(cookie);
+            ButtonA btnLogin = GetButton("btnLogin");
+            btnLogin.Enabled = false;
+            btnLogin.Text = "已登陆";
+            btnLogin.Invalidate();
+            Thread thread = new Thread(new ThreadStart(StartConnect));
+            thread.Start();
         }
 
         [DllImport("user32.dll")]
@@ -516,6 +441,8 @@ namespace OwLib
             m_mainDiv.RegisterEvent(new ControlInvokeEvent(Invoke), EVENTID.INVOKE);
             DataCenter.ServerChatService.RegisterListener(DataCenter.ChatRequestID, new ListenerMessageCallBack(ChatMessageCallBack));
             m_gridHosts = GetGrid("gridHosts");
+            m_gridGroups = GetGrid("gridGroups");
+            m_gridGroups.RegisterEvent(new GridCellMouseEvent(GridCellClick), EVENTID.GRIDCELLCLICK);
             RegisterEvents(m_mainDiv);
             //全节点服务器
             if (DataCenter.IsFull)
@@ -536,6 +463,7 @@ namespace OwLib
                 }
             }
             m_chatGroups = ChatGroup.ReadGroups();
+            BindGroups();
         }
 
         /// <summary>
@@ -550,6 +478,293 @@ namespace OwLib
             int width = control.Width, height = control.Height;
             OwLib.RECT drawRect = new OwLib.RECT(0, 0, width, height);
             paint.FillGradientRect(CDraw.PCOLORS_BACKCOLOR, CDraw.PCOLORS_BACKCOLOR2, drawRect, 0, 90);
+        }
+
+        /// <summary>
+        /// 保存为群
+        /// </summary>
+        private void SaveGroup()
+        {
+            String groupName = GetTextBox("txtGroupName").Text;
+            if (groupName == null || groupName.Length == 0)
+            {
+                MessageBox.Show("请输入群的名称!", "提示");
+                return;
+            }
+            List<GridRow> selectedRows = m_gridHosts.SelectedRows;
+            int selectedRowsSize = selectedRows.Count;
+            if (selectedRowsSize > 1)
+            {
+                List<String> userIDs = new List<String>();
+                for (int i = 0; i < selectedRowsSize; i++)
+                {
+                    userIDs.Add(selectedRows[i].GetCell("colP3").GetString());
+                }
+                ChatGroup chatGroup = new ChatGroup();
+                chatGroup.Name = System.Guid.NewGuid().ToString();
+                chatGroup.DisplayName = groupName;
+                chatGroup.UserIDs = userIDs;
+                m_chatGroups.Add(chatGroup);
+                ChatGroup.SaveGroups(m_chatGroups);
+                BindGroups();
+            }
+            else
+            {
+                MessageBox.Show("请选择至少两个人!", "提示");
+            }
+        }
+
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        private void Send(List<GridRow> rows)
+        {
+            byte[] fileBytes = null;
+            String text = GetTextBox("txtSend").Text;
+            RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
+            RadioButtonA rbText = GetRadioButton("rbText");
+            RadioButtonA rbFile = GetRadioButton("rbFile");
+            String sayText = text;
+            if (rbFile.Checked)
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
+                    fileBytes = File.ReadAllBytes(openFileDialog.FileName);
+                    sayText = text;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (text == null || text.Trim().Length == 0)
+                {
+                    MessageBox.Show("请输入你想说的内容!", "提示");
+                }
+            }
+            if (rbBarrage.Checked)
+            {
+                text = "addbarrage('" + text + "');";
+            }
+            else if (rbText.Checked)
+            {
+                text = "addtext('" + text + "');";
+            }
+            int rowsSize = rows.Count;
+            bool sendAll = false;
+            if (rowsSize > 0)
+            {
+                for (int i = 0; i < rowsSize; i++)
+                {
+                    GridRow thisRow = rows[i];
+                    String ip = rows[0].GetCell("colP1").GetString();
+                    int port = rows[0].GetCell("colP2").GetInt();
+                    String userID = rows[0].GetCell("colP3").GetString();
+                    ChatService chatService = null;
+                    String key = ip + ":" + CStr.ConvertIntToStr(port);
+                    if (DataCenter.ClientChatServices.ContainsKey(key))
+                    {
+                        chatService = DataCenter.ClientChatServices[key];
+                        if (!chatService.Connected)
+                        {
+                            int socketID = OwLib.BaseService.Connect(ip, port);
+                            if (socketID != -1)
+                            {
+                                chatService.Connected = true;
+                                chatService.SocketID = socketID;
+                                chatService.Enter();
+                            }
+                            else
+                            {
+                                sendAll = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int socketID = BaseService.Connect(ip, port);
+                        if (socketID != -1)
+                        {
+                            chatService = new ChatService();
+                            chatService.SocketID = socketID;
+                            int type = thisRow.GetCell("colP5").GetInt();
+                            if (type == 1)
+                            {
+                                chatService.ServerIP = ip;
+                                chatService.ServerPort = port;
+                                chatService.ToServer = type == 1;
+                            }
+                            DataCenter.ClientChatServices[key] = chatService;
+                            BaseService.AddService(chatService);
+                        }
+                        else
+                        {
+                            sendAll = true;
+                        }
+                    }
+                    ChatData chatData = new ChatData();
+                    chatData.m_content = text;
+                    if (fileBytes != null)
+                    {
+                        chatData.m_body = fileBytes;
+                        chatData.m_bodyLength = fileBytes.Length;
+                    }
+                    chatData.m_from = DataCenter.UserName;
+                    if (sendAll)
+                    {
+                        chatData.m_to = userID;
+                        foreach (ChatService gs in DataCenter.ClientChatServices.Values)
+                        {
+                            if (gs.ToServer && gs.Connected)
+                            {
+                                gs.SendAll(chatData);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        chatService.Send(chatData);
+                    }
+                    if (rbBarrage.Checked)
+                    {
+                        CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                        indicator.Clear();
+                        indicator.Dispose();
+                    }
+                    TextBoxA txtReceive = GetTextBox("txtReceive");
+                    txtReceive.Text += "我说:\r\n" + sayText + "\r\n";
+                    txtReceive.Invalidate();
+                    if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
+                    {
+                        txtReceive.VScrollBar.ScrollToEnd();
+                        txtReceive.Update();
+                        txtReceive.Invalidate();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 发送全体消息
+        /// </summary>
+        private void SendAll()
+        {
+            byte[] fileBytes = null;
+            RadioButtonA rbBarrage = GetRadioButton("rbBarrage");
+            RadioButtonA rbText = GetRadioButton("rbText");
+            RadioButtonA rbFile = GetRadioButton("rbFile");
+            String text = GetTextBox("txtSend").Text;
+            String sayText = text;
+            if (rbFile.Checked)
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    text = "sendfile('" + new FileInfo(openFileDialog.FileName).Name + "');";
+                    fileBytes = File.ReadAllBytes(openFileDialog.FileName);
+                    sayText = text;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (text == null || text.Trim().Length == 0)
+                {
+                    MessageBox.Show("请输入你想说的内容!", "提示");
+                }
+            }
+            if (rbBarrage.Checked)
+            {
+                text = "addbarrage('" + text + "');";
+            }
+            else if (rbText.Checked)
+            {
+                text = "addtext('" + text + "');";
+            }
+            ChatData chatData = new ChatData();
+            chatData.m_content = text;
+            if (fileBytes != null)
+            {
+                chatData.m_body = fileBytes;
+                chatData.m_bodyLength = fileBytes.Length;
+            }
+            chatData.m_from = DataCenter.UserName;
+            foreach (ChatService gs in DataCenter.ClientChatServices.Values)
+            {
+                if (gs.ToServer && gs.Connected)
+                {
+                    gs.SendAll(chatData);
+                }
+            }
+            if (rbBarrage.Checked)
+            {
+                CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
+                indicator.Clear();
+                indicator.Dispose();
+            }
+            TextBoxA txtReceive = GetTextBox("txtReceive");
+            txtReceive.Text += "我说:\r\n" + sayText + "\r\n";
+            txtReceive.Invalidate();
+            if (txtReceive.VScrollBar != null && txtReceive.VScrollBar.Visible)
+            {
+                txtReceive.VScrollBar.ScrollToEnd();
+                txtReceive.Update();
+                txtReceive.Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// 设置主机表格可见
+        /// </summary>
+        private void SetHostGridRowVisible()
+        {
+            ChatGroup chatGroup = null;
+            int chatGroupsSize = m_chatGroups.Count;
+            for (int i = 0; i < chatGroupsSize; i++)
+            {
+                if (m_chatGroups[i].Name == m_currentGroupName)
+                {
+                    chatGroup = m_chatGroups[i];
+                    break;
+                }
+            }
+            List<GridRow> rows = m_gridHosts.m_rows;
+            int rowsSize = rows.Count;
+            for (int i = 0; i < rowsSize; i++)
+            {
+                GridRow row = rows[i];
+                if (m_currentGroupName == "")
+                {
+                    row.Visible = true;
+                }
+                else
+                {
+                    if (chatGroup != null)
+                    {
+                        if (chatGroup.UserIDs.Contains(row.GetCell("colP3").GetString()))
+                        {
+                            row.Visible = true;
+                        }
+                        else
+                        {
+                            row.Visible = false;
+                        }
+                    }
+                    else
+                    {
+                        row.Visible = true;
+                    }
+                }
+            }
+            m_gridHosts.Update();
+            m_gridHosts.Invalidate();
         }
 
         /// 注册事件
@@ -579,7 +794,7 @@ namespace OwLib
         {
             List<ChatHostInfo> hostInfos = new List<ChatHostInfo>();
             UserCookie cookie = new UserCookie();
-            if (DataCenter.UserCookieService.GetCookie("FULLSERVERS2", ref cookie) > 0)
+            if (DataCenter.UserCookieService.GetCookie("DANDANSERVERS", ref cookie) > 0)
             {
                 hostInfos = JsonConvert.DeserializeObject<List<ChatHostInfo>>(cookie.m_value);
             }

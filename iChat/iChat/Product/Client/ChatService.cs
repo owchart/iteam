@@ -295,7 +295,7 @@ namespace OwLib
                                 String newServer = hostInfo.m_ip + ":" + CStr.ConvertIntToStr(hostInfo.m_serverPort);
                                 List<ChatHostInfo> hostInfos = new List<ChatHostInfo>();
                                 UserCookie cookie = new UserCookie();
-                                if (DataCenter.UserCookieService.GetCookie("FULLSERVERS2", ref cookie) > 0)
+                                if (DataCenter.UserCookieService.GetCookie("DANDANSERVERS", ref cookie) > 0)
                                 {
                                     hostInfos = JsonConvert.DeserializeObject<List<ChatHostInfo>>(cookie.m_value);
                                 }
@@ -314,7 +314,7 @@ namespace OwLib
                                 if (!contains)
                                 {
                                     hostInfos.Add(hostInfo);
-                                    cookie.m_key = "FULLSERVERS2";
+                                    cookie.m_key = "DANDANSERVERS";
                                     cookie.m_value = JsonConvert.SerializeObject(hostInfos);
                                     DataCenter.UserCookieService.AddCookie(cookie);
                                 }
