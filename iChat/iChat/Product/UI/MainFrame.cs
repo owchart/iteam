@@ -381,7 +381,7 @@ namespace OwLib
                 {
                     String text = newStr.Substring(4);
                     Barrage barrage = new Barrage();
-                    barrage.Font = new FONT("宋体", 150, true, false, false);
+                    barrage.Font = new FONT("宋体", 120, true, false, false);
                     barrage.Text = text;
                     barrage.Mode = 1;
                     m_barrageForm.BarrageDiv.AddBarrage(barrage);
@@ -571,7 +571,7 @@ namespace OwLib
             }
             else if (rbAttention.Checked)
             {
-                text = "how('" + text + "');";
+                text = "how('" + GetTextBox("txtUserName").Text + "说:" + text + "');";
             }
             int rowsSize = rows.Count;
             bool sendAll = false;
@@ -710,7 +710,7 @@ namespace OwLib
             }
             else if (rbAttention.Checked)
             {
-                text = "how('" + text + "');";
+                text = "how('" + GetTextBox("txtUserName").Text + "说:" + text + "');";
             }
             ChatData chatData = new ChatData();
             chatData.m_content = text;
