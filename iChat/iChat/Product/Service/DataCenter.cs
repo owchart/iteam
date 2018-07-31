@@ -191,12 +191,11 @@ namespace OwLib
             Random rd = new Random();
             m_isFull = m_hostInfo.m_isFull;
             String[] servers = new String[] { };
-            //if (!m_isFull)
-            //{
-            //    m_serverChatService.Port = rd.Next(10000, 20000);
-            //}
             OwLibSV.BaseService.AddService(m_serverChatService);
-            OwLibSV.BaseService.StartServer(0, m_serverChatService.Port);
+            if (m_isFull)
+            {
+                OwLibSV.BaseService.StartServer(0, m_serverChatService.Port);
+            }
         }
         #endregion
     }

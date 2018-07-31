@@ -12,7 +12,7 @@
           <input type="usercontrol" cid="ribbonbutton" name="btnSaveGroup" text="保存为群组" location="159,12" size="81,20" />
           <table name="gridGroups" text="Grid" location="11,42" size="229,153" autoellipsis="true">
             <tr>
-               <th width="100" visible="false" name="colG1">群ID</th>
+              <th width="100" visible="false" name="colG1">群ID</th>
               <th width="100" name="colG2">群名</th>
               <th width="100" name="colG3">人员</th>
             </tr>
@@ -29,23 +29,25 @@
         </table>
       </div>
       <div>
-        <div type="groupbox" text="用户信息" location="18,11" size="439,110">
-          <label text="手机号码:" location="20,30" size="63,17" />
-          <input name="txtPhone" type="text" location="110,30" width="200" size="200,20" temptext="请输入手机号码" temptextforecolor="128,128,128" />
-          <label text="用户名:" location="20,70" size="68,16" tabstop="False" />
-          <input name="txtUserName" type="text" location="110,70" width="200" size="200,20" temptext="用输入用户名" temptextforecolor="128,128,128" />
-          <input type="button" size="69,31" location="325,30" text="登陆" name="btnLogin" />
+        <div type="groupbox" text="用户信息" location="18,11" size="439,124">
+          <label text="手机号码:" location="20,25" size="63,17" />
+          <input name="txtPhone" type="text" location="110,25" width="200" size="200,20" temptext="请输入手机号码" temptextforecolor="128,128,128" />
+          <label text="用户名:" location="20,60" size="50,17" tabstop="False" />
+          <input name="txtUserName" type="text" location="110,59" width="200" size="200,20" temptext="用输入用户名" temptextforecolor="128,128,128" />
+          <input type="button" size="69,31" location="325,27" text="登陆" name="btnLogin" />
+          <label name="Label" text="私密端口：" location="20,94" size="100,20" />
+          <input type="text" name="txtPort" location="110,91" size="111,20" text="16666" />
         </div>
-        <div type="groupbox" name="GroupBox" text="聊天区" location="21,129" size="435,456" tabstop="False">
+        <div type="groupbox" name="GroupBox" text="聊天区" location="21,142" size="435,443" tabstop="False">
           <input type="text" name="txtSend" text="" location="24,279" size="397,91" wordwrap="True" multiline="True" showvscrollbar="True" temptext="请在此输入聊天内容" temptextforecolor="128,128,128" />
           <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" temptext="没有消息" temptextforecolor="128,128,128" />
-          <input type="usercontrol" cid="ribbonbutton" name="btnSend" text="发送消息" location="347,423" size="74,20" />
-          <input type="usercontrol" cid="ribbonbutton" name="btnSendAll" text="发送全体消息" location="136,423" size="98,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSend" text="发送消息" location="347,413" size="74,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSendAll" text="发送全体消息" location="136,413" size="98,20" />
           <input type="radio" name="rbText" text="文字" location="115,386" size="59,20" checked="True" />
           <input type="radio" name="rbBarrage" text="弹幕" location="178,386" size="59,20" />
           <input type="radio" name="rbScript" text="脚本" location="240,386" size="58,20" />
           <input type="radio" name="rbFile" text="文件" location="299,386" size="56,20" />
-          <input type="usercontrol" cid="ribbonbutton" name="btnSendGroup" text="发送群消息" location="241,423" size="100,20" />
+          <input type="usercontrol" cid="ribbonbutton" name="btnSendGroup" text="发送群消息" location="241,413" size="100,20" />
           <input type="radio" name="rbAttention" text="提醒" location="361,386" size="59,20" />
         </div>
       </div>

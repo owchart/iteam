@@ -428,6 +428,8 @@ namespace OwLib
             btnLogin.Enabled = false;
             btnLogin.Text = "ÒÑµÇÂ½";
             btnLogin.Invalidate();
+            DataCenter.ServerChatService.Port = CStr.ConvertStrToInt(GetTextBox("txtPort").Text);
+            OwLibSV.BaseService.StartServer(0, DataCenter.ServerChatService.Port);
             Thread thread = new Thread(new ThreadStart(StartConnect));
             thread.Start();
         }
