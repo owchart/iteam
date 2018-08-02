@@ -39,15 +39,10 @@ namespace OwLib
             get { return 9999; }
         }
 
-        private static Dictionary<String, OwLib.ChatService> m_clientChatServices = new Dictionary<String, OwLib.ChatService>();
-
         /// <summary>
-        /// 获取客户端的区块链服务
+        /// 客户端的区块链服务
         /// </summary>
-        public static Dictionary<String, OwLib.ChatService> ClientChatServices
-        {
-            get { return DataCenter.m_clientChatServices; }
-        }
+        private static Dictionary<String, OwLib.ChatService> m_clientChatServices = new Dictionary<String, OwLib.ChatService>();
 
         private static HostInfo m_hostInfo = new HostInfo();
 
@@ -125,6 +120,19 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 添加客户端聊天服务
+        /// </summary>
+        /// <param name="key">键</param>
+        /// <param name="clientChatService">聊天服务</param>
+        public static void AddClientChatService(String key, OwLib.ChatService clientChatService)
+        {
+            lock (m_clientChatServices)
+            {
+                m_clientChatServices[key] = clientChatService;
+            }
+        }
+
+        /// <summary>
         /// 获取程序路径
         /// </summary>
         /// <returns>程序路径</returns>
@@ -134,12 +142,70 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 获取客户端聊天服务
+        /// </summary>
+        /// <param name="key">键</param>
+        /// <returns>聊天服务</returns>
+        public static OwLib.ChatService GetClientChatService(String key)
+        {
+            OwLib.ChatService clientChatService = null;
+            lock (m_clientChatServices)
+            {
+                if (m_clientChatServices.ContainsKey(key))
+                {
+                    clientChatService = m_clientChatServices[key];
+                }
+            }
+            return clientChatService;
+        }
+
+        /// <summary>
+        /// 获取客户端聊天服务的数量
+        /// </summary>
+        /// <returns>数量</returns>
+        public static int GetClientChatServiceSize()
+        {
+            int size = 0;
+            lock (m_clientChatServices)
+            {
+                size = m_clientChatServices.Count;
+            }
+            return size;
+        }
+
+        /// <summary>
         /// 获取用户目录
         /// </summary>
         /// <returns>用户目录</returns>
         public static String GetUserPath()
         {
             return Application.StartupPath;
+        }
+
+        /// <summary>
+        /// 移除客户端聊天服务
+        /// </summary>
+        /// <param name="key">键</param>
+        public static void RemoveClientChatService(String key)
+        {
+            if (m_clientChatServices.ContainsKey(key))
+            {
+                m_clientChatServices.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// 发送所有
+        /// </summary>
+        public static void SendAll(ChatData chatData)
+        {
+            foreach (ChatService gs in m_clientChatServices.Values)
+            {
+                if (gs.ToServer && gs.Connected)
+                {
+                    gs.SendAll(chatData);
+                }
+            }
         }
 
         /// <summary>

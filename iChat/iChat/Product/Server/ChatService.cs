@@ -288,14 +288,14 @@ namespace OwLibSV
             sendSocketIDs.Clear();
             if (DataCenter.IsFull && type == 1)
             {
-                if (DataCenter.ClientChatServices.Count == 0)
+                if (DataCenter.GetClientChatServiceSize() == 0)
                 {
                     int socketID = OwLib.BaseService.Connect(ip, port);
                     if (socketID != -1)
                     {
                         String key = ip + ":" + CStr.ConvertIntToStr(port);
                         OwLib.ChatService clientChatService = new OwLib.ChatService();
-                        DataCenter.ClientChatServices[key] = clientChatService;
+                        DataCenter.AddClientChatService(key, clientChatService);
                         OwLib.BaseService.AddService(clientChatService);
                         clientChatService.ToServer = true;
                         clientChatService.Connected = true;

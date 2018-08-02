@@ -381,7 +381,7 @@ namespace OwLib
                 {
                     String text = newStr.Substring(4);
                     Barrage barrage = new Barrage();
-                    barrage.Font = new FONT("ËÎÌו", 100, true, false, false);
+                    barrage.Font = new FONT("ËÎÌו", 72, true, false, false);
                     barrage.Text = text;
                     barrage.Mode = 1;
                     m_barrageForm.BarrageDiv.AddBarrage(barrage);
@@ -603,9 +603,9 @@ namespace OwLib
                     String userID = thisRow.GetCell("colP3").GetString();
                     ChatService chatService = null;
                     String key = ip + ":" + CStr.ConvertIntToStr(port);
-                    if (DataCenter.ClientChatServices.ContainsKey(key))
+                    chatService = DataCenter.GetClientChatService(key);
+                    if (chatService != null)
                     {
-                        chatService = DataCenter.ClientChatServices[key];
                         if (!chatService.Connected)
                         {
                             int socketID = OwLib.BaseService.Connect(ip, port);
@@ -635,7 +635,7 @@ namespace OwLib
                                 chatService.ServerPort = port;
                                 chatService.ToServer = type == 1;
                             }
-                            DataCenter.ClientChatServices[key] = chatService;
+                            DataCenter.AddClientChatService(key, chatService);
                             BaseService.AddService(chatService);
                         }
                         else
@@ -654,13 +654,7 @@ namespace OwLib
                     if (sendAll)
                     {
                         chatData.m_to = userID;
-                        foreach (ChatService gs in DataCenter.ClientChatServices.Values)
-                        {
-                            if (gs.ToServer && gs.Connected)
-                            {
-                                gs.SendAll(chatData);
-                            }
-                        }
+                        DataCenter.SendAll(chatData);
                     }
                     else
                     {
@@ -738,13 +732,7 @@ namespace OwLib
                 chatData.m_bodyLength = fileBytes.Length;
             }
             chatData.m_from = DataCenter.UserName;
-            foreach (ChatService gs in DataCenter.ClientChatServices.Values)
-            {
-                if (gs.ToServer && gs.Connected)
-                {
-                    gs.SendAll(chatData);
-                }
-            }
+            DataCenter.SendAll(chatData);
             if (rbBarrage.Checked)
             {
                 CIndicator indicator = CFunctionEx.CreateIndicator("", text, this);
@@ -875,7 +863,7 @@ namespace OwLib
                         }
                         Console.WriteLine(hostInfo.m_ip);
                         OwLib.ChatService clientChatService = new OwLib.ChatService();
-                        DataCenter.ClientChatServices[key] = clientChatService;
+                        DataCenter.AddClientChatService(key, clientChatService);
                         OwLib.BaseService.AddService(clientChatService);
                         clientChatService.ToServer = true;
                         clientChatService.Connected = true;

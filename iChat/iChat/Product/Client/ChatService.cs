@@ -319,13 +319,14 @@ namespace OwLib
                                     DataCenter.UserCookieService.AddCookie(cookie);
                                 }
                                 String key2 = hostInfo.ToString();
-                                if (!DataCenter.ClientChatServices.ContainsKey(key2))
+                                OwLib.ChatService findChatService = DataCenter.GetClientChatService(key2);
+                                if (findChatService == null)
                                 {
                                     int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
                                     if (socketID != -1)
                                     {
                                         OwLib.ChatService clientChatService = new OwLib.ChatService();
-                                        DataCenter.ClientChatServices[key2] = clientChatService;
+                                        DataCenter.AddClientChatService(key2, clientChatService);
                                         OwLib.BaseService.AddService(clientChatService);
                                         clientChatService.Connected = true;
                                         clientChatService.ToServer = type == 1;
@@ -336,7 +337,7 @@ namespace OwLib
                                 }
                                 else
                                 {
-                                    OwLib.ChatService clientChatService = DataCenter.ClientChatServices[key2];
+                                    OwLib.ChatService clientChatService = DataCenter.GetClientChatService(key2);
                                     if (!clientChatService.Connected)
                                     {
                                         int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
