@@ -42,7 +42,7 @@ namespace OwLib
             set { m_color = value; }
         }
 
-        private FONT m_font = new FONT("SimSun", 60, true, false, false);
+        private FONT m_font = new FONT("微软雅黑", 40, true, false, false);
 
         /// <summary>
         /// 获取或设置字体
@@ -246,6 +246,7 @@ namespace OwLib
             lock (m_barrages)
             {
                 int barragesSize = m_barrages.Count;
+                int top = 0;
                 for (int i = 0; i < barragesSize; i++)
                 {
                     Barrage brg = m_barrages[i];
@@ -256,20 +257,20 @@ namespace OwLib
                     int mode = brg.Mode;
                     if (mode == 1)
                     {
-                        rect.left = (width - size.cx) / 2;
-                        rect.top = (height - size.cy) / 2;
-
+                        rect.left = 0;
+                        rect.top = top + (50 - size.cy) / 2;
                     }
                     rect.right = rect.left + size.cx;
                     rect.bottom = rect.top + size.cy;
                     brg.Rect = rect;
                     long color = brg.Color;
-                    if (brg.Mode == 0)
-                    {
-                        paint.FillRect(COLOR.ARGB(50, 50, 50), rect);
-                        paint.DrawRect(COLOR.ARGB(212, 158, 45), 1, 0, rect);
-                    }
+                    paint.FillRect(COLOR.ARGB(50, 50, 50), rect);
+                    paint.DrawRect(COLOR.ARGB(212, 158, 45), 1, 0, rect);
                     paint.DrawText(str, color, font, rect);
+                    if (mode == 1)
+                    {
+                        top += 50;
+                    }
                 }
             }
         }

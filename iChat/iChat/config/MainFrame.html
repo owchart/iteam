@@ -29,7 +29,7 @@
         </table>
       </div>
       <div>
-        <div type="groupbox" text="用户信息" location="18,11" size="439,124">
+        <div type="groupbox" name="divLogin" text="用户信息" location="18,35" size="439,124">
           <label text="手机号码:" location="20,25" size="63,17" />
           <input name="txtPhone" type="text" location="110,25" width="200" size="200,20" temptext="请输入手机号码" temptextforecolor="128,128,128" />
           <label text="用户名:" location="20,60" size="50,17" tabstop="False" />
@@ -38,7 +38,7 @@
           <label name="Label" text="私密端口：" location="20,94" size="100,20" />
           <input type="text" name="txtPort" location="110,91" size="111,20" text="16666" />
         </div>
-        <div type="groupbox" name="GroupBox" text="聊天区" location="21,142" size="435,443" tabstop="False">
+        <div type="groupbox" name="divChat" text="聊天区" location="19,169" size="437,441" tabstop="False">
           <input type="text" name="txtSend" text="" location="24,279" size="397,91" wordwrap="True" multiline="True" showvscrollbar="True" temptext="请在此输入聊天内容" temptextforecolor="128,128,128" />
           <input type="text" name="txtReceive" text="" location="23,24" size="396,236" wordwrap="True" multiline="True" showvscrollbar="True" temptext="没有消息" temptextforecolor="128,128,128" />
           <input type="usercontrol" cid="ribbonbutton" name="btnSend" text="发送消息" location="347,413" size="74,20" />
@@ -50,6 +50,7 @@
           <input type="usercontrol" cid="ribbonbutton" name="btnSendGroup" text="发送群消息" location="241,413" size="100,20" />
           <input type="radio" name="rbAttention" text="提醒" location="361,386" size="59,20" />
         </div>
+        <label name="lblState" text="用户未登陆" location="15,14" size="73,17" font="Arial,12" haspopupmenu="True" />
       </div>
     </div>
   </body>

@@ -80,7 +80,7 @@ namespace OwLib
             m_xml.Native.ResourcePath = DataCenter.GetAppPath() + "\\config";
             m_xml.Load(DataCenter.GetAppPath() + "\\config\\" + name+ ".html");
             m_host.ToolTip = new ToolTipA();
-            m_host.ToolTip.Font = new FONT("SimSun", 20, true, false, false);
+            m_host.ToolTip.Font = new FONT("Î¢ÈíÑÅºÚ", 20, true, false, false);
             (m_host.ToolTip as ToolTipA).InitialDelay = 250;
             m_native.Update();
             Invalidate();

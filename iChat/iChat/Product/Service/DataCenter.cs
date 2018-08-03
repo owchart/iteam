@@ -32,6 +32,11 @@ namespace OwLib
     {
         #region Lord 2016/3/10
         /// <summary>
+        /// 最大服务器连接数
+        /// </summary>
+        public const int MAXSERVERS = 6;
+
+        /// <summary>
         /// 区块链通用请求ID
         /// </summary>
         public static int ChatRequestID
@@ -133,6 +138,57 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 重连方法
+        /// </summary>
+        public static void CheckConnects()
+        {
+            while (IsAppAlive())
+            {
+                int count = 0;
+                lock (m_clientChatServices)
+                {
+                    foreach (ChatService gs in m_clientChatServices.Values)
+                    {
+                        if (gs.ToServer)
+                        {
+                            if (gs.Connected)
+                            {
+                                count++;
+                            }
+                        }
+                    }
+                }
+                if (count < MAXSERVERS)
+                {
+                    lock (m_clientChatServices)
+                    {
+                        foreach (ChatService gs in m_clientChatServices.Values)
+                        {
+                            if (gs.ToServer)
+                            {
+                                if (!gs.Connected)
+                                {
+                                    count++;
+                                    int socketID = BaseService.Connect(gs.ServerIP, gs.ServerPort);
+                                    if (socketID != -1)
+                                    {
+                                        gs.SocketID = socketID;
+                                        gs.Connected = true;
+                                        if (count >= MAXSERVERS)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Thread.Sleep(5000);
+            }
+        }
+
+        /// <summary>
         /// 获取程序路径
         /// </summary>
         /// <returns>程序路径</returns>
@@ -183,14 +239,26 @@ namespace OwLib
         }
 
         /// <summary>
+        /// 程序是否存活
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsAppAlive()
+        {
+            return true;
+        }
+
+        /// <summary>
         /// 移除客户端聊天服务
         /// </summary>
         /// <param name="key">键</param>
         public static void RemoveClientChatService(String key)
         {
-            if (m_clientChatServices.ContainsKey(key))
+            lock (m_clientChatServices)
             {
-                m_clientChatServices.Remove(key);
+                if (m_clientChatServices.ContainsKey(key))
+                {
+                    m_clientChatServices.Remove(key);
+                }
             }
         }
 
@@ -199,11 +267,20 @@ namespace OwLib
         /// </summary>
         public static void SendAll(ChatData chatData)
         {
-            foreach (ChatService gs in m_clientChatServices.Values)
+            lock (m_clientChatServices)
             {
-                if (gs.ToServer && gs.Connected)
+                int count = 0;
+                foreach (ChatService gs in m_clientChatServices.Values)
                 {
-                    gs.SendAll(chatData);
+                    if (gs.ToServer && gs.Connected)
+                    {
+                        gs.SendAll(chatData);
+                        count++;
+                        if (count >= MAXSERVERS)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
         }

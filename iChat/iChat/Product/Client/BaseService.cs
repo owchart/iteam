@@ -237,7 +237,10 @@ namespace OwLib
                 m_writeLogCallBack = new WriteLogCallBack(WriteServerLog);
                 RegisterLog(m_writeLogCallBack);
             }
-            m_services.Add(service);
+            lock (m_services)
+            {
+                m_services.Add(service);
+            }
         }
 
         /// <summary>
@@ -271,7 +274,12 @@ namespace OwLib
                     int head = br.ReadInt();
                     //int groupID = br.ReadShort();
                     int serviceID = br.ReadShort();
-                    foreach (BaseService service in m_services)
+                    BaseService[] services = null;
+                    lock (m_services)
+                    {
+                        services = m_services.ToArray();
+                    }
+                    foreach (BaseService service in services)
                     {
                         if (service.SocketID == localSID)
                         {
@@ -306,18 +314,6 @@ namespace OwLib
         public static int GetRequestID()
         {
             return m_requestID++;
-        }
-
-        /// <summary>
-        /// 获取所有的服务
-        /// </summary>
-        /// <param name="services">服务列表</param>
-        public static void GetServices(List<BaseService> services)
-        {
-            foreach (BaseService service in m_services)
-            {
-                services.Add(service);
-            }
         }
 
         /// <summary>
@@ -639,7 +635,12 @@ namespace OwLib
         {
             if (state == 1)
             {
-                foreach (BaseService service in m_services)
+                BaseService[] services = null;
+                lock (m_services)
+                {
+                    services = m_services.ToArray();
+                }
+                foreach (BaseService service in services)
                 {
                     if (service.SocketID == socketID)
                     {
@@ -649,7 +650,12 @@ namespace OwLib
             }
             else if (state == 2 || state == 3)
             {
-                foreach (BaseService service in m_services)
+                BaseService[] services = null;
+                lock (m_services)
+                {
+                    services = m_services.ToArray();
+                }
+                foreach (BaseService service in services)
                 {
                     if (service.SocketID == socketID)
                     {

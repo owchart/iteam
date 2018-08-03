@@ -55,6 +55,11 @@ namespace OwLib
         /// </summary>
         private GridA m_gridHosts;
 
+        /// <summary>
+        /// 是否正在登陆
+        /// </summary>
+        private bool m_isLogining;
+
         private BarrageForm m_barrageForm;
 
         /// <summary>
@@ -311,21 +316,38 @@ namespace OwLib
                                 }
                                 if (!containsRow)
                                 {
-                                    GridRow row = new GridRow();
-                                    m_gridHosts.AddRow(row);
-                                    row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
-                                    row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
                                     if (hostInfo.m_type == 1)
                                     {
-                                        row.AddCell("colP3", new GridStringCell("--"));
-                                        row.AddCell("colP4", new GridStringCell("--"));
+                                        String key = hostInfo.m_ip + ":" + hostInfo.m_serverPort;
+                                        ChatService newServerService = DataCenter.GetClientChatService(key);
+                                        if (newServerService == null)
+                                        {
+                                            newServerService = new ChatService();
+                                            newServerService.ServerIP = hostInfo.m_ip;
+                                            newServerService.ServerPort = hostInfo.m_serverPort;
+                                            newServerService.ToServer = true;
+                                            BaseService.AddService(newServerService);
+                                            DataCenter.AddClientChatService(key, newServerService);
+                                        }
                                     }
                                     else
                                     {
-                                        row.AddCell("colP3", new GridStringCell(hostInfo.m_userID));
-                                        row.AddCell("colP4", new GridStringCell(hostInfo.m_userName));
+                                        GridRow row = new GridRow();
+                                        m_gridHosts.AddRow(row);
+                                        row.AddCell("colP1", new GridStringCell(hostInfo.m_ip));
+                                        row.AddCell("colP2", new GridIntCell(hostInfo.m_serverPort));
+                                        if (hostInfo.m_type == 1)
+                                        {
+                                            row.AddCell("colP3", new GridStringCell("--"));
+                                            row.AddCell("colP4", new GridStringCell("--"));
+                                        }
+                                        else
+                                        {
+                                            row.AddCell("colP3", new GridStringCell(hostInfo.m_userID));
+                                            row.AddCell("colP4", new GridStringCell(hostInfo.m_userName));
+                                        }
+                                        row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "服务器" : "客户端"));
                                     }
-                                    row.AddCell("colP5", new GridStringCell(hostInfo.m_type == 1 ? "服务器" : "客户端"));
                                 }
                             }
                         }
@@ -381,7 +403,6 @@ namespace OwLib
                 {
                     String text = newStr.Substring(4);
                     Barrage barrage = new Barrage();
-                    barrage.Font = new FONT("宋体", 72, true, false, false);
                     barrage.Text = text;
                     barrage.Mode = 1;
                     m_barrageForm.BarrageDiv.AddBarrage(barrage);
@@ -408,6 +429,7 @@ namespace OwLib
         {
             String phone = GetTextBox("txtPhone").Text.Trim();
             String userName = GetTextBox("txtUserName").Text.Trim();
+            String myPort = GetTextBox("txtPort").Text.Trim();
             if (phone.Length == 0)
             {
                 MessageBox.Show("请输入手机号码!", "提示");
@@ -418,20 +440,27 @@ namespace OwLib
                 MessageBox.Show("请输入姓名!", "提示");
                 return;
             }
+            m_isLogining = true;
             DataCenter.UserID = phone;
             DataCenter.UserName = userName;
             UserCookie cookie = new UserCookie();
-            cookie.m_key = "USERINFO";
-            cookie.m_value = phone + "," + userName;
+            cookie.m_key = "USERINFO2";
+            cookie.m_value = phone + "," + userName + "," + myPort;
             DataCenter.UserCookieService.AddCookie(cookie);
-            ButtonA btnLogin = GetButton("btnLogin");
-            btnLogin.Enabled = false;
-            btnLogin.Text = "已登陆";
-            btnLogin.Invalidate();
             DataCenter.ServerChatService.Port = CStr.ConvertStrToInt(GetTextBox("txtPort").Text);
             OwLibSV.BaseService.StartServer(0, DataCenter.ServerChatService.Port);
             Thread thread = new Thread(new ThreadStart(StartConnect));
             thread.Start();
+            while (m_isLogining)
+            {
+                Thread.Sleep(100);
+            }
+            GetLabel("lblState").Visible = true;
+            GetLabel("lblState").Text = "用户" + userName + "已登陆";
+            GetDiv("divLogin").Visible = false;
+            GetDiv("divChat").Top = 30;
+            Native.Update();
+            Native.Invalidate(); 
         }
 
         [DllImport("user32.dll")]
@@ -487,11 +516,12 @@ namespace OwLib
             else
             {
                 UserCookie cookie = new UserCookie();
-                if (DataCenter.UserCookieService.GetCookie("USERINFO", ref cookie) > 0)
+                if (DataCenter.UserCookieService.GetCookie("USERINFO2", ref cookie) > 0)
                 {
                     String[] strs = cookie.m_value.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                     GetTextBox("txtPhone").Text = strs[0];
                     GetTextBox("txtUserName").Text = strs[1];
+                    GetTextBox("txtPort").Text = strs[2];
                 }
             }
             m_chatGroups = ChatGroup.ReadGroups();
@@ -623,24 +653,28 @@ namespace OwLib
                     }
                     else
                     {
-                        int socketID = BaseService.Connect(ip, port);
-                        if (socketID != -1)
+                        int type = thisRow.GetCell("colP5").GetInt();
+                        if (type == 1)
                         {
-                            chatService = new ChatService();
-                            chatService.SocketID = socketID;
-                            int type = thisRow.GetCell("colP5").GetInt();
-                            if (type == 1)
-                            {
-                                chatService.ServerIP = ip;
-                                chatService.ServerPort = port;
-                                chatService.ToServer = type == 1;
-                            }
-                            DataCenter.AddClientChatService(key, chatService);
-                            BaseService.AddService(chatService);
+                            continue;
                         }
                         else
                         {
-                            sendAll = true;
+                            int socketID = OwLib.BaseService.Connect(ip, port);
+                            if (socketID != -1)
+                            {
+                                chatService = new ChatService();
+                                chatService.SocketID = socketID;
+                                chatService.ServerIP = ip;
+                                chatService.ServerPort = port;
+                                chatService.ToServer = false;
+                                DataCenter.AddClientChatService(key, chatService);
+                                BaseService.AddService(chatService);
+                            }
+                            else
+                            {
+                                sendAll = true;
+                            }
                         }
                     }
                     ChatData chatData = new ChatData();
@@ -849,7 +883,7 @@ namespace OwLib
             if (hostInfosSize > 0)
             {
                 Random rd = new Random();
-                while (true)
+                while (DataCenter.IsAppAlive())
                 {
                     ChatHostInfo hostInfo = hostInfos[rd.Next(0, hostInfosSize)];
                     int socketID = OwLib.BaseService.Connect(hostInfo.m_ip, hostInfo.m_serverPort);
@@ -873,6 +907,8 @@ namespace OwLib
                         }
                         clientChatService.SocketID = socketID;
                         clientChatService.Enter();
+                        m_isLogining = false;
+                        DataCenter.CheckConnects();
                         return;
                     }
                 }
