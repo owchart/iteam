@@ -619,7 +619,7 @@ namespace OwLib
             }
             else if (rbAttention.Checked)
             {
-                text = "how('" + GetTextBox("txtUserName").Text + "Ëµ:" + text + "');";
+                text = "how('" + GetTextBox("txtUserName").Text + "º°:" + text + "');";
             }
             int rowsSize = rows.Count;
             bool sendAll = false;
@@ -756,7 +756,7 @@ namespace OwLib
             }
             else if (rbAttention.Checked)
             {
-                text = "how('" + GetTextBox("txtUserName").Text + "Ëµ:" + text + "');";
+                text = "how('" + GetTextBox("txtUserName").Text + "º°:" + text + "');";
             }
             ChatData chatData = new ChatData();
             chatData.m_content = text;

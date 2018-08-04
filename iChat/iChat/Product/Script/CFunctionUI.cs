@@ -181,7 +181,7 @@ namespace OwLib
             {
                 chatData = m_indicator.Tag as ChatData;
             }
-            String newText = chatData.m_from + " say:\r\n" + text + "\r\n";
+            String newText = chatData.m_from + " ˵:\r\n" + text + "\r\n";
             (DataCenter.MainUI as MainFrame).MainDiv.BeginInvoke(newText);
             return 0;
         }
