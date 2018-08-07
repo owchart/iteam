@@ -555,31 +555,31 @@ namespace OwLib
                                 m_oldQuestions.Remove(question);
                                 int random = m_rd.Next(0, 5);
                                 //加减运算
-                                if (random == 0)
-                                {
-                                    QuestionInfo addSubQuestion = new QuestionInfo();
-                                    addSubQuestion.m_type = "算数";
-                                    addSubQuestion.m_interval = 30;
-                                    int count = 5;
-                                    String num1 = GetRandomNum(count);
-                                    String num2 = GetRandomNum(count);
-                                    String op = "+";
-                                    addSubQuestion.m_title = num1 + op + num2;
-                                    addSubQuestion.m_answer = (CStr.ConvertStrToInt(num1) + CStr.ConvertStrToInt(num2)).ToString();
-                                    m_questions.Add(addSubQuestion);
-                                }
-                                //记忆考察
-                                else if (m_mode != 5 && random == 1)
-                                {
-                                    QuestionInfo memoryQuestion = new QuestionInfo();
-                                    memoryQuestion.m_type = "记忆";
-                                    memoryQuestion.m_interval = 30;
-                                    int count = 11;
-                                    String num = GetRandomNum(count);
-                                    memoryQuestion.m_title = num;
-                                    memoryQuestion.m_answer = num;
-                                    m_questions.Add(memoryQuestion);
-                                }
+                                //if (random == 0)
+                                //{
+                                //    QuestionInfo addSubQuestion = new QuestionInfo();
+                                //    addSubQuestion.m_type = "算数";
+                                //    addSubQuestion.m_interval = 30;
+                                //    int count = 5;
+                                //    String num1 = GetRandomNum(count);
+                                //    String num2 = GetRandomNum(count);
+                                //    String op = "+";
+                                //    addSubQuestion.m_title = num1 + op + num2;
+                                //    addSubQuestion.m_answer = (CStr.ConvertStrToInt(num1) + CStr.ConvertStrToInt(num2)).ToString();
+                                //    m_questions.Add(addSubQuestion);
+                                //}
+                                ////记忆考察
+                                //else if (m_mode != 5 && random == 1)
+                                //{
+                                //    QuestionInfo memoryQuestion = new QuestionInfo();
+                                //    memoryQuestion.m_type = "记忆";
+                                //    memoryQuestion.m_interval = 30;
+                                //    int count = 11;
+                                //    String num = GetRandomNum(count);
+                                //    memoryQuestion.m_title = num;
+                                //    memoryQuestion.m_answer = num;
+                                //    m_questions.Add(memoryQuestion);
+                                //}
                                 //if (m_questions.Count >= 6 && coding)
                                 //{
                                 //    QuestionInfo codingQuestion = new QuestionInfo();
