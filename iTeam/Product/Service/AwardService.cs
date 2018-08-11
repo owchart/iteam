@@ -22,19 +22,9 @@ namespace OwLib
     public class AwardInfo : BaseInfo
     {
         /// <summary>
-        /// 内容
-        /// </summary>
-        public String m_content = "";
-
-        /// <summary>
         /// 工号
         /// </summary>
-        public String m_jobID = "";
-
-        /// <summary>
-        /// 级别
-        /// </summary>
-        public String m_level = "";
+        public String m_name = "";
 
         /// <summary>
         /// 标题

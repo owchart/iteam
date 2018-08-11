@@ -72,7 +72,7 @@ namespace OwLib
         public void AddAwardToGrid(AwardInfo award)
         {
             StaffService staffService = DataCenter.StaffService;
-            StaffInfo staff = staffService.GetStaff(award.m_jobID);
+            StaffInfo staff = staffService.GetStaff(award.m_name);
             List<GridRow> rows = m_gridAwards.m_rows;
             int rowsSize = rows.Count;
             for (int i = 0; i < rowsSize; i++)
@@ -80,32 +80,23 @@ namespace OwLib
                 GridRow findRow = rows[i];
                 if (findRow.GetCell("colP1").GetString() == award.m_ID)
                 {
-                    findRow.GetCell("colP2").SetString(award.m_jobID);
-                    findRow.GetCell("colP3").SetString(staffService.GetNamesByJobsID(award.m_jobID));
-                    findRow.GetCell("colP4").SetString(award.m_level);
-                    findRow.GetCell("colP5").SetString(award.m_title);
-                    findRow.GetCell("colP6").SetString(award.m_content);
-                    findRow.GetCell("colP7").SetString(award.m_createDate);
+                    findRow.GetCell("colP2").SetString(award.m_name);
+                    findRow.GetCell("colP3").SetString(award.m_title);
+                    findRow.GetCell("colP4").SetString(award.m_createDate);
                     return;
                 }
             }
             GridRow row = new GridRow();
             m_gridAwards.AddRow(row);
             row.AddCell("colP1", new GridStringCell(award.m_ID));
-            row.AddCell("colP2", new GridStringCell(award.m_jobID));
-            row.AddCell("colP3", new GridStringCell(staffService.GetNamesByJobsID(award.m_jobID)));
-            row.AddCell("colP4", new GridStringCell(award.m_level));
-            row.AddCell("colP5", new GridStringCell(award.m_title));
-            row.AddCell("colP6", new GridStringCell(award.m_content));
-            row.AddCell("colP7", new GridStringCell(award.m_createDate));
+            row.AddCell("colP2", new GridStringCell(award.m_name));
+            row.AddCell("colP3", new GridStringCell(award.m_title));
+            row.AddCell("colP4", new GridStringCell(award.m_createDate));
             List<GridCell> cells = row.GetCells();
             int cellsSize = cells.Count;
             for (int j = 1; j < cellsSize; j++)
             {
-                if (cells[j].Column.Name != "colP2" && cells[j].Column.Name != "colP3")
-                {
-                    cells[j].AllowEdit = true;
-                }
+                cells[j].AllowEdit = true;
             }
         }
 
@@ -150,348 +141,9 @@ namespace OwLib
                 {
                     Delete();
                 }
-                else if (name == "btnExportExcel")
+                else if (name == "btnImport")
                 {
-                    ExportToExcel("荣誉榜.xls", m_gridAwards);
-                }
-                else if (name == "btnExportTxt")
-                {
-                    ExportToTxt("荣誉榜.txt", m_gridAwards);
-                }
-                else if (name == "btnExportExcel2")
-                {
-                    DataTable dataTable = new DataTable();
-                    dataTable.Columns.Add(new DataColumn("姓名"));
-                    String[] otherColumns = new String[] { "次数", "积分", "产品", "研发", "奖励", "管理", "运维" };
-                    foreach (String otherColumn in otherColumns)
-                    {
-                        DataColumn dataColumn = new DataColumn(otherColumn);
-                        dataColumn.DataType = typeof(int);
-                        dataTable.Columns.Add(dataColumn);
-                    }
-                    Dictionary<String, int> timesDic = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic1 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic2 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic3 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic4 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic5 = new Dictionary<String, int>();
-                    List<GridRow> rows = m_gridAwards.m_rows;
-                    int rowsSize = rows.Count;
-                    List<String> namesList = new List<String>();
-                    for (int i = 0; i < rowsSize; i++)
-                    {
-                        GridRow row = rows[i];
-                        String[] names = row.GetCell("colP3").GetString().Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-                        int namesSize = names.Length;
-                        for (int j = 0; j < namesSize; j++)
-                        {
-                            String myName = names[j];
-                            namesList.Add(myName);
-                            if (timesDic.ContainsKey(myName))
-                            {
-                                timesDic[myName] = timesDic[myName] + 1;
-                            }
-                            else
-                            {
-                                timesDic[myName] = 1;
-                            }
-                            int score = 1;
-                            String level = row.GetCell("colP4").GetString();
-                            score = CStr.ConvertStrToInt(level.Substring(2));
-                            if (level.IndexOf("产品") != -1)
-                            {
-                                if (otherDic1.ContainsKey(myName))
-                                {
-                                    otherDic1[myName] = otherDic1[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic1[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("研发") != -1)
-                            {
-                                if (otherDic2.ContainsKey(myName))
-                                {
-                                    otherDic2[myName] = otherDic2[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic2[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("奖励") != -1)
-                            {
-                                if (otherDic3.ContainsKey(myName))
-                                {
-                                    otherDic3[myName] = otherDic3[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic3[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("管理") != -1)
-                            {
-                                if (otherDic4.ContainsKey(myName))
-                                {
-                                    otherDic4[myName] = otherDic4[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic4[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("运维") != -1)
-                            {
-                                if (otherDic5.ContainsKey(myName))
-                                {
-                                    otherDic5[myName] = otherDic5[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic5[myName] = score;
-                                }
-                            }
-                        }
-                    }
-                    List<AwardData> awardDatas = new List<AwardData>();
-                    foreach (String key in timesDic.Keys)
-                    {
-                        AwardData data = new AwardData();
-                        data.m_name = key;
-                        data.m_times = timesDic[key];
-                        if (otherDic1.ContainsKey(key))
-                        {
-                            data.m_other1 = otherDic1[key];
-                            if (data.m_other1 < 0)
-                            {
-                                data.m_other1 = 0;
-                            }
-                        }
-                        if (otherDic2.ContainsKey(key))
-                        {
-                            data.m_other2 = otherDic2[key];
-                            if (data.m_other2 < 0)
-                            {
-                                data.m_other2 = 0;
-                            }
-                        }
-                        if (otherDic3.ContainsKey(key))
-                        {
-                            data.m_other3 = otherDic3[key];
-                            if (data.m_other3 < 0)
-                            {
-                                data.m_other3 = 0;
-                            }
-                        }
-                        if (otherDic4.ContainsKey(key))
-                        {
-                            data.m_other4 = otherDic4[key];
-                            if (data.m_other4 < 0)
-                            {
-                                data.m_other4 = 0;
-                            }
-                        }
-                        if (otherDic5.ContainsKey(key))
-                        {
-                            data.m_other5 = otherDic5[key];
-                            if (data.m_other5 < 0)
-                            {
-                                data.m_other5 = 0;
-                            }
-                        }
-                        data.m_scores = data.m_other1 * 2 + data.m_other2 * 3 + data.m_other3 + data.m_other4 * 3 + data.m_other5;
-                        awardDatas.Add(data);
-                    }
-                    awardDatas.Sort(new AwardDataCompare());
-                    foreach (AwardData aData in awardDatas)
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        aData.m_scores = aData.m_other1 + aData.m_other2 + aData.m_other3 + aData.m_other4 + aData.m_other5;
-                        dataRow[0] = aData.m_name;
-                        dataRow[1] = aData.m_times;
-                        dataRow[2] = aData.m_scores;
-                        dataRow[3] = aData.m_other1;
-                        dataRow[4] = aData.m_other2;
-                        dataRow[5] = aData.m_other3;
-                        dataRow[6] = aData.m_other4;
-                        dataRow[7] = aData.m_other5;
-                        dataTable.Rows.Add(dataRow);
-                    }
-                    DataCenter.ExportService.ExportDataTableToExcel(dataTable, "荣誉总排名.xlsx");
-                    dataTable.Dispose();
-                }
-                else if (name == "btnExportExcel3")
-                {
-                    Dictionary<String, int> timesDic = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic1 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic2 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic3 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic4 = new Dictionary<String, int>();
-                    Dictionary<String, int> otherDic5 = new Dictionary<String, int>();
-                    List<GridRow> rows = m_gridAwards.m_rows;
-                    int rowsSize = rows.Count;
-                    List<String> namesList = new List<String>();
-                    StringBuilder sb2 = new StringBuilder();
-                    for (int i = 0; i < rowsSize; i++)
-                    {
-                        GridRow row = rows[i];
-                        sb2.Append(row.GetCell("colP3").GetString() + "|" + row.GetCell("colP4").GetString() + "\r\n");
-                        String[] names = row.GetCell("colP3").GetString().Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-                        int namesSize = names.Length;
-                        for (int j = 0; j < namesSize; j++)
-                        {
-                            String myName = names[j];
-                            namesList.Add(myName);
-                            if (timesDic.ContainsKey(myName))
-                            {
-                                timesDic[myName] = timesDic[myName] + 1;
-                            }
-                            else
-                            {
-                                timesDic[myName] = 1;
-                            }
-                            int score = 1;
-                            String level = row.GetCell("colP4").GetString();
-                            score = CStr.ConvertStrToInt(level.Substring(2));
-                            if (level.IndexOf("产品") != -1)
-                            {
-                                if (otherDic1.ContainsKey(myName))
-                                {
-                                    otherDic1[myName] = otherDic1[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic1[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("研发") != -1)
-                            {
-                                if (otherDic2.ContainsKey(myName))
-                                {
-                                    otherDic2[myName] = otherDic2[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic2[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("奖励") != -1)
-                            {
-                                if (otherDic3.ContainsKey(myName))
-                                {
-                                    otherDic3[myName] = otherDic3[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic3[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("管理") != -1)
-                            {
-                                if (otherDic4.ContainsKey(myName))
-                                {
-                                    otherDic4[myName] = otherDic4[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic4[myName] = score;
-                                }
-                            }
-                            else if (level.IndexOf("运维") != -1)
-                            {
-                                if (otherDic5.ContainsKey(myName))
-                                {
-                                    otherDic5[myName] = otherDic5[myName] + score;
-                                }
-                                else
-                                {
-                                    otherDic5[myName] = score;
-                                }
-                            }
-                        }
-                    }
-                    List<AwardData> awardDatas = new List<AwardData>();
-                    foreach (String key in timesDic.Keys)
-                    {
-                        AwardData data = new AwardData();
-                        data.m_name = key;
-                        data.m_times = timesDic[key];
-                        if (otherDic1.ContainsKey(key))
-                        {
-                            data.m_other1 = otherDic1[key];
-                            if (data.m_other1 < 0)
-                            {
-                                data.m_other1 = 0;
-                            }
-                        }
-                        if (otherDic2.ContainsKey(key))
-                        {
-                            data.m_other2 = otherDic2[key];
-                            if (data.m_other2 < 0)
-                            {
-                                data.m_other2 = 0;
-                            }
-                        }
-                        if (otherDic3.ContainsKey(key))
-                        {
-                            data.m_other3 = otherDic3[key];
-                            if (data.m_other3 < 0)
-                            {
-                                data.m_other3 = 0;
-                            }
-                        }
-                        if (otherDic4.ContainsKey(key))
-                        {
-                            data.m_other4 = otherDic4[key];
-                            if (data.m_other4 < 0)
-                            {
-                                data.m_other4 = 0;
-                            }
-                        }
-                        if (otherDic5.ContainsKey(key))
-                        {
-                            data.m_other5 = otherDic5[key];
-                            if (data.m_other5 < 0)
-                            {
-                                data.m_other5 = 0;
-                            }
-                        }
-                        data.m_scores = data.m_other1 * 2 + data.m_other2 * 3 + data.m_other3 + data.m_other4 * 3 + data.m_other5;
-                        awardDatas.Add(data);
-                    }
-                    awardDatas.Sort(new AwardDataCompare());
-                    int queue = 0, lastScore = 0; ;
-                    StringBuilder sb = new StringBuilder();
-                    int awardDatasSize = awardDatas.Count;
-                    String strRank = "高阶督军,督军,将军,中将,勇士,百夫长,军团士兵,血卫士,石头守卫,一等军士长,高阶军士,中士,步兵,新兵";
-                    String[] strRanks = strRank.Split(new String[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < awardDatasSize; i++)
-                    {
-                        AwardData aData = awardDatas[i];
-                        aData.m_scores = aData.m_other1 + aData.m_other2 + aData.m_other3 + aData.m_other4 + aData.m_other5;
-                        if (lastScore != aData.m_scores)
-                        {
-                            queue = i + 1;
-                        }
-                        sb.Append(queue.ToString() + ",");
-                        int aLevel = GetLevel(aData.m_scores);
-                        sb.Append(aData.m_name + " (" + strRanks[strRanks.Length - aLevel] + "),");
-                        sb.Append(aData.m_scores.ToString() + ",");
-                        sb.Append(aData.m_other1.ToString() + ",");
-                        sb.Append(aData.m_other2.ToString() + ",");
-                        sb.Append(aData.m_other3.ToString() + ",");
-                        sb.Append(aData.m_other4.ToString() + ",");
-                        sb.Append(aData.m_other5.ToString());
-                        if (i != awardDatasSize - 1)
-                        {
-                            sb.Append(";");
-                        }
-                        lastScore = aData.m_scores;
-                    }
-                    File.WriteAllText(DataCenter.GetAppPath() + "\\Rank2.txt", sb2.ToString());
-                    DataCenter.ExportService.ExportHtmlToTxt("Rank.txt", sb.ToString());
+                    Import();
                 }
             }
         }
@@ -653,24 +305,52 @@ namespace OwLib
                 AwardInfo award = DataCenter.AwardService.GetAward(cell.Row.GetCell("colP1").GetString());
                 String colName = cell.Column.Name;
                 String cellValue = cell.GetString();
-                if (colName == "colP4")
+                if (colName == "colP2")
                 {
-                    award.m_level = cellValue;
+                    award.m_name = cellValue;
                 }
-                else if (colName == "colP5")
+                else if (colName == "colP3")
                 {
                     award.m_title = cellValue;
                 }
-                else if (colName == "colP6")
-                {
-                    award.m_content = cellValue;
-                }
-                else if (colName == "colP7")
+                else if (colName == "colP4")
                 {
                     award.m_createDate = cellValue;
                 }
                 DataCenter.AwardService.Save(award);
             }
+        }
+
+        /// <summary>
+        /// 导入
+        /// </summary>
+        private void Import()
+        {
+            String copyData = Clipboard.GetText();
+            String[] strs = copyData.Split(new String[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            DataCenter.AwardService.m_awards.Clear();
+            int strsSize = strs.Length;
+            for (int i = 0; i < strsSize; i++)
+            {
+                String[] strs2 = strs[i].Split(new String[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                if (strs2.Length >= 3)
+                {
+                    try
+                    {
+                        AwardInfo awardInfo = new AwardInfo();
+                        awardInfo.m_ID = System.Guid.NewGuid().ToString();
+                        awardInfo.m_createDate = strs2[strs2.Length - 1];
+                        awardInfo.m_name = strs2[strs2.Length - 2];
+                        awardInfo.m_title = strs2[0];
+                        DataCenter.AwardService.m_awards.Add(awardInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+            }
+            DataCenter.AwardService.Save();
+            Console.WriteLine("1");
         }
 
         /// 注册事件
@@ -740,7 +420,7 @@ namespace OwLib
                 {
                     String newJobID = m_selectStaffWindow.GetSelectedJobIDs();
                     AwardInfo award = awardService.GetAward(selectedRows[0].GetCell("colP1").GetString());
-                    award.m_jobID = newJobID;
+                    award.m_name = newJobID;
                     awardService.Save(award);
                     AddAwardToGrid(award);
                 }
