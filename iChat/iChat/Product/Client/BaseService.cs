@@ -272,7 +272,7 @@ namespace OwLib
                     Binary br = new Binary();
                     br.Write(bytes, len);
                     int head = br.ReadInt();
-                    //int groupID = br.ReadShort();
+                    int groupID = br.ReadShort();
                     int serviceID = br.ReadShort();
                     BaseService[] services = null;
                     lock (m_services)
@@ -365,7 +365,7 @@ namespace OwLib
         /// <param name="len">长度</param>
         public virtual void OnCallBack(Binary br, int socketID, int localSID, int len)
         {
-            int headSize = sizeof(int) * 4 + sizeof(short) * 2 + sizeof(byte) * 2;
+            int headSize = sizeof(int) * 4 + sizeof(short) * 3 + sizeof(byte) * 2;
             int functionID = br.ReadShort();
             int sessionID = br.ReadInt();
             int requestID = br.ReadInt();
@@ -502,9 +502,9 @@ namespace OwLib
                     bodyLength = body.Length;
                 }
             }
-            int len = sizeof(int) * 4 + bodyLength + sizeof(short) * 2 + sizeof(byte) * 2;
+            int len = sizeof(int) * 4 + bodyLength + sizeof(short) * 3 + sizeof(byte) * 2;
             bw.WriteInt(len);
-            //bw.WriteShort((short)message.m_groupID);
+            bw.WriteShort((short)message.m_groupID);
             bw.WriteShort((short)message.m_serviceID);
             bw.WriteShort((short)message.m_functionID);
             bw.WriteInt(message.m_sessionID);
