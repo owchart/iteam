@@ -820,7 +820,7 @@ namespace OwLib
                         CFileA.Read(dir + "\\datetime", ref content);
                         dt = Convert.ToDateTime(content);
                     }
-                    DateTime writeTime = DateTime.Now.AddDays(-6);
+                    DateTime writeTime = DateTime.Now.AddDays(-10);
                     String writeStr = "";
                     for (int i = messageCount; i >= 1; i--)
                     {
