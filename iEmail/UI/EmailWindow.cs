@@ -137,10 +137,17 @@ namespace OwLib
                     int hour = CStr.ConvertStrToInt(date.Substring(8, 2));
                     int minute = CStr.ConvertStrToInt(date.Substring(10, 2));
                     int second = CStr.ConvertStrToInt(date.Substring(12, 2));
+                    DateTime dt = new DateTime(year, month, day, hour, minute, second);
                     int idx = content.IndexOf(identifier1);
                     int nidx = content.IndexOf("</td>", idx + 1);
-                    DateTime dt = new DateTime(year, month, day, hour, minute, second);
                     String name = content.Substring(idx + identifier1.Length, nidx - idx - identifier1.Length);
+                    if (name.Length > 100)
+                    {
+                        identifier1 = "<td style=\"font-size:18px;padding-left:0;line-height:40px\">";
+                        idx = content.IndexOf(identifier1);
+                        nidx = content.IndexOf("</td>", idx + 1);
+                        name = content.Substring(idx + identifier1.Length, nidx - idx - identifier1.Length);
+                    }
                     String identifier2 = "</small><font style=\"font-weight:bold\">";
                     int idx2 = content.IndexOf(identifier2, nidx);
                     int nidx2 = content.IndexOf("</font>", idx2 + 1);
@@ -650,7 +657,7 @@ namespace OwLib
                                     sb.AppendLine("状态:" + cell.Row.GetCell("colP8").GetString());
                                     sb.AppendLine("手机:" + strPhone);
                                     sb.AppendLine("邮箱:" + strEmail);
-                                    SendMail("MingYue.Xu@gaiafintech.com", "请通知面试", sb.ToString());
+                                    SendMail("luhui.li@gaiafintech.com", "请通知面试", sb.ToString());
                                     String sendDir = DataCenter.GetAppPath() + "\\send";
                                     String filePath = sendDir + "\\" + strPhone;
                                     CFileA.Write(filePath, "");
