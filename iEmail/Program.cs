@@ -16,7 +16,7 @@ namespace iEmail
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             MainForm mainForm = new MainForm();
-            mainForm.LoadXml("EmailWindow");
+            mainForm.LoadXml("EmailWindow2");
             Application.Run(mainForm);
         }
     }

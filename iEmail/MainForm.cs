@@ -64,7 +64,10 @@ namespace OwLib
             if (name == "EmailWindow")
             {
                 m_xml = new EmailWindow();
-                timer.Stop();
+            }
+            else if (name == "EmailWindow2")
+            {
+                m_xml = new EmailWindow2();
             }
             m_xml.CreateNative();
             m_native = m_xml.Native;
@@ -86,7 +89,14 @@ namespace OwLib
             Invalidate();
             LoginForm loginForm = new LoginForm();
             loginForm.ShowDialog();
-            (m_xml as EmailWindow).EmailInfo = loginForm.EmailInfo;
+            if (name == "EmailWindow")
+            {
+                (m_xml as EmailWindow).EmailInfo = loginForm.EmailInfo;
+            }
+            else if (name == "EmailWindow2")
+            {
+                (m_xml as EmailWindow2).EmailInfo = loginForm.EmailInfo;
+            }
             m_xml.LoadData();
         }
 
@@ -165,20 +175,6 @@ namespace OwLib
                     m_xml.ResetScaleSize(GetClientSize());
                     Invalidate();
                 }
-            }
-        }
-
-        /// <summary>
-        /// 秒表事件
-        /// </summary>
-        /// <param name="sender">调用者</param>
-        /// <param name="e">参数</param>
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            m_tick--;
-            if (m_tick <= 0)
-            {
-                Environment.Exit(0);
             }
         }
 

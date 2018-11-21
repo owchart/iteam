@@ -111,9 +111,13 @@
     <Compile Include="UI\WindowButton.cs" />
     <Compile Include="UI\WindowEx.cs" />
     <Compile Include="UI\WinHostEx.cs" />
+    <Compile Include="UI\EmailWindow2.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config\EmailWindow.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\EmailWindow2.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="oldwhite_old.ico" />
